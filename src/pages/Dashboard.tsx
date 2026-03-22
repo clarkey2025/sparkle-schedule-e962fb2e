@@ -301,7 +301,7 @@ export default function Dashboard() {
                         <span className={cn(
                           "text-[10px] font-bold uppercase tracking-widest",
                           groupKey === "today" ? "text-primary" : "text-muted-foreground"
-                        )}>{GROUP_LABELS[groupKey]}</span>
+                        )}>{getGroupLabel(groupKey)}</span>
                       </div>
                       <span className="font-mono text-[10px] text-muted-foreground">
                         {items.length} job{items.length !== 1 ? "s" : ""} · {formatCurrency(groupTotal)}
