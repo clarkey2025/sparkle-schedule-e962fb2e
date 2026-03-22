@@ -4,7 +4,7 @@ import { formatCurrency } from "@/lib/helpers";
 import PageHeader from "@/components/PageHeader";
 import {
   CalendarCheck, CheckCircle2, PoundSterling, Circle,
-  MapPin, Clock, Navigation, ChevronRight, Route,
+  MapPin, Clock, Navigation, ChevronRight, Route, Maximize2, X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import "leaflet/dist/leaflet.css";
@@ -158,35 +158,6 @@ function RouteMap({
       markersRef.current.push(marker);
     });
 
-    // Mid-leg duration labels
-    legs.forEach((leg, i) => {
-      const a = stops[i], b = stops[i + 1];
-      if (!a || !b) return;
-      const midLat = (a.lat + b.lat) / 2;
-      const midLng = (a.lng + b.lng) / 2;
-      const label = L.marker([midLat, midLng], {
-        icon: L.divIcon({
-          className: "",
-          iconSize: [72, 22],
-          iconAnchor: [36, 11],
-          html: `<div style="
-            background:rgba(18,18,18,0.88);
-            border:1px solid rgba(255,28,233,0.3);
-            border-radius:99px;
-            padding:2px 8px;
-            font-size:10px;font-weight:600;font-family:monospace;
-            color:rgba(255,255,255,0.75);
-            white-space:nowrap;
-            box-shadow:0 2px 6px rgba(0,0,0,0.5);
-            backdrop-filter:blur(4px);
-          ">${fmtDuration(leg.duration)} · ${fmtDist(leg.distance)}</div>`,
-        }),
-        interactive: false,
-        zIndexOffset: -500,
-      }).addTo(map);
-      legLabelsRef.current.push(label);
-    });
-
     // Fit bounds on first load
     if (!didFit.current && stops.length > 0) {
       const bounds = L.latLngBounds(stops.map((s) => [s.lat, s.lng]));
@@ -237,6 +208,7 @@ export default function AgendaPage() {
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const [routeData, setRouteData] = useState<{ path: [number, number][]; legs: LegInfo[]; totalDistance: number; totalDuration: number } | null>(null);
   const [routeLoading, setRouteLoading] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
 
   const todayJobs = useMemo(() =>
     jobs
@@ -278,6 +250,46 @@ export default function AgendaPage() {
   const markDone = useCallback((jobId: string) => {
     updateJob(jobId, { status: "completed" });
   }, [updateJob]);
+
+  // Fullscreen overlay — only map + stops
+  if (fullscreen) {
+    return (
+      <div className="fixed inset-0 z-50 bg-background flex flex-col">
+        <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border shrink-0 bg-card">
+          <Navigation className="h-3.5 w-3.5 text-primary" />
+          <span className="text-[13px] font-semibold text-foreground">Route Map</span>
+          {routeLoading && (
+            <span className="text-[11px] text-muted-foreground/50 ml-1 animate-pulse">Calculating route…</span>
+          )}
+          {routeData && !routeLoading && (
+            <div className="flex items-center gap-3 ml-2">
+              <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                <Route className="h-3 w-3" />{fmtDist(routeData.totalDistance)}
+              </span>
+              <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                <Clock className="h-3 w-3" />{fmtDuration(routeData.totalDuration)}
+              </span>
+            </div>
+          )}
+          <button
+            onClick={() => setFullscreen(false)}
+            className="ml-auto flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <X className="h-4 w-4" /> Exit Fullscreen
+          </button>
+        </div>
+        <div className="flex-1 relative">
+          <RouteMap
+            stops={stops}
+            activeIdx={activeIdx}
+            legs={routeData?.legs ?? []}
+            routePath={routeData?.path ?? stops.map((s) => [s.lat, s.lng])}
+            onMarkerClick={setActiveIdx}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="pb-24 md:pb-0 space-y-4">
@@ -333,17 +345,21 @@ export default function AgendaPage() {
               <span className="text-[11px] text-muted-foreground/50 ml-1 animate-pulse">Calculating route…</span>
             )}
             {routeData && !routeLoading && (
-              <div className="ml-auto flex items-center gap-3">
+              <div className="flex items-center gap-3 ml-2">
                 <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                  <Route className="h-3 w-3" />
-                  {fmtDist(routeData.totalDistance)}
+                  <Route className="h-3 w-3" />{fmtDist(routeData.totalDistance)}
                 </span>
                 <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                  <Clock className="h-3 w-3" />
-                  {fmtDuration(routeData.totalDuration)}
+                  <Clock className="h-3 w-3" />{fmtDuration(routeData.totalDuration)}
                 </span>
               </div>
             )}
+            <button
+              onClick={() => setFullscreen(true)}
+              className="ml-auto flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Maximize2 className="h-3.5 w-3.5" /> Fullscreen
+            </button>
           </div>
 
           {stops.length === 0 ? (
