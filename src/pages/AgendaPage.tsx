@@ -467,7 +467,7 @@ export default function AgendaPage() {
   // ── Normal view ───────────────────────────────────────────────────────────────
   return (
     <div className="flex flex-col gap-4 h-full min-h-0 pb-4 md:pb-0">
-      <PageHeader title="Today's Agenda" description={today} className="shrink-0" />
+      <PageHeader title="Today's Agenda" description={today} />
 
       {/* Stat cards */}
       <div className="grid grid-cols-3 gap-3 shrink-0">
