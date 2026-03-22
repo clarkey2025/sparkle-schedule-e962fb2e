@@ -87,10 +87,11 @@ function numberedIcon(n: number, done: boolean, active: boolean) {
 
 // ─── Map component ────────────────────────────────────────────────────────────
 function RouteMap({
-  stops, activeIdx, routePath, onMarkerClick,
+  stops, activeIdx, legs, routePath, onMarkerClick,
 }: {
   stops: Stop[];
   activeIdx: number | null;
+  legs: LegInfo[];
   routePath: [number, number][];
   onMarkerClick: (i: number) => void;
 }) {
@@ -98,6 +99,7 @@ function RouteMap({
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.Marker[]>([]);
   const routeLayerRef = useRef<L.Polyline | null>(null);
+  const legLabelsRef = useRef<L.Marker[]>([]);
   const didFit = useRef(false);
 
   // Init map once
@@ -109,10 +111,14 @@ function RouteMap({
     });
     L.control.zoom({ position: "bottomright" }).addTo(map);
 
-    // Stadia Alidade Smooth Dark
+    // Dark tiles — CartoDB Dark Matter
     L.tileLayer(
-      "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png",
-      { attribution: "© Stadia Maps © OpenStreetMap contributors", maxZoom: 20 }
+      "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+      {
+        attribution: "© OpenStreetMap contributors © CARTO",
+        maxZoom: 19,
+        subdomains: "abcd",
+      }
     ).addTo(map);
 
     mapRef.current = map;
@@ -127,30 +133,58 @@ function RouteMap({
       routeLayerRef.current = L.polyline(routePath, {
         color: "#FF1CE9",
         weight: 4,
-        opacity: 0.9,
+        opacity: 0.85,
         lineJoin: "round",
         lineCap: "round",
       }).addTo(map);
     }
   }, [routePath]);
 
-  // Render markers
+  // Render markers + leg labels
   useEffect(() => {
     const map = mapRef.current;
     if (!map || stops.length === 0) return;
 
     markersRef.current.forEach((m) => m.remove());
     markersRef.current = [];
+    legLabelsRef.current.forEach((m) => m.remove());
+    legLabelsRef.current = [];
 
     stops.forEach((s, i) => {
       const isActive = i === activeIdx;
-      const marker = L.marker([s.lat, s.lng], {
-        icon: numberedIcon(i + 1, s.done, isActive),
-        zIndexOffset: isActive ? 1000 : 0,
-      })
+      const marker = L.marker([s.lat, s.lng], { icon: numberedIcon(i + 1, s.done, isActive), zIndexOffset: isActive ? 1000 : 0 })
         .addTo(map)
         .on("click", () => onMarkerClick(i));
       markersRef.current.push(marker);
+    });
+
+    // Mid-leg duration labels
+    legs.forEach((leg, i) => {
+      const a = stops[i], b = stops[i + 1];
+      if (!a || !b) return;
+      const midLat = (a.lat + b.lat) / 2;
+      const midLng = (a.lng + b.lng) / 2;
+      const label = L.marker([midLat, midLng], {
+        icon: L.divIcon({
+          className: "",
+          iconSize: [72, 22],
+          iconAnchor: [36, 11],
+          html: `<div style="
+            background:rgba(18,18,18,0.88);
+            border:1px solid rgba(255,28,233,0.3);
+            border-radius:99px;
+            padding:2px 8px;
+            font-size:10px;font-weight:600;font-family:monospace;
+            color:rgba(255,255,255,0.75);
+            white-space:nowrap;
+            box-shadow:0 2px 6px rgba(0,0,0,0.5);
+            backdrop-filter:blur(4px);
+          ">${fmtDuration(leg.duration)} · ${fmtDist(leg.distance)}</div>`,
+        }),
+        interactive: false,
+        zIndexOffset: -500,
+      }).addTo(map);
+      legLabelsRef.current.push(label);
     });
 
     // Fit bounds on first load
@@ -159,7 +193,7 @@ function RouteMap({
       map.fitBounds(bounds, { padding: [48, 48] });
       didFit.current = true;
     }
-  }, [stops, activeIdx, onMarkerClick]);
+  }, [stops, legs, activeIdx, onMarkerClick]);
 
   // Pan to active
   useEffect(() => {
@@ -174,26 +208,22 @@ function RouteMap({
     <>
       <style>{`
         .leaflet-control-zoom a {
-          background: #1c1c1c !important;
-          color: rgba(255,255,255,0.6) !important;
+          background: #1a1a1a !important;
+          color: rgba(255,255,255,0.7) !important;
           border-color: rgba(255,255,255,0.08) !important;
+          font-size: 16px !important;
         }
         .leaflet-control-zoom a:hover {
-          background: #282828 !important;
+          background: #2a2a2a !important;
           color: #fff !important;
         }
-        .leaflet-control-zoom {
-          border: 1px solid rgba(255,255,255,0.07) !important;
-          border-radius: 6px !important;
-          overflow: hidden;
-        }
         .leaflet-control-attribution {
-          background: rgba(0,0,0,0.45) !important;
-          color: rgba(255,255,255,0.2) !important;
+          background: rgba(0,0,0,0.5) !important;
+          color: rgba(255,255,255,0.3) !important;
           font-size: 9px !important;
         }
-        .leaflet-control-attribution a { color: rgba(255,255,255,0.3) !important; }
-        .leaflet-container { font-family: system-ui, sans-serif; background: #111; }
+        .leaflet-control-attribution a { color: rgba(255,255,255,0.4) !important; }
+        .leaflet-container { font-family: system-ui, sans-serif; }
       `}</style>
       <div ref={containerRef} className="h-full w-full" />
     </>
@@ -329,6 +359,7 @@ export default function AgendaPage() {
               <RouteMap
                 stops={stops}
                 activeIdx={activeIdx}
+                legs={routeData?.legs ?? []}
                 routePath={routeData?.path ?? stops.map((s) => [s.lat, s.lng])}
                 onMarkerClick={setActiveIdx}
               />
