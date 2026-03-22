@@ -11,6 +11,8 @@ export interface Customer {
   pricePerClean: number;
   notes: string;
   createdAt: string;
+  lat?: number;
+  lng?: number;
 }
 
 export interface Job {
