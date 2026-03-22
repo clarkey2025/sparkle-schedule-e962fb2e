@@ -59,12 +59,18 @@ function getDayDiff(date: string, todayStr: string) {
     / (1000 * 60 * 60 * 24)
   );
 }
-function getGroupKey(diff: number, date: string, todayStr: string): string {
+function getGroupKey(diff: number, date: string): string {
   if (diff === 0) return "today";
   if (diff <= 6) return "this-week";
-  return "__beyond__";
+  const d = new Date(date + "T12:00:00");
+  return `month-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
-const GROUP_LABELS: Record<string, string> = { "today": "Today", "this-week": "This Week" };
+function getGroupLabel(key: string): string {
+  if (key === "today") return "Today";
+  if (key === "this-week") return "This Week";
+  const [, year, month] = key.split("-");
+  return new Date(Number(year), Number(month) - 1, 1).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+}
 
 // ─── Dashboard ────────────────────────────────────────────────────────────
 export default function Dashboard() {
