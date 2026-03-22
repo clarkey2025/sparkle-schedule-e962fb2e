@@ -289,8 +289,8 @@ export default function AgendaPage() {
   }, []);
 
   // ── Stops panel ──────────────────────────────────────────────────────────────
-  const stopsPanel = (
-    <div className="bg-card border border-border rounded-md overflow-hidden flex flex-col">
+ const stopsPanel = (
+   <div className="bg-card border border-border rounded-md overflow-hidden flex flex-col h-full min-h-0">
       <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border shrink-0">
         <CalendarCheck className="h-3.5 w-3.5 text-primary" />
         <span className="text-[13px] font-semibold text-foreground">Stops</span>
@@ -466,11 +466,11 @@ export default function AgendaPage() {
 
   // ── Normal view ───────────────────────────────────────────────────────────────
   return (
-    <div className="pb-24 md:pb-0 space-y-4">
+    <div className="flex flex-col gap-4 h-full min-h-0 pb-4 md:pb-0">
       <PageHeader title="Today's Agenda" description={today} />
 
       {/* Stat cards */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-3 shrink-0">
         {[
           {
             label: "Jobs Today",
@@ -507,11 +507,11 @@ export default function AgendaPage() {
         ))}
       </div>
 
-      {/* Map + stop list */}
-      <div className="grid gap-4 lg:grid-cols-[1fr_340px] animate-fade-up" style={{ animationDelay: "0.15s" }}>
+      {/* Map + stop list — fills all remaining vertical space */}
+      <div className="flex-1 min-h-0 grid gap-4 lg:grid-cols-[1fr_340px] animate-fade-up" style={{ animationDelay: "0.15s" }}>
 
         {/* Map */}
-        <div className="bg-card border border-border rounded-md overflow-hidden flex flex-col" style={{ minHeight: 440 }}>
+        <div className="bg-card border border-border rounded-md overflow-hidden flex flex-col h-full min-h-0">
           <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border shrink-0">
             <Navigation className="h-3.5 w-3.5 text-primary" />
             <span className="text-[13px] font-semibold text-foreground">Route Map</span>
@@ -545,7 +545,7 @@ export default function AgendaPage() {
               </div>
             </div>
           ) : (
-            <div className="flex-1 relative" style={{ minHeight: 380 }}>
+            <div className="flex-1 min-h-0 relative">
               <RouteMap
                 stops={stops}
                 activeIdx={activeIdx}
@@ -562,3 +562,4 @@ export default function AgendaPage() {
     </div>
   );
 }
+
