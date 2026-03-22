@@ -87,11 +87,10 @@ function numberedIcon(n: number, done: boolean, active: boolean) {
 
 // ─── Map component ────────────────────────────────────────────────────────────
 function RouteMap({
-  stops, activeIdx, legs, routePath, onMarkerClick,
+  stops, activeIdx, routePath, onMarkerClick,
 }: {
   stops: Stop[];
   activeIdx: number | null;
-  legs: LegInfo[];
   routePath: [number, number][];
   onMarkerClick: (i: number) => void;
 }) {
@@ -99,7 +98,6 @@ function RouteMap({
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.Marker[]>([]);
   const routeLayerRef = useRef<L.Polyline | null>(null);
-  const legLabelsRef = useRef<L.Marker[]>([]);
   const didFit = useRef(false);
 
   // Init map once
