@@ -160,7 +160,7 @@ export default function Dashboard() {
       .sort((a, b) => a.date.localeCompare(b.date))
       .map((j) => {
         const diff = getDayDiff(j.date, todayStr);
-        return { job: j, customer: customers.find((c) => c.id === j.customerId), group: getGroupKey(diff, j.date, todayStr), diff };
+        return { job: j, customer: customers.find((c) => c.id === j.customerId), group: getGroupKey(diff, j.date), diff };
       });
 
     // Group them
