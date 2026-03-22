@@ -40,18 +40,30 @@ interface AppData {
   payments: Payment[];
 }
 
+const MOCK_VERSION = "v1";
+const MOCK_VERSION_KEY = "pane-pro-mock-version";
+
 function loadData(): AppData {
   try {
+    const seededVersion = localStorage.getItem(MOCK_VERSION_KEY);
     const raw = localStorage.getItem(STORAGE_KEY);
+
+    // Re-seed if never seeded, or if mock version changed and no real edits exist
+    if (seededVersion !== MOCK_VERSION || !raw) {
+      const mock = generateMockData();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(mock));
+      localStorage.setItem(MOCK_VERSION_KEY, MOCK_VERSION);
+      return mock;
+    }
+
     if (raw) {
       const parsed = JSON.parse(raw);
-      // If there's real data, use it
-      if (parsed.customers?.length > 0 || parsed.jobs?.length > 0) return parsed;
+      if (parsed.customers !== undefined) return parsed;
     }
   } catch {}
-  // First load — seed mock data
   const mock = generateMockData();
   localStorage.setItem(STORAGE_KEY, JSON.stringify(mock));
+  localStorage.setItem(MOCK_VERSION_KEY, MOCK_VERSION);
   return mock;
 }
 
