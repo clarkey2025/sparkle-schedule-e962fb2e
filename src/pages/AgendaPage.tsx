@@ -289,8 +289,8 @@ export default function AgendaPage() {
   }, []);
 
   // ── Stops panel ──────────────────────────────────────────────────────────────
-  const stopsPanel = (
-    <div className="bg-card border border-border rounded-md overflow-hidden flex flex-col">
+ const stopsPanel = (
+   <div className="bg-card border border-border rounded-md overflow-hidden flex flex-col h-full min-h-0">
       <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border shrink-0">
         <CalendarCheck className="h-3.5 w-3.5 text-primary" />
         <span className="text-[13px] font-semibold text-foreground">Stops</span>
