@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { generateMockData } from "./mockData";
 
 export interface Customer {
   id: string;
@@ -39,12 +40,31 @@ interface AppData {
   payments: Payment[];
 }
 
+const MOCK_VERSION = "v1";
+const MOCK_VERSION_KEY = "pane-pro-mock-version";
+
 function loadData(): AppData {
   try {
+    const seededVersion = localStorage.getItem(MOCK_VERSION_KEY);
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
+
+    // Re-seed if never seeded, or if mock version changed and no real edits exist
+    if (seededVersion !== MOCK_VERSION || !raw) {
+      const mock = generateMockData();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(mock));
+      localStorage.setItem(MOCK_VERSION_KEY, MOCK_VERSION);
+      return mock;
+    }
+
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed.customers !== undefined) return parsed;
+    }
   } catch {}
-  return { customers: [], jobs: [], payments: [] };
+  const mock = generateMockData();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(mock));
+  localStorage.setItem(MOCK_VERSION_KEY, MOCK_VERSION);
+  return mock;
 }
 
 function saveData(data: AppData) {
