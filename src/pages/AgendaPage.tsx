@@ -329,7 +329,6 @@ export default function AgendaPage() {
               <RouteMap
                 stops={stops}
                 activeIdx={activeIdx}
-                legs={routeData?.legs ?? []}
                 routePath={routeData?.path ?? stops.map((s) => [s.lat, s.lng])}
                 onMarkerClick={setActiveIdx}
               />
