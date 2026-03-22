@@ -4,7 +4,7 @@ import { formatCurrency } from "@/lib/helpers";
 import PageHeader from "@/components/PageHeader";
 import {
   CalendarCheck, CheckCircle2, PoundSterling, Circle,
-  MapPin, Clock, Navigation, ChevronRight, Route,
+  MapPin, Clock, Navigation, ChevronRight, Route, Maximize2, X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import "leaflet/dist/leaflet.css";
