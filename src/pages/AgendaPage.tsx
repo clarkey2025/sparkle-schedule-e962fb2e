@@ -158,35 +158,6 @@ function RouteMap({
       markersRef.current.push(marker);
     });
 
-    // Mid-leg duration labels
-    legs.forEach((leg, i) => {
-      const a = stops[i], b = stops[i + 1];
-      if (!a || !b) return;
-      const midLat = (a.lat + b.lat) / 2;
-      const midLng = (a.lng + b.lng) / 2;
-      const label = L.marker([midLat, midLng], {
-        icon: L.divIcon({
-          className: "",
-          iconSize: [72, 22],
-          iconAnchor: [36, 11],
-          html: `<div style="
-            background:rgba(18,18,18,0.88);
-            border:1px solid rgba(255,28,233,0.3);
-            border-radius:99px;
-            padding:2px 8px;
-            font-size:10px;font-weight:600;font-family:monospace;
-            color:rgba(255,255,255,0.75);
-            white-space:nowrap;
-            box-shadow:0 2px 6px rgba(0,0,0,0.5);
-            backdrop-filter:blur(4px);
-          ">${fmtDuration(leg.duration)} · ${fmtDist(leg.distance)}</div>`,
-        }),
-        interactive: false,
-        zIndexOffset: -500,
-      }).addTo(map);
-      legLabelsRef.current.push(label);
-    });
-
     // Fit bounds on first load
     if (!didFit.current && stops.length > 0) {
       const bounds = L.latLngBounds(stops.map((s) => [s.lat, s.lng]));
