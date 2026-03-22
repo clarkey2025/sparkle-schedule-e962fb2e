@@ -251,6 +251,46 @@ export default function AgendaPage() {
     updateJob(jobId, { status: "completed" });
   }, [updateJob]);
 
+  // Fullscreen overlay — only map + stops
+  if (fullscreen) {
+    return (
+      <div className="fixed inset-0 z-50 bg-background flex flex-col">
+        <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border shrink-0 bg-card">
+          <Navigation className="h-3.5 w-3.5 text-primary" />
+          <span className="text-[13px] font-semibold text-foreground">Route Map</span>
+          {routeLoading && (
+            <span className="text-[11px] text-muted-foreground/50 ml-1 animate-pulse">Calculating route…</span>
+          )}
+          {routeData && !routeLoading && (
+            <div className="flex items-center gap-3 ml-2">
+              <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                <Route className="h-3 w-3" />{fmtDist(routeData.totalDistance)}
+              </span>
+              <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                <Clock className="h-3 w-3" />{fmtDuration(routeData.totalDuration)}
+              </span>
+            </div>
+          )}
+          <button
+            onClick={() => setFullscreen(false)}
+            className="ml-auto flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <X className="h-4 w-4" /> Exit Fullscreen
+          </button>
+        </div>
+        <div className="flex-1 relative">
+          <RouteMap
+            stops={stops}
+            activeIdx={activeIdx}
+            legs={routeData?.legs ?? []}
+            routePath={routeData?.path ?? stops.map((s) => [s.lat, s.lng])}
+            onMarkerClick={setActiveIdx}
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="pb-24 md:pb-0 space-y-4">
       <PageHeader title="Today's Agenda" description={today} />
