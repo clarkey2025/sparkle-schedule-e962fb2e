@@ -76,7 +76,7 @@ export default {
         sm: "calc(var(--radius) - 2px)",
       },
       boxShadow: {
-        'glow-pink': '0 0 20px -4px hsl(344 70% 75% / 0.25)',
+        'glow-pink': '0 0 20px -4px hsl(306 100% 55% / 0.2)',
       },
       keyframes: {
         "accordion-down": {
