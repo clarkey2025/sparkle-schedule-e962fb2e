@@ -111,9 +111,9 @@ function RouteMap({
     });
     L.control.zoom({ position: "bottomright" }).addTo(map);
 
-    // Clean light tiles — CartoDB Positron
+    // Dark tiles — CartoDB Dark Matter
     L.tileLayer(
-      "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+      "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
       {
         attribution: "© OpenStreetMap contributors © CARTO",
         maxZoom: 19,
@@ -154,10 +154,6 @@ function RouteMap({
       const isActive = i === activeIdx;
       const marker = L.marker([s.lat, s.lng], { icon: numberedIcon(i + 1, s.done, isActive), zIndexOffset: isActive ? 1000 : 0 })
         .addTo(map)
-        .bindTooltip(
-          `<div style="font-family:system-ui;font-size:12px;font-weight:600;color:#111;padding:2px 4px">${s.name}</div>`,
-          { permanent: false, direction: "top", offset: [0, -14], className: "leaflet-tooltip-clean" }
-        )
         .on("click", () => onMarkerClick(i));
       markersRef.current.push(marker);
     });
@@ -174,14 +170,15 @@ function RouteMap({
           iconSize: [72, 22],
           iconAnchor: [36, 11],
           html: `<div style="
-            background:rgba(255,255,255,0.92);
-            border:1px solid rgba(255,28,233,0.35);
+            background:rgba(18,18,18,0.88);
+            border:1px solid rgba(255,28,233,0.3);
             border-radius:99px;
             padding:2px 8px;
             font-size:10px;font-weight:600;font-family:monospace;
-            color:#333;
+            color:rgba(255,255,255,0.75);
             white-space:nowrap;
-            box-shadow:0 1px 4px rgba(0,0,0,0.12);
+            box-shadow:0 2px 6px rgba(0,0,0,0.5);
+            backdrop-filter:blur(4px);
           ">${fmtDuration(leg.duration)} · ${fmtDist(leg.distance)}</div>`,
         }),
         interactive: false,
@@ -210,22 +207,22 @@ function RouteMap({
   return (
     <>
       <style>{`
-        .leaflet-tooltip-clean {
-          background: white;
-          border: 1px solid rgba(0,0,0,0.1);
-          border-radius: 6px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-          padding: 4px 8px;
-          font-size: 12px;
-        }
-        .leaflet-tooltip-clean::before { display: none; }
         .leaflet-control-zoom a {
-          background: white !important;
-          color: #333 !important;
-          border-color: rgba(0,0,0,0.1) !important;
+          background: #1a1a1a !important;
+          color: rgba(255,255,255,0.7) !important;
+          border-color: rgba(255,255,255,0.08) !important;
           font-size: 16px !important;
         }
-        .leaflet-control-attribution { font-size: 9px !important; opacity: 0.5; }
+        .leaflet-control-zoom a:hover {
+          background: #2a2a2a !important;
+          color: #fff !important;
+        }
+        .leaflet-control-attribution {
+          background: rgba(0,0,0,0.5) !important;
+          color: rgba(255,255,255,0.3) !important;
+          font-size: 9px !important;
+        }
+        .leaflet-control-attribution a { color: rgba(255,255,255,0.4) !important; }
         .leaflet-container { font-family: system-ui, sans-serif; }
       `}</style>
       <div ref={containerRef} className="h-full w-full" />
