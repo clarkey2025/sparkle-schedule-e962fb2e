@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { generateMockData } from "./mockData";
 
 export interface Customer {
   id: string;
@@ -42,9 +43,16 @@ interface AppData {
 function loadData(): AppData {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      // If there's real data, use it
+      if (parsed.customers?.length > 0 || parsed.jobs?.length > 0) return parsed;
+    }
   } catch {}
-  return { customers: [], jobs: [], payments: [] };
+  // First load — seed mock data
+  const mock = generateMockData();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(mock));
+  return mock;
 }
 
 function saveData(data: AppData) {
