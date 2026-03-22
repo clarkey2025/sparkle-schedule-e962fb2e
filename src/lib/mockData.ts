@@ -157,12 +157,6 @@ const PAYMENTS: Payment[] = [
   { id: "p16", customerId: "c10", amount: 48, date: "2026-02-01", method: "bank-transfer", notes: "Feb batch payment" },
 ];
 
-export interface AppData {
-  customers: Customer[];
-  jobs: Job[];
-  payments: Payment[];
-}
-
-export function generateMockData(): AppData {
+export function generateMockData() {
   return { customers: CUSTOMERS, jobs: JOBS, payments: PAYMENTS };
 }
