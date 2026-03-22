@@ -154,10 +154,6 @@ function RouteMap({
       const isActive = i === activeIdx;
       const marker = L.marker([s.lat, s.lng], { icon: numberedIcon(i + 1, s.done, isActive), zIndexOffset: isActive ? 1000 : 0 })
         .addTo(map)
-        .bindTooltip(
-          `<div style="font-family:system-ui;font-size:12px;font-weight:600;color:#111;padding:2px 4px">${s.name}</div>`,
-          { permanent: false, direction: "top", offset: [0, -14], className: "leaflet-tooltip-clean" }
-        )
         .on("click", () => onMarkerClick(i));
       markersRef.current.push(marker);
     });
