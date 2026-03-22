@@ -1,76 +1,76 @@
 import type { Customer, Job, Payment } from "./store";
 
-// Today = 2026-03-22
+// Today = 2026-03-22 — all customers in/around Fleetwood, Lancashire
 const CUSTOMERS: Customer[] = [
   {
-    id: "c1", name: "Margaret Harlow", address: "14 Elm Grove, Fairford, GL7 4AB",
+    id: "c1", name: "Margaret Harlow", address: "14 Elm Grove, Fleetwood, FY7 6LB",
     phone: "07712 340182", email: "m.harlow@outlook.com",
     frequency: "monthly", pricePerClean: 18, notes: "Side gate always unlocked.",
     createdAt: "2024-06-12T09:00:00.000Z",
-    lat: 51.7083, lng: -1.7795,
+    lat: 53.9230, lng: -3.0055,
   },
   {
-    id: "c2", name: "David Nettles", address: "7 Church Lane, Cirencester, GL7 2BQ",
+    id: "c2", name: "David Nettles", address: "7 Beach Road, Cleveleys, FY5 1LZ",
     phone: "07834 910423", email: "d.nettles@gmail.com",
     frequency: "fortnightly", pricePerClean: 24, notes: "",
     createdAt: "2024-07-03T10:30:00.000Z",
-    lat: 51.7215, lng: -1.9662,
+    lat: 53.8791, lng: -3.0371,
   },
   {
-    id: "c3", name: "Sandra Briggs", address: "22 Oak Avenue, Tetbury, GL8 8EF",
+    id: "c3", name: "Sandra Briggs", address: "22 Oak Avenue, Thornton-Cleveleys, FY5 2HA",
     phone: "07901 234567", email: "sandra.briggs@hotmail.co.uk",
     frequency: "6-weekly", pricePerClean: 32, notes: "Two dogs — keep gate shut.",
     createdAt: "2024-05-20T11:00:00.000Z",
-    lat: 51.6384, lng: -2.1598,
+    lat: 53.8762, lng: -2.9992,
   },
   {
-    id: "c4", name: "Paul & Karen Whitmore", address: "5 Mill Road, Stroud, GL5 1AL",
+    id: "c4", name: "Paul & Karen Whitmore", address: "5 Mill Road, Poulton-le-Fylde, FY6 7AE",
     phone: "07700 901123", email: "pwhitmore@icloud.com",
     frequency: "monthly", pricePerClean: 20, notes: "",
     createdAt: "2024-08-14T14:00:00.000Z",
-    lat: 51.7441, lng: -2.2169,
+    lat: 53.8481, lng: -2.9963,
   },
   {
-    id: "c5", name: "Terry Yates", address: "31 Birch Close, Nailsworth, GL6 0DP",
+    id: "c5", name: "Terry Yates", address: "31 Birch Close, Preesall, FY6 0HP",
     phone: "07788 554321", email: "terry.yates@btinternet.com",
     frequency: "fortnightly", pricePerClean: 15, notes: "Cash only. Leave invoice in letterbox.",
     createdAt: "2024-09-01T09:00:00.000Z",
-    lat: 51.6924, lng: -2.2218,
+    lat: 53.9092, lng: -2.9421,
   },
   {
-    id: "c6", name: "Anita Sharma", address: "8 Victoria Place, Cheltenham, GL50 4AH",
+    id: "c6", name: "Anita Sharma", address: "8 Victoria Road, Knott End-on-Sea, FY6 0AJ",
     phone: "07956 112233", email: "anita.s84@gmail.com",
     frequency: "monthly", pricePerClean: 22, notes: "",
     createdAt: "2024-10-10T10:00:00.000Z",
-    lat: 51.9009, lng: -2.0783,
+    lat: 53.9305, lng: -2.9980,
   },
   {
-    id: "c7", name: "Robert Finch", address: "19 Station Road, Dursley, GL11 4LX",
+    id: "c7", name: "Robert Finch", address: "19 Station Road, Garstang, PR3 1DZ",
     phone: "07623 445566", email: "r.finch@gmail.com",
     frequency: "quarterly", pricePerClean: 45, notes: "Large property — 3 storey. Bring extension pole.",
     createdAt: "2024-04-22T11:30:00.000Z",
-    lat: 51.6818, lng: -2.3547,
+    lat: 53.8942, lng: -2.7791,
   },
   {
-    id: "c8", name: "Helen Cross", address: "3 Meadow View, Lechlade, GL7 3DN",
+    id: "c8", name: "Helen Cross", address: "3 Meadow View, Fleetwood, FY7 7LX",
     phone: "07811 998877", email: "helcross@hotmail.com",
     frequency: "monthly", pricePerClean: 18, notes: "",
     createdAt: "2025-01-08T09:00:00.000Z",
-    lat: 51.6942, lng: -1.6917,
+    lat: 53.9178, lng: -3.0101,
   },
   {
-    id: "c9", name: "Colin Baker", address: "12 Highfield Drive, Bourton-on-the-Water, GL54 2LQ",
+    id: "c9", name: "Colin Baker", address: "12 Highfield Drive, Blackpool, FY2 0PJ",
     phone: "07745 667788", email: "colinbaker56@yahoo.co.uk",
     frequency: "monthly", pricePerClean: 20, notes: "Key in lockbox: 4419.",
     createdAt: "2024-11-15T13:00:00.000Z",
-    lat: 51.8790, lng: -1.7590,
+    lat: 53.8407, lng: -3.0441,
   },
   {
-    id: "c10", name: "Fiona Marsh", address: "6 Orchard Way, Winchcombe, GL54 5PJ",
+    id: "c10", name: "Fiona Marsh", address: "6 Orchard Way, Cleveleys, FY5 3PA",
     phone: "07932 110099", email: "fiona.marsh@gmail.com",
     frequency: "weekly", pricePerClean: 12, notes: "Pay by bank transfer each month.",
     createdAt: "2025-02-17T10:00:00.000Z",
-    lat: 51.9574, lng: -1.9717,
+    lat: 53.8720, lng: -3.0188,
   },
 ];
 
@@ -129,9 +129,6 @@ const JOBS: Job[] = [
 ];
 
 const PAYMENTS: Payment[] = [
-  // Margaret Harlow — UNPAID (£54 owed)
-  // (no payments — oldest overdue)
-
   // David Nettles — fully paid
   { id: "p1", customerId: "c2", amount: 24, date: "2026-03-16", method: "bank-transfer", notes: "" },
   { id: "p2", customerId: "c2", amount: 24, date: "2026-03-02", method: "bank-transfer", notes: "" },
@@ -155,14 +152,14 @@ const PAYMENTS: Payment[] = [
   { id: "p10", customerId: "c7", amount: 45, date: "2026-01-20", method: "bank-transfer", notes: "" },
   { id: "p11", customerId: "c7", amount: 45, date: "2025-10-20", method: "bank-transfer", notes: "" },
 
-  // Helen Cross — fully paid (completed jobs only)
+  // Helen Cross — fully paid
   { id: "p12", customerId: "c8", amount: 18, date: "2026-02-22", method: "cash", notes: "" },
   { id: "p13", customerId: "c8", amount: 18, date: "2026-01-22", method: "cash", notes: "" },
 
-  // Colin Baker — partial (£20 paid of £40)
+  // Colin Baker — partial
   { id: "p14", customerId: "c9", amount: 20, date: "2025-12-17", method: "cash", notes: "Key lockbox" },
 
-  // Fiona Marsh — fully paid (bank transfer monthly)
+  // Fiona Marsh — batch payments
   { id: "p15", customerId: "c10", amount: 48, date: "2026-03-01", method: "bank-transfer", notes: "March batch payment" },
   { id: "p16", customerId: "c10", amount: 48, date: "2026-02-01", method: "bank-transfer", notes: "Feb batch payment" },
 ];
