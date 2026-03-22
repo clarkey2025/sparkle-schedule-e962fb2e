@@ -15,6 +15,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ['"DM Sans"', 'system-ui', 'sans-serif'],
+        mono: ['"DM Mono"', 'monospace'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -71,8 +72,11 @@ export default {
       },
       borderRadius: {
         lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        md: "calc(var(--radius) - 1px)",
+        sm: "calc(var(--radius) - 2px)",
+      },
+      boxShadow: {
+        'glow-pink': '0 0 20px -4px hsl(344 70% 75% / 0.25)',
       },
       keyframes: {
         "accordion-down": {
