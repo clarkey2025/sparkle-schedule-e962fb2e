@@ -345,17 +345,21 @@ export default function AgendaPage() {
               <span className="text-[11px] text-muted-foreground/50 ml-1 animate-pulse">Calculating route…</span>
             )}
             {routeData && !routeLoading && (
-              <div className="ml-auto flex items-center gap-3">
+              <div className="flex items-center gap-3 ml-2">
                 <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                  <Route className="h-3 w-3" />
-                  {fmtDist(routeData.totalDistance)}
+                  <Route className="h-3 w-3" />{fmtDist(routeData.totalDistance)}
                 </span>
                 <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                  <Clock className="h-3 w-3" />
-                  {fmtDuration(routeData.totalDuration)}
+                  <Clock className="h-3 w-3" />{fmtDuration(routeData.totalDuration)}
                 </span>
               </div>
             )}
+            <button
+              onClick={() => setFullscreen(true)}
+              className="ml-auto flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Maximize2 className="h-3.5 w-3.5" /> Fullscreen
+            </button>
           </div>
 
           {stops.length === 0 ? (
