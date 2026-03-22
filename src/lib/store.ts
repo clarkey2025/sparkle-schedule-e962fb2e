@@ -42,7 +42,7 @@ interface AppData {
   payments: Payment[];
 }
 
-const MOCK_VERSION = "v3";
+const MOCK_VERSION = "v4";
 const MOCK_VERSION_KEY = "pane-pro-mock-version";
 
 function loadData(): AppData {
