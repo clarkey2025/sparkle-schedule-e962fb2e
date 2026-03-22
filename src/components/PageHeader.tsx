@@ -2,11 +2,12 @@ interface PageHeaderProps {
   title: string;
   description?: string;
   action?: React.ReactNode;
+  compact?: boolean;
 }
 
-export default function PageHeader({ title, description, action }: PageHeaderProps) {
+export default function PageHeader({ title, description, action, compact }: PageHeaderProps) {
   return (
-    <div className="mb-7 flex items-start justify-between gap-4 animate-fade-up">
+    <div className={`flex items-start justify-between gap-4 animate-fade-up shrink-0 ${compact ? "" : "mb-1"}`}>
       <div>
         <h1 className="text-xl font-semibold tracking-tight text-foreground">{title}</h1>
         {description && (
