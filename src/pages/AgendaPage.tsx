@@ -208,6 +208,7 @@ export default function AgendaPage() {
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const [routeData, setRouteData] = useState<{ path: [number, number][]; legs: LegInfo[]; totalDistance: number; totalDuration: number } | null>(null);
   const [routeLoading, setRouteLoading] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
 
   const todayJobs = useMemo(() =>
     jobs
