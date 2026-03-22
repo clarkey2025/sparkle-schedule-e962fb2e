@@ -1,12 +1,43 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, Users, CalendarCheck, CreditCard, Droplets } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  CalendarCheck,
+  CreditCard,
+  Droplets,
+  MapPin,
+  ClipboardList,
+  Route,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const links = [
-  { to: "/", label: "Overview", icon: LayoutDashboard },
-  { to: "/customers", label: "Customers", icon: Users },
-  { to: "/jobs", label: "Jobs", icon: CalendarCheck },
-  { to: "/payments", label: "Payments", icon: CreditCard },
+const sections = [
+  {
+    label: "Overview",
+    links: [
+      { to: "/", label: "Dashboard", icon: LayoutDashboard },
+    ],
+  },
+  {
+    label: "Operations",
+    links: [
+      { to: "/agenda", label: "Today's Agenda", icon: ClipboardList },
+      { to: "/route", label: "Route Planner", icon: Route },
+      { to: "/jobs", label: "Jobs", icon: CalendarCheck },
+    ],
+  },
+  {
+    label: "Customers",
+    links: [
+      { to: "/customers", label: "Customers", icon: Users },
+    ],
+  },
+  {
+    label: "Finance",
+    links: [
+      { to: "/payments", label: "Payments", icon: CreditCard },
+    ],
+  },
 ];
 
 export default function AppSidebar() {
@@ -23,34 +54,40 @@ export default function AppSidebar() {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-2 py-4 space-y-0.5">
-        <p className="label-caps px-3 mb-3">Navigation</p>
-        {links.map((link) => {
-          const active = location.pathname === link.to;
-          return (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              className={cn(
-                "flex items-center gap-3 rounded px-3 py-2 text-[13px] font-medium transition-all duration-150",
-                active
-                  ? "bg-sidebar-primary/10 text-sidebar-primary"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-              )}
-            >
-              <link.icon
-                className={cn(
-                  "h-4 w-4 shrink-0 transition-colors",
-                  active ? "text-sidebar-primary" : "text-sidebar-foreground/60"
-                )}
-              />
-              {link.label}
-              {active && (
-                <span className="ml-auto h-1 w-1 rounded-full bg-sidebar-primary" />
-              )}
-            </NavLink>
-          );
-        })}
+      <nav className="flex-1 overflow-y-auto px-2 py-4 space-y-5">
+        {sections.map((section) => (
+          <div key={section.label}>
+            <p className="label-caps px-3 mb-1.5">{section.label}</p>
+            <div className="space-y-0.5">
+              {section.links.map((link) => {
+                const active = location.pathname === link.to;
+                return (
+                  <NavLink
+                    key={link.to}
+                    to={link.to}
+                    className={cn(
+                      "flex items-center gap-3 rounded px-3 py-2 text-[13px] font-medium transition-all duration-150",
+                      active
+                        ? "bg-sidebar-primary/10 text-sidebar-primary"
+                        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                    )}
+                  >
+                    <link.icon
+                      className={cn(
+                        "h-4 w-4 shrink-0 transition-colors",
+                        active ? "text-sidebar-primary" : "text-sidebar-foreground/50"
+                      )}
+                    />
+                    {link.label}
+                    {active && (
+                      <span className="ml-auto h-1 w-1 rounded-full bg-sidebar-primary" />
+                    )}
+                  </NavLink>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
       {/* Footer */}
