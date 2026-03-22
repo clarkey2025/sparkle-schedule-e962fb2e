@@ -144,12 +144,12 @@ export default function Dashboard() {
       .filter(({ daysOverdue }) => daysOverdue > 0)
       .sort((a, b) => b.daysOverdue - a.daysOverdue);
 
-    // Only jobs within next 7 days
+    // All upcoming scheduled jobs
     const upcomingRaw = jobs
       .filter((j) => {
         if (j.status !== "scheduled") return false;
         const diff = getDayDiff(j.date, todayStr);
-        return diff >= 0 && diff <= 6;
+        return diff >= 0;
       })
       .sort((a, b) => a.date.localeCompare(b.date))
       .map((j) => {
