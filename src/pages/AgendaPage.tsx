@@ -292,11 +292,22 @@ export default function AgendaPage() {
   const totalValue = todayJobs.reduce((s, { job }) => s + job.price, 0);
   const completedCount = todayJobs.filter(({ job }) => job.status === "completed").length;
   const earnedToday = todayJobs.filter(({ job }) => job.status === "completed").reduce((s, { job }) => s + job.price, 0);
-  const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
+  const dateLabel = viewDate === "today"
+    ? new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })
+    : (() => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }); })();
 
   const markDone = useCallback((jobId: string) => {
-    updateJob(jobId, { status: "completed" });
-  }, [updateJob]);
+    // If it's a virtual job, create a real one first
+    if (jobId.startsWith("virtual-")) {
+      const customerId = jobId.replace("virtual-", "");
+      const c = customers.find((x) => x.id === customerId);
+      if (c) {
+        addJob({ customerId, date: dateStr, status: "completed", price: c.pricePerClean, notes: "" });
+      }
+    } else {
+      updateJob(jobId, { status: "completed" });
+    }
+  }, [updateJob, addJob, customers, dateStr]);
 
   const handleOptimise = useCallback(() => {
     if (stops.length < 2) return;
