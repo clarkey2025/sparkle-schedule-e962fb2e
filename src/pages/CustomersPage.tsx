@@ -161,6 +161,8 @@ export default function CustomersPage() {
     { key: "email", label: "Email" },
     { key: "frequency", label: "Frequency" },
     { key: "pricePerClean", label: "Price per Clean" },
+    { key: "lastCleanDate", label: "Last Clean Date" },
+    { key: "nextDueDate", label: "Next Due Date" },
     { key: "notes", label: "Notes" },
   ];
 
