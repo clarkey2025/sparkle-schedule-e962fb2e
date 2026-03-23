@@ -67,7 +67,7 @@ interface AppData {
   customerServices: CustomerService[];
 }
 
-const MOCK_VERSION = "v5";
+const MOCK_VERSION = "v6-empty";
 const MOCK_VERSION_KEY = "pane-pro-mock-version";
 
 function loadData(): AppData {
@@ -77,6 +77,10 @@ function loadData(): AppData {
 
     if (seededVersion !== MOCK_VERSION || !raw) {
       const mock = generateMockData();
+      mock.customers = [];
+      mock.jobs = [];
+      mock.payments = [];
+      mock.customerServices = [];
       localStorage.setItem(STORAGE_KEY, JSON.stringify(mock));
       localStorage.setItem(MOCK_VERSION_KEY, MOCK_VERSION);
       return mock;
