@@ -213,8 +213,11 @@ function RouteMap({
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function AgendaPage() {
-  const { customers, jobs, updateJob } = useApp();
+  const { customers, jobs, addJob, updateJob } = useApp();
   const todayStr = new Date().toISOString().slice(0, 10);
+  const tomorrowStr = (() => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().slice(0, 10); })();
+  const [viewDate, setViewDate] = useState<"today" | "tomorrow">("today");
+  const dateStr = viewDate === "today" ? todayStr : tomorrowStr;
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const [routeData, setRouteData] = useState<{ path: [number, number][]; legs: LegInfo[]; totalDistance: number; totalDuration: number } | null>(null);
   const [routeLoading, setRouteLoading] = useState(false);
@@ -222,12 +225,33 @@ export default function AgendaPage() {
   const [optimised, setOptimised] = useState(false);
   const [stopOrder, setStopOrder] = useState<string[]>([]);  // jobId order override
 
-  const todayJobsRaw = useMemo(() =>
-    jobs
-      .filter((j) => j.date === todayStr && j.status !== "cancelled")
-      .map((j) => ({ job: j, customer: customers.find((c) => c.id === j.customerId) })),
-    [jobs, customers, todayStr]
-  );
+  // Combine explicit jobs + customers due on the selected date (auto-create jobs for due customers)
+  const todayJobsRaw = useMemo(() => {
+    const existingJobs = jobs
+      .filter((j) => j.date === dateStr && j.status !== "cancelled")
+      .map((j) => ({ job: j, customer: customers.find((c) => c.id === j.customerId) }));
+
+    // Find customers due on this date who don't already have a job
+    const customerIdsWithJobs = new Set(existingJobs.map((e) => e.job.customerId));
+    const dueCustomers = customers.filter((c) =>
+      c.nextDueDate === dateStr && !customerIdsWithJobs.has(c.id)
+    );
+
+    // Create virtual job entries for due customers
+    const virtualJobs = dueCustomers.map((c) => ({
+      job: {
+        id: `virtual-${c.id}`,
+        customerId: c.id,
+        date: dateStr,
+        status: "scheduled" as const,
+        price: c.pricePerClean,
+        notes: "",
+      },
+      customer: c,
+    }));
+
+    return [...existingJobs, ...virtualJobs];
+  }, [jobs, customers, dateStr]);
 
   // Apply custom stop order when optimised
   const todayJobs = useMemo(() => {
