@@ -87,7 +87,7 @@ export default function RoundsPage() {
       ) : (
         <div className="space-y-3">
           {rounds.map((round) => {
-            const members = roundStats.get(round.id) ?? [];
+            const members = roundStats[round.id] ?? [];
             const totalValue = members.reduce((s, c) => s + c.pricePerClean, 0);
             const isExpanded = expandedRound === round.id;
 
