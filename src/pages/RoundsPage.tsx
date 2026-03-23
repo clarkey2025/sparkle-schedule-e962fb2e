@@ -50,10 +50,11 @@ export default function RoundsPage() {
 
   const handleSave = () => {
     if (!form.name.trim()) return;
+    const saveData = { ...form, day: (form.day === "none" ? "" : form.day) as Round["day"] };
     if (editing) {
-      updateRound(editing.id, form);
+      updateRound(editing.id, saveData);
     } else {
-      addRound(form);
+      addRound(saveData);
     }
     setDialogOpen(false);
   };
