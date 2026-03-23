@@ -12,7 +12,7 @@ const TITLES: Record<string, { label: string; desc: string }> = {
 
 export default function TopBar() {
   const location = useLocation();
-  const meta = TITLES[location.pathname] ?? { label: "PanePro", desc: "" };
+  const meta = TITLES[location.pathname] ?? { label: "Bucket List", desc: "" };
 
   return (
     <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border bg-background/95 backdrop-blur-sm px-6">
