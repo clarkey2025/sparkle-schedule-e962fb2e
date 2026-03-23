@@ -5,7 +5,7 @@ import {
   Users, PoundSterling, AlertTriangle, CalendarCheck, CheckCircle2,
   Cloud, Sun, CloudRain, CloudSnow, CloudLightning, CloudDrizzle, Wind, MapPin,
   MoreHorizontal, Check, BellOff, CalendarX, ChevronDown, ChevronRight,
-  TrendingUp, Banknote,
+  TrendingUp, Banknote, FlaskConical,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
