@@ -1121,6 +1121,60 @@ export default function CustomersPage() {
           })()}
         </DialogContent>
       </Dialog>
+
+      {/* CSV Import Dialog */}
+      <Dialog open={csvImportOpen} onOpenChange={setCsvImportOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Import Customers from CSV</DialogTitle>
+          </DialogHeader>
+          <p className="text-[12px] text-muted-foreground">
+            Map your CSV columns to customer fields. {csvRows.length} rows found.
+          </p>
+          <div className="space-y-2 max-h-[300px] overflow-y-auto">
+            {CSV_FIELDS.map(({ key, label, required }) => (
+              <div key={key} className="flex items-center gap-3">
+                <span className="text-[11px] font-medium w-28 shrink-0">
+                  {label}{required && <span className="text-destructive">*</span>}
+                </span>
+                <Select
+                  value={csvMapping[key] || "__none__"}
+                  onValueChange={(v) => setCsvMapping((m) => ({ ...m, [key]: v === "__none__" ? "" : v }))}
+                >
+                  <SelectTrigger className="h-8 text-[12px]"><SelectValue placeholder="— skip —" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">— skip —</SelectItem>
+                    {csvHeaders.map((h) => (
+                      <SelectItem key={h} value={h}>{h}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ))}
+          </div>
+          {/* Preview */}
+          {csvRows.length > 0 && csvMapping.name && (
+            <div className="rounded-md border border-border bg-muted/20 p-2 max-h-[140px] overflow-auto">
+              <p className="text-[10px] text-muted-foreground mb-1 font-semibold uppercase tracking-wide">Preview (first 3)</p>
+              {csvRows.slice(0, 3).map((row, i) => {
+                const nameIdx = csvHeaders.indexOf(csvMapping.name);
+                const addrIdx = csvMapping.address ? csvHeaders.indexOf(csvMapping.address) : -1;
+                return (
+                  <div key={i} className="text-[11px] text-foreground py-0.5 border-b border-border last:border-0">
+                    {nameIdx >= 0 ? row[nameIdx] : "—"}{addrIdx >= 0 ? ` · ${row[addrIdx]}` : ""}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" size="sm" onClick={() => setCsvImportOpen(false)}>Cancel</Button>
+            <Button size="sm" onClick={handleCsvImport}>
+              <Upload className="h-3.5 w-3.5" /> Import {csvRows.length} Customers
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
