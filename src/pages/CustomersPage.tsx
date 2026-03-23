@@ -284,7 +284,7 @@ export default function CustomersPage() {
       const daysUntil = -daysOverdue;
       const totalCharged = completedJobs.reduce((s, j) => s + j.price, 0);
       const totalPaid = payments.filter((p) => p.customerId === c.id).reduce((s, p) => s + p.amount, 0);
-      const outstanding = Math.max(0, totalCharged - totalPaid);
+      const outstanding = Math.max(0, totalCharged - totalPaid + (c.importedBalance || 0));
       return { customer: c, lastJob, lastCleanDate, nextDue, daysOverdue, daysUntil, totalCharged, totalPaid, outstanding };
     });
   }, [customers, jobs, payments]);
