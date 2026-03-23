@@ -46,7 +46,7 @@ export default function RoundsPage() {
   const unassigned = useMemo(() => customers.filter((c) => !c.roundId || !rounds.some((r) => r.id === c.roundId)), [customers, rounds]);
 
   const openAdd = () => { setEditing(null); setForm(emptyForm); setDialogOpen(true); };
-  const openEdit = (r: Round) => { setEditing(r); setForm({ name: r.name, day: (r.day || "none") as Round["day"], colour: r.colour }); setDialogOpen(true); };
+  const openEdit = (r: Round) => { setEditing(r); setForm({ name: r.name, day: r.day || "none", colour: r.colour }); setDialogOpen(true); };
 
   const handleSave = () => {
     if (!form.name.trim()) return;
