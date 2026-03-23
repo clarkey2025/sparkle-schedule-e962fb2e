@@ -144,6 +144,7 @@ function saveData(data: AppData) {
 
 export function useAppData() {
   const [data, setData] = useState<AppData>(loadData);
+  const [isDemoActive, setIsDemoActive] = useState<boolean>(isDemoDataActive);
 
   const update = useCallback((updater: (prev: AppData) => AppData) => {
     setData((prev) => {
