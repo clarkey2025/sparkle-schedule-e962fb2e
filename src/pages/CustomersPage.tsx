@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef, useCallback, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useApp } from "@/lib/AppContext";
 import { formatCurrency, formatDate, getNextDueDate, FREQUENCY_LABELS } from "@/lib/helpers";
 import { geocodeCustomers, type GeocodeResult } from "@/lib/geocode";
@@ -122,6 +123,7 @@ function WizardSteps({ current }: { current: number }) {
 export default function CustomersPage() {
   const { customers, jobs, payments, services, customerServices, addCustomer, updateCustomer, deleteCustomer, addPayment, addCustomerService, deleteCustomerService } = useApp();
   const { toast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<FilterKey>("all");
@@ -133,6 +135,17 @@ export default function CustomersPage() {
   const [wizardStep, setWizardStep] = useState(0);
   const [editing, setEditing] = useState<Customer | null>(null);
   const [form, setForm] = useState(emptyForm);
+
+  // Auto-open wizard from ?add=1 (e.g. mobile FAB)
+  useEffect(() => {
+    if (searchParams.get("add") === "1") {
+      setEditing(null);
+      setForm(emptyForm);
+      setWizardStep(0);
+      setWizardOpen(true);
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   // Detail sheet
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
