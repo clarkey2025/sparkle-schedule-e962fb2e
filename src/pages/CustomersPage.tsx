@@ -27,8 +27,10 @@ const PAGE_SIZE = 10;
 
 const emptyForm = {
   name: "", address: "", phone: "", email: "",
-  frequency: "monthly" as Customer["frequency"],
+  frequency: "weekly" as Customer["frequency"],
   pricePerClean: 0, notes: "",
+  lastCleanDate: "" as string,
+  nextDueDate: "" as string,
 };
 
 const emptyPaymentForm = {
@@ -198,7 +200,12 @@ export default function CustomersPage() {
   const openAdd = () => { setEditing(null); setForm(emptyForm); setWizardStep(0); setWizardOpen(true); };
   const openEdit = (c: Customer) => {
     setEditing(c);
-    setForm({ name: c.name, address: c.address, phone: c.phone, email: c.email, frequency: c.frequency, pricePerClean: c.pricePerClean, notes: c.notes });
+    setForm({
+      name: c.name, address: c.address, phone: c.phone, email: c.email,
+      frequency: c.frequency, pricePerClean: c.pricePerClean, notes: c.notes,
+      lastCleanDate: c.lastCleanDate || "",
+      nextDueDate: c.nextDueDate || "",
+    });
     setWizardStep(0);
     setWizardOpen(true);
   };
@@ -897,6 +904,24 @@ export default function CustomersPage() {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+              <div>
+                <Label className="label-caps mb-1.5 block">Last Cleaned On</Label>
+                <Input
+                  type="date"
+                  value={form.lastCleanDate}
+                  onChange={(e) => setForm({ ...form, lastCleanDate: e.target.value })}
+                />
+                <p className="text-[10px] text-muted-foreground mt-1">When was their last clean? Leave blank if new customer.</p>
+              </div>
+              <div>
+                <Label className="label-caps mb-1.5 block">Next Clean Due</Label>
+                <Input
+                  type="date"
+                  value={form.nextDueDate}
+                  onChange={(e) => setForm({ ...form, nextDueDate: e.target.value })}
+                />
+                <p className="text-[10px] text-muted-foreground mt-1">Override the calculated due date, or leave blank to auto-calculate from frequency.</p>
               </div>
               <div>
                 <Label className="label-caps mb-1.5 block">Price per clean (£)</Label>

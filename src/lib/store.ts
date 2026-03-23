@@ -13,6 +13,8 @@ export interface Customer {
   createdAt: string;
   lat?: number;
   lng?: number;
+  lastCleanDate?: string;
+  nextDueDate?: string;
 }
 
 export interface Job {
