@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useCallback } from "react";
 import { useApp } from "@/lib/AppContext";
 import { formatCurrency, formatDate, getNextDueDate, FREQUENCY_LABELS } from "@/lib/helpers";
-import { geocodeCustomers } from "@/lib/geocode";
+import { geocodeCustomers, type GeocodeResult } from "@/lib/geocode";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
