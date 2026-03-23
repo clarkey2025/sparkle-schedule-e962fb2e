@@ -93,6 +93,23 @@ function loadData(): AppData {
         // Migrate old data missing new fields
         if (!parsed.services) parsed.services = generateMockData().services;
         if (!parsed.customerServices) parsed.customerServices = generateMockData().customerServices;
+
+        // One-time migration: set monthly customers + "Darts Academy" due tomorrow
+        const MIGRATE_KEY = "pane-pro-migrate-due-tomorrow";
+        if (!localStorage.getItem(MIGRATE_KEY)) {
+          const tomorrow = new Date();
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          const tomorrowStr = tomorrow.toISOString().slice(0, 10);
+          parsed.customers = parsed.customers.map((c: Customer) => {
+            if (c.frequency === "monthly" || c.name.toLowerCase().includes("darts academy")) {
+              return { ...c, nextDueDate: tomorrowStr };
+            }
+            return c;
+          });
+          localStorage.setItem(MIGRATE_KEY, "done");
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+        }
+
         return parsed;
       }
     }
