@@ -5,6 +5,7 @@ const PHOTON_URL = "https://photon.komoot.io/api";
 const REQUEST_TIMEOUT_MS = 10_000;
 const RETRY_DELAYS_MS = [0, 2_000, 4_000] as const;
 const CUSTOMER_DELAY_MS = 1_600;
+const DEFAULT_TOWN = "Fleetwood";
 
 interface GeoResult {
   lat: number;
