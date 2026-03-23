@@ -1288,6 +1288,48 @@ export default function CustomersPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Geocode failed summary dialog */}
+      <Dialog open={geoSummaryOpen} onOpenChange={setGeoSummaryOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="h-4 w-4" />
+              {geoFailedList.length} Address{geoFailedList.length !== 1 ? "es" : ""} Failed
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-[12px] text-muted-foreground -mt-2">
+            These addresses couldn't be geocoded. Edit them to fix typos or add postcodes, then re-run Geocode.
+          </p>
+          <div className="max-h-[300px] overflow-auto rounded-md border border-border divide-y divide-border">
+            {geoFailedList.map((item) => (
+              <div
+                key={item.id}
+                className="flex items-start gap-3 px-3 py-2.5 hover:bg-muted/20 transition-colors cursor-pointer"
+                onClick={() => {
+                  const c = customers.find((c) => c.id === item.id);
+                  if (c) { openEdit(c); setGeoSummaryOpen(false); }
+                }}
+              >
+                <MapPin className="h-3.5 w-3.5 text-destructive/60 mt-0.5 shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[12px] font-medium text-foreground">{item.name}</p>
+                  <p className="text-[11px] text-muted-foreground truncate">{item.address || "No address"}</p>
+                </div>
+                <Pencil className="h-3 w-3 text-muted-foreground/40 mt-1 shrink-0" />
+              </div>
+            ))}
+          </div>
+          <div className="flex justify-end gap-2 pt-1">
+            <Button variant="outline" size="sm" onClick={() => setGeoSummaryOpen(false)}>
+              Dismiss
+            </Button>
+            <Button size="sm" onClick={() => { setGeoSummaryOpen(false); triggerGeocode(); }}>
+              <MapPin className="h-3.5 w-3.5" /> Retry All
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
