@@ -229,6 +229,22 @@ export default function CustomersPage() {
 
   const VALID_FREQUENCIES = ["weekly", "fortnightly", "monthly", "6-weekly", "quarterly"];
 
+  const parseFrequency = (raw: string): Customer["frequency"] => {
+    const v = raw.toLowerCase().trim().replace(/[\s\-_]+/g, "");
+    if (v === "weekly" || v === "1weekly" || v === "everyweek") return "weekly";
+    if (["fortnightly", "biweekly", "2weekly", "every2weeks", "twoweekly", "everyotherweek"].includes(v)) return "fortnightly";
+    if (["monthly", "4weekly", "every4weeks", "everymonth"].includes(v)) return "monthly";
+    if (["6weekly", "6week", "every6weeks", "sixweekly"].includes(v)) return "6-weekly";
+    if (["quarterly", "every3months", "3monthly", "12weekly"].includes(v)) return "quarterly";
+    // Try numeric week patterns e.g. "2" or "4"
+    if (v === "2") return "fortnightly";
+    if (v === "4") return "monthly";
+    if (v === "6") return "6-weekly";
+    // Fallback
+    if (VALID_FREQUENCIES.includes(raw.toLowerCase().replace(/\s/g, "-"))) return raw.toLowerCase().replace(/\s/g, "-") as Customer["frequency"];
+    return "monthly";
+  };
+
   const handleCsvImport = () => {
     const nameCol = csvMapping.name;
     if (!nameCol) {
@@ -245,8 +261,7 @@ export default function CustomersPage() {
       };
       const name = getValue("name");
       if (!name) return;
-      const rawFreq = getValue("frequency").toLowerCase().replace(/\s/g, "-");
-      const frequency = VALID_FREQUENCIES.includes(rawFreq) ? rawFreq as Customer["frequency"] : "monthly";
+      const frequency = parseFrequency(getValue("frequency"));
       const price = parseFloat(getValue("pricePerClean")) || 0;
       const lastClean = parseFlexibleDate(getValue("lastCleanDate"));
       const nextDueRaw = parseFlexibleDate(getValue("nextDueDate"));
