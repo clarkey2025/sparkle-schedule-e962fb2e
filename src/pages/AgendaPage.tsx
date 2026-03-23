@@ -213,8 +213,11 @@ function RouteMap({
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function AgendaPage() {
-  const { customers, jobs, updateJob } = useApp();
+  const { customers, jobs, addJob, updateJob } = useApp();
   const todayStr = new Date().toISOString().slice(0, 10);
+  const tomorrowStr = (() => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().slice(0, 10); })();
+  const [viewDate, setViewDate] = useState<"today" | "tomorrow">("today");
+  const dateStr = viewDate === "today" ? todayStr : tomorrowStr;
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const [routeData, setRouteData] = useState<{ path: [number, number][]; legs: LegInfo[]; totalDistance: number; totalDuration: number } | null>(null);
   const [routeLoading, setRouteLoading] = useState(false);
@@ -222,12 +225,33 @@ export default function AgendaPage() {
   const [optimised, setOptimised] = useState(false);
   const [stopOrder, setStopOrder] = useState<string[]>([]);  // jobId order override
 
-  const todayJobsRaw = useMemo(() =>
-    jobs
-      .filter((j) => j.date === todayStr && j.status !== "cancelled")
-      .map((j) => ({ job: j, customer: customers.find((c) => c.id === j.customerId) })),
-    [jobs, customers, todayStr]
-  );
+  // Combine explicit jobs + customers due on the selected date (auto-create jobs for due customers)
+  const todayJobsRaw = useMemo(() => {
+    const existingJobs = jobs
+      .filter((j) => j.date === dateStr && j.status !== "cancelled")
+      .map((j) => ({ job: j, customer: customers.find((c) => c.id === j.customerId) }));
+
+    // Find customers due on this date who don't already have a job
+    const customerIdsWithJobs = new Set(existingJobs.map((e) => e.job.customerId));
+    const dueCustomers = customers.filter((c) =>
+      c.nextDueDate === dateStr && !customerIdsWithJobs.has(c.id)
+    );
+
+    // Create virtual job entries for due customers
+    const virtualJobs = dueCustomers.map((c) => ({
+      job: {
+        id: `virtual-${c.id}`,
+        customerId: c.id,
+        date: dateStr,
+        status: "scheduled" as const,
+        price: c.pricePerClean,
+        notes: "",
+      },
+      customer: c,
+    }));
+
+    return [...existingJobs, ...virtualJobs];
+  }, [jobs, customers, dateStr]);
 
   // Apply custom stop order when optimised
   const todayJobs = useMemo(() => {
@@ -268,11 +292,22 @@ export default function AgendaPage() {
   const totalValue = todayJobs.reduce((s, { job }) => s + job.price, 0);
   const completedCount = todayJobs.filter(({ job }) => job.status === "completed").length;
   const earnedToday = todayJobs.filter(({ job }) => job.status === "completed").reduce((s, { job }) => s + job.price, 0);
-  const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
+  const dateLabel = viewDate === "today"
+    ? new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })
+    : (() => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }); })();
 
   const markDone = useCallback((jobId: string) => {
-    updateJob(jobId, { status: "completed" });
-  }, [updateJob]);
+    // If it's a virtual job, create a real one first
+    if (jobId.startsWith("virtual-")) {
+      const customerId = jobId.replace("virtual-", "");
+      const c = customers.find((x) => x.id === customerId);
+      if (c) {
+        addJob({ customerId, date: dateStr, status: "completed", price: c.pricePerClean, notes: "" });
+      }
+    } else {
+      updateJob(jobId, { status: "completed" });
+    }
+  }, [updateJob, addJob, customers, dateStr]);
 
   const handleOptimise = useCallback(() => {
     if (stops.length < 2) return;
@@ -467,7 +502,20 @@ export default function AgendaPage() {
   // ── Normal view ───────────────────────────────────────────────────────────────
   return (
     <div className="flex flex-col gap-4 h-full min-h-0 pb-4 md:pb-0">
-      <PageHeader title="Today's Agenda" description={today} />
+      <PageHeader title={viewDate === "today" ? "Today's Agenda" : "Tomorrow's Agenda"} description={dateLabel}
+        action={
+          <div className="flex gap-2">
+            <button
+              onClick={() => { setViewDate("today"); setOptimised(false); setStopOrder([]); }}
+              className={cn("px-3 py-1.5 rounded-md text-[12px] font-medium transition-colors", viewDate === "today" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground")}
+            >Today</button>
+            <button
+              onClick={() => { setViewDate("tomorrow"); setOptimised(false); setStopOrder([]); }}
+              className={cn("px-3 py-1.5 rounded-md text-[12px] font-medium transition-colors", viewDate === "tomorrow" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground")}
+            >Tomorrow</button>
+          </div>
+        }
+      />
 
       {/* Stat cards */}
       <div className="grid grid-cols-3 gap-3 shrink-0">
