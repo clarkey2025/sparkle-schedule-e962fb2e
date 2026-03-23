@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -378,6 +379,14 @@ export default function CustomersPage() {
     clearSelection();
   };
 
+  const [showBulkDelete, setShowBulkDelete] = useState(false);
+  const bulkDelete = () => {
+    selectedIds.forEach((id) => deleteCustomer(id));
+    toast({ title: "Deleted", description: `Removed ${selectedIds.size} customer${selectedIds.size > 1 ? "s" : ""}.` });
+    clearSelection();
+    setShowBulkDelete(false);
+  };
+
   const bulkExportCsv = () => {
     const selected = enriched.filter(({ customer }) => selectedIds.has(customer.id));
     const headers = ["Name", "Address", "Phone", "Email", "Frequency", "Price Per Clean", "Outstanding", "Last Clean"];
@@ -480,11 +489,27 @@ export default function CustomersPage() {
           <Button variant="outline" size="sm" onClick={bulkExportCsv}>
             <Download className="h-3.5 w-3.5" /> Export CSV
           </Button>
+          <Button variant="destructive" size="sm" onClick={() => setShowBulkDelete(true)}>
+            <Trash2 className="h-3.5 w-3.5" /> Delete
+          </Button>
           <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={clearSelection}>
             Clear
           </Button>
         </div>
       )}
+
+      <AlertDialog open={showBulkDelete} onOpenChange={setShowBulkDelete}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selectedIds.size} customer{selectedIds.size > 1 ? "s" : ""}?</AlertDialogTitle>
+            <AlertDialogDescription>This will permanently remove the selected customers and all their jobs, payments, and services. This cannot be undone.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={bulkDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Table */}
       <div className="animate-fade-up stagger-3 flex flex-col gap-3">
