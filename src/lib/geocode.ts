@@ -151,8 +151,6 @@ async function geocodeWithNominatim(query: string): Promise<GeocodeAttempt> {
   } catch {
     return { coords: null, retryable: true };
   }
-    return { coords: null, retryable: true };
-  }
 }
 
 async function geocodeWithPhoton(query: string): Promise<GeocodeAttempt> {
