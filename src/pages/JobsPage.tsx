@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Check, X, Trash2 } from "lucide-react";
 import type { Job } from "@/lib/store";
 
@@ -41,10 +42,13 @@ export default function JobsPage() {
     setDialogOpen(false);
   };
 
-  const statusColors: Record<Job["status"], string> = {
-    scheduled: "bg-warning/10 text-warning border-warning/20",
-    completed: "bg-success/10 text-success border-success/20",
-    cancelled: "bg-destructive/10 text-destructive border-destructive/20",
+  const statusBadge = (status: Job["status"]) => {
+    const map: Record<Job["status"], string> = {
+      scheduled: "bg-warning/10 text-warning border-warning/20",
+      completed: "bg-success/10 text-success border-success/20",
+      cancelled: "bg-destructive/10 text-destructive border-destructive/20",
+    };
+    return map[status];
   };
 
   return (
@@ -59,55 +63,69 @@ export default function JobsPage() {
         }
       />
 
-      {/* Filters */}
-      <div className="mb-5 flex gap-2 animate-fade-up stagger-1 flex-wrap">
+      <div className="mb-4 flex gap-2 animate-fade-up stagger-1 flex-wrap">
         {(["all", "scheduled", "completed", "cancelled"] as const).map((f) => (
-          <Button key={f} variant={filter === f ? "default" : "outline"} size="sm" onClick={() => setFilter(f)} className="capitalize">
+          <Button key={f} variant={filter === f ? "default" : "outline"} size="sm" onClick={() => setFilter(f)} className="capitalize text-xs">
             {f}
           </Button>
         ))}
       </div>
 
       {filtered.length === 0 ? (
-        <div className="glass-card rounded-xl p-8 text-center animate-fade-up stagger-2">
-          <p className="text-muted-foreground">
+        <div className="surface rounded-md p-8 text-center animate-fade-up stagger-2">
+          <p className="text-muted-foreground text-sm">
             {customers.length === 0 ? "Add a customer first to start logging jobs." : "No jobs found."}
           </p>
         </div>
       ) : (
-        <div className="space-y-3 animate-fade-up stagger-2">
-          {filtered.map((job) => {
-            const customer = customers.find((c) => c.id === job.customerId);
-            return (
-              <div key={job.id} className="glass-card group flex items-center justify-between rounded-xl px-5 py-4 transition-shadow hover:shadow-md">
-                <div className="min-w-0">
-                  <p className="font-medium truncate">{customer?.name ?? "Unknown"}</p>
-                  <p className="text-xs text-muted-foreground">{formatDate(job.date)}{job.notes ? ` · ${job.notes}` : ""}</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-bold">{formatCurrency(job.price)}</span>
-                  <Badge variant="outline" className={`text-xs ${statusColors[job.status]}`}>
-                    {job.status}
-                  </Badge>
-                  <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                    {job.status === "scheduled" && (
-                      <>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-success" onClick={() => updateJob(job.id, { status: "completed" })}>
-                          <Check className="h-4 w-4" />
+        <div className="surface rounded-md animate-fade-up stagger-2 overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="label-caps">Customer</TableHead>
+                <TableHead className="label-caps">Date</TableHead>
+                <TableHead className="label-caps">Notes</TableHead>
+                <TableHead className="label-caps text-right">Price</TableHead>
+                <TableHead className="label-caps text-center">Status</TableHead>
+                <TableHead className="label-caps text-right w-[100px]">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filtered.map((job) => {
+                const customer = customers.find((c) => c.id === job.customerId);
+                return (
+                  <TableRow key={job.id} className="group border-border">
+                    <TableCell className="font-medium text-foreground">{customer?.name ?? "Unknown"}</TableCell>
+                    <TableCell className="mono text-sm text-muted-foreground">{formatDate(job.date)}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate">{job.notes || "—"}</TableCell>
+                    <TableCell className="mono text-sm text-right text-foreground">{formatCurrency(job.price)}</TableCell>
+                    <TableCell className="text-center">
+                      <Badge variant="outline" className={`text-[10px] uppercase tracking-wider ${statusBadge(job.status)}`}>
+                        {job.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                        {job.status === "scheduled" && (
+                          <>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-success" onClick={() => updateJob(job.id, { status: "completed" })}>
+                              <Check className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => updateJob(job.id, { status: "cancelled" })}>
+                              <X className="h-3.5 w-3.5" />
+                            </Button>
+                          </>
+                        )}
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteJob(job.id)}>
+                          <Trash2 className="h-3 w-3" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => updateJob(job.id, { status: "cancelled" })}>
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </>
-                    )}
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => deleteJob(job.id)}>
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
         </div>
       )}
 
