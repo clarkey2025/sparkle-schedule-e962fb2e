@@ -27,8 +27,10 @@ const PAGE_SIZE = 10;
 
 const emptyForm = {
   name: "", address: "", phone: "", email: "",
-  frequency: "monthly" as Customer["frequency"],
+  frequency: "weekly" as Customer["frequency"],
   pricePerClean: 0, notes: "",
+  lastCleanDate: "" as string,
+  nextDueDate: "" as string,
 };
 
 const emptyPaymentForm = {
