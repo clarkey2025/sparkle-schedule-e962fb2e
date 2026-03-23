@@ -17,7 +17,8 @@ import {
   Clock, PoundSterling, Receipt, ArrowRight, User, Calendar,
   StickyNote, Check, Banknote, Download, FileText,
 } from "lucide-react";
-import type { Customer, Payment } from "@/lib/store";
+import type { Customer, Payment, CustomerService as CustomerServiceType } from "@/lib/store";
+import { Wrench } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
