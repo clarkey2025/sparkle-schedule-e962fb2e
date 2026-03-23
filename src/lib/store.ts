@@ -77,6 +77,10 @@ function loadData(): AppData {
 
     if (seededVersion !== MOCK_VERSION || !raw) {
       const mock = generateMockData();
+      mock.customers = [];
+      mock.jobs = [];
+      mock.payments = [];
+      mock.customerServices = [];
       localStorage.setItem(STORAGE_KEY, JSON.stringify(mock));
       localStorage.setItem(MOCK_VERSION_KEY, MOCK_VERSION);
       return mock;
