@@ -43,7 +43,7 @@ const emptyForm: FormState = {
 };
 
 export default function ServicesPage() {
-  const { services, customerServices, customers, addService, updateService, deleteService } = useApp();
+  const { services = [], customerServices = [], customers, addService, updateService, deleteService } = useApp();
   const { toast } = useToast();
 
   const [dialogOpen, setDialogOpen] = useState(false);
