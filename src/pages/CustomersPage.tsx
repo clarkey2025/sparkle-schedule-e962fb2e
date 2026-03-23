@@ -297,19 +297,30 @@ export default function CustomersPage() {
 
   const [geocoding, setGeocoding] = useState(false);
   const [geoProgress, setGeoProgress] = useState({ done: 0, total: 0 });
+  const [geoFailedList, setGeoFailedList] = useState<GeocodeResult["failed"]>([]);
+  const [geoSummaryOpen, setGeoSummaryOpen] = useState(false);
 
   const triggerGeocode = useCallback(async () => {
-    const needsGeo = customers.filter((c) => !c.lat && !c.lng && c.address.trim());
-    if (needsGeo.length === 0) return;
+    const needsGeo = customers.filter((c) => (!c.lat || !c.lng) && c.address.trim());
+    if (needsGeo.length === 0) {
+      toast({ title: "All geocoded", description: "Every customer already has coordinates." });
+      return;
+    }
     setGeocoding(true);
     setGeoProgress({ done: 0, total: needsGeo.length });
-    const count = await geocodeCustomers(
-      needsGeo,
+    const result = await geocodeCustomers(
+      needsGeo.map((c) => ({ id: c.id, name: c.name, address: c.address, lat: c.lat, lng: c.lng })),
       (id, coords) => updateCustomer(id, coords),
       (done, total) => setGeoProgress({ done, total }),
     );
     setGeocoding(false);
-    toast({ title: `Geocoded ${count} addresses`, description: `${count} of ${needsGeo.length} addresses mapped.` });
+    if (result.failed.length > 0) {
+      setGeoFailedList(result.failed);
+      setGeoSummaryOpen(true);
+      toast({ title: `Geocoded ${result.successCount} addresses`, description: `${result.failed.length} failed — tap for details.`, variant: "destructive" });
+    } else {
+      toast({ title: `All ${result.successCount} addresses geocoded`, description: "Every address was mapped successfully." });
+    }
   }, [customers, updateCustomer, toast]);
 
   const now = new Date();
