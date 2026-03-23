@@ -1,4 +1,4 @@
-import type { Customer, Job, Payment } from "./store";
+import type { Customer, Job, Payment, Service, CustomerService } from "./store";
 
 // Today = 2026-03-22 — customers in/around Fleetwood, Lancashire
 const CUSTOMERS: Customer[] = [
