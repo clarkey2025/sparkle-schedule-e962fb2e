@@ -8,6 +8,7 @@ import {
   ClipboardList,
   Route,
   Wrench,
+  CircleDot,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import bucketListIcon from "@/assets/bucket-list-icon.png";
