@@ -34,12 +34,35 @@ export interface Payment {
   notes: string;
 }
 
+export type CaravanTier = "full-external" | "roof-only" | "rinse-down";
+
+export interface Service {
+  id: string;
+  name: string;
+  category: "gutter-cleaning" | "soffit-fascia" | "jet-washing" | "caravan-cleaning" | "window-cleaning" | "custom";
+  description: string;
+  defaultPrice: number;
+  caravanTier?: CaravanTier;
+}
+
+export interface CustomerService {
+  id: string;
+  customerId: string;
+  serviceId: string;
+  price: number;
+  type: "recurring" | "one-off";
+  frequency?: Customer["frequency"];
+  notes: string;
+}
+
 const STORAGE_KEY = "pane-pro-data";
 
 interface AppData {
   customers: Customer[];
   jobs: Job[];
   payments: Payment[];
+  services: Service[];
+  customerServices: CustomerService[];
 }
 
 const MOCK_VERSION = "v4";
