@@ -48,7 +48,7 @@ export async function geocodeCustomers(
     }
     onProgress?.(i + 1, needsGeo.length);
     // Respect Nominatim rate limit
-    if (i < needsGeo.length - 1) await delay(1100);
+    if (i < needsGeo.length - 1) await delay(1500);
   }
   return geocoded;
 }
