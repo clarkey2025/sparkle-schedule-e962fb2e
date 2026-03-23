@@ -252,7 +252,6 @@ export default function CustomersPage() {
       const nextDue = parseFlexibleDate(getValue("nextDueDate"));
       const outstandingRaw = parseFloat(getValue("outstanding")) || 0;
 
-      const customerId = crypto.randomUUID();
       addCustomer({
         name,
         address: getValue("address"),
@@ -263,18 +262,8 @@ export default function CustomersPage() {
         notes: getValue("notes"),
         lastCleanDate: lastClean,
         nextDueDate: nextDue,
+        importedBalance: outstandingRaw,
       });
-
-      // If there's an outstanding balance, create a seed job so the balance shows
-      if (outstandingRaw > 0) {
-        addJob({
-          customerId,
-          date: lastClean || new Date().toISOString().slice(0, 10),
-          status: "completed",
-          price: outstandingRaw,
-          notes: "Imported outstanding balance",
-        });
-      }
       imported++;
     });
     setCsvImportOpen(false);
