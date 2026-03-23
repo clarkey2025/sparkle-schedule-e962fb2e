@@ -34,6 +34,7 @@ const emptyForm = {
   pricePerClean: 0, notes: "",
   lastCleanDate: "" as string,
   nextDueDate: "" as string,
+  roundId: "" as string,
 };
 
 const emptyPaymentForm = {
@@ -121,7 +122,7 @@ function WizardSteps({ current }: { current: number }) {
 
 // ── Main page ──────────────────────────────────────────────────────────────────
 export default function CustomersPage() {
-  const { customers, jobs, payments, services, customerServices, addCustomer, updateCustomer, deleteCustomer, addPayment, addCustomerService, deleteCustomerService } = useApp();
+  const { customers, jobs, payments, services, customerServices, rounds, addCustomer, updateCustomer, deleteCustomer, addPayment, addCustomerService, deleteCustomerService } = useApp();
   const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -415,6 +416,7 @@ export default function CustomersPage() {
       frequency: c.frequency, pricePerClean: c.pricePerClean, notes: c.notes,
       lastCleanDate: c.lastCleanDate || "",
       nextDueDate: c.nextDueDate || "",
+      roundId: c.roundId || "",
     });
     setWizardStep(0);
     setWizardOpen(true);
@@ -423,7 +425,8 @@ export default function CustomersPage() {
   const handleWizardBack = () => setWizardStep((s) => Math.max(s - 1, 0));
   const handleSave = () => {
     if (!form.name.trim()) return;
-    editing ? updateCustomer(editing.id, form) : addCustomer(form);
+    const saveData = { ...form, roundId: form.roundId || undefined };
+    editing ? updateCustomer(editing.id, saveData) : addCustomer(saveData);
     setWizardOpen(false);
     toast({ title: editing ? "Customer updated" : "Customer added", description: form.name });
   };
@@ -1180,6 +1183,24 @@ export default function CustomersPage() {
                   placeholder="0.00"
                 />
               </div>
+              {/* Round assignment */}
+              {rounds.length > 0 && (
+                <div>
+                  <Label className="label-caps mb-1.5 block">Round</Label>
+                  <Select value={form.roundId || "none"} onValueChange={(v) => setForm({ ...form, roundId: v === "none" ? "" : v })}>
+                    <SelectTrigger><SelectValue placeholder="No round" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">No round</SelectItem>
+                      {rounds.map((r) => (
+                        <SelectItem key={r.id} value={r.id}>
+                          <span className="inline-block h-2 w-2 rounded-full mr-1.5 align-middle" style={{ backgroundColor: r.colour }} />
+                          {r.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               {/* Quick preview */}
               <div className="rounded-md bg-muted/30 border border-border px-3 py-2.5 flex justify-between items-center">
                 <span className="text-[11px] text-muted-foreground">Est. annual revenue</span>
@@ -1213,6 +1234,7 @@ export default function CustomersPage() {
                   { label: "Address", value: form.address || "—" },
                   { label: "Frequency", value: FREQUENCY_LABELS[form.frequency] },
                   { label: "Price", value: formatCurrency(form.pricePerClean) },
+                  ...(form.roundId ? [{ label: "Round", value: rounds.find((r) => r.id === form.roundId)?.name || "—" }] : []),
                 ].map(({ label, value }) => (
                   <div key={label} className="flex justify-between px-3 py-2">
                     <span className="text-muted-foreground">{label}</span>
