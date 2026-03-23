@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { useApp } from "@/lib/AppContext";
 import { formatCurrency, formatDate, getNextDueDate, FREQUENCY_LABELS } from "@/lib/helpers";
 import PageHeader from "@/components/PageHeader";
@@ -15,7 +15,7 @@ import {
   Plus, Search, Trash2, Pencil, MapPin, Phone, Mail,
   AlertTriangle, CheckCircle2, ChevronRight, ChevronLeft,
   Clock, PoundSterling, Receipt, ArrowRight, User, Calendar,
-  StickyNote, Check, Banknote, Download, FileText,
+  StickyNote, Check, Banknote, Download, FileText, Upload,
 } from "lucide-react";
 import type { Customer, Payment, CustomerService as CustomerServiceType } from "@/lib/store";
 import { Wrench } from "lucide-react";
@@ -145,6 +145,103 @@ export default function CustomersPage() {
 
   // Bulk selection
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  // CSV import state
+  const csvInputRef = useRef<HTMLInputElement>(null);
+  const [csvImportOpen, setCsvImportOpen] = useState(false);
+  const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
+  const [csvRows, setCsvRows] = useState<string[][]>([]);
+  const [csvMapping, setCsvMapping] = useState<Record<string, string>>({});
+
+  const CSV_FIELDS = [
+    { key: "name", label: "Name", required: true },
+    { key: "address", label: "Address" },
+    { key: "phone", label: "Phone" },
+    { key: "email", label: "Email" },
+    { key: "frequency", label: "Frequency" },
+    { key: "pricePerClean", label: "Price per Clean" },
+    { key: "notes", label: "Notes" },
+  ];
+
+  const parseCSV = (text: string) => {
+    const lines = text.split(/\r?\n/).filter((l) => l.trim());
+    if (lines.length < 2) return;
+    const splitRow = (row: string) => {
+      const result: string[] = [];
+      let current = "";
+      let inQuotes = false;
+      for (const ch of row) {
+        if (ch === '"') { inQuotes = !inQuotes; continue; }
+        if (ch === "," && !inQuotes) { result.push(current.trim()); current = ""; continue; }
+        current += ch;
+      }
+      result.push(current.trim());
+      return result;
+    };
+    const headers = splitRow(lines[0]);
+    const rows = lines.slice(1).map(splitRow).filter((r) => r.some((c) => c));
+    setCsvHeaders(headers);
+    setCsvRows(rows);
+
+    // Auto-map by fuzzy match
+    const autoMap: Record<string, string> = {};
+    CSV_FIELDS.forEach(({ key }) => {
+      const match = headers.find((h) => h.toLowerCase().replace(/[^a-z]/g, "").includes(key.toLowerCase().replace(/[^a-z]/g, "")));
+      if (match) autoMap[key] = match;
+    });
+    setCsvMapping(autoMap);
+    setCsvImportOpen(true);
+  };
+
+  const handleCsvFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const text = ev.target?.result as string;
+      parseCSV(text);
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  };
+
+  const VALID_FREQUENCIES = ["weekly", "fortnightly", "monthly", "6-weekly", "quarterly"];
+
+  const handleCsvImport = () => {
+    const nameCol = csvMapping.name;
+    if (!nameCol) {
+      toast({ title: "Map required", description: "Please map the Name column.", variant: "destructive" });
+      return;
+    }
+    let imported = 0;
+    csvRows.forEach((row) => {
+      const getValue = (field: string) => {
+        const header = csvMapping[field];
+        if (!header) return "";
+        const idx = csvHeaders.indexOf(header);
+        return idx >= 0 ? (row[idx] || "") : "";
+      };
+      const name = getValue("name");
+      if (!name) return;
+      const rawFreq = getValue("frequency").toLowerCase().replace(/\s/g, "-");
+      const frequency = VALID_FREQUENCIES.includes(rawFreq) ? rawFreq as Customer["frequency"] : "monthly";
+      const price = parseFloat(getValue("pricePerClean")) || 0;
+      addCustomer({
+        name,
+        address: getValue("address"),
+        phone: getValue("phone"),
+        email: getValue("email"),
+        frequency,
+        pricePerClean: price,
+        notes: getValue("notes"),
+        lastCleanDate: "",
+        nextDueDate: "",
+      });
+      imported++;
+    });
+    setCsvImportOpen(false);
+    toast({ title: `Imported ${imported} customers`, description: `${imported} customers added from CSV.` });
+  };
 
   const now = new Date();
 
@@ -315,9 +412,15 @@ export default function CustomersPage() {
         title="Customers"
         description={`${customers.length} customers · ${overdueCount > 0 ? `${overdueCount} overdue` : "all up to date"}`}
         action={
-          <Button onClick={openAdd} size="sm">
-            <Plus className="h-3.5 w-3.5" /> Add Customer
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => csvInputRef.current?.click()}>
+              <Upload className="h-3.5 w-3.5" /> Import CSV
+            </Button>
+            <input ref={csvInputRef} type="file" accept=".csv" className="hidden" onChange={handleCsvFile} />
+            <Button onClick={openAdd} size="sm">
+              <Plus className="h-3.5 w-3.5" /> Add Customer
+            </Button>
+          </div>
         }
       />
 
@@ -1016,6 +1119,60 @@ export default function CustomersPage() {
               </div>
             );
           })()}
+        </DialogContent>
+      </Dialog>
+
+      {/* CSV Import Dialog */}
+      <Dialog open={csvImportOpen} onOpenChange={setCsvImportOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Import Customers from CSV</DialogTitle>
+          </DialogHeader>
+          <p className="text-[12px] text-muted-foreground">
+            Map your CSV columns to customer fields. {csvRows.length} rows found.
+          </p>
+          <div className="space-y-2 max-h-[300px] overflow-y-auto">
+            {CSV_FIELDS.map(({ key, label, required }) => (
+              <div key={key} className="flex items-center gap-3">
+                <span className="text-[11px] font-medium w-28 shrink-0">
+                  {label}{required && <span className="text-destructive">*</span>}
+                </span>
+                <Select
+                  value={csvMapping[key] || "__none__"}
+                  onValueChange={(v) => setCsvMapping((m) => ({ ...m, [key]: v === "__none__" ? "" : v }))}
+                >
+                  <SelectTrigger className="h-8 text-[12px]"><SelectValue placeholder="— skip —" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">— skip —</SelectItem>
+                    {csvHeaders.map((h) => (
+                      <SelectItem key={h} value={h}>{h}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ))}
+          </div>
+          {/* Preview */}
+          {csvRows.length > 0 && csvMapping.name && (
+            <div className="rounded-md border border-border bg-muted/20 p-2 max-h-[140px] overflow-auto">
+              <p className="text-[10px] text-muted-foreground mb-1 font-semibold uppercase tracking-wide">Preview (first 3)</p>
+              {csvRows.slice(0, 3).map((row, i) => {
+                const nameIdx = csvHeaders.indexOf(csvMapping.name);
+                const addrIdx = csvMapping.address ? csvHeaders.indexOf(csvMapping.address) : -1;
+                return (
+                  <div key={i} className="text-[11px] text-foreground py-0.5 border-b border-border last:border-0">
+                    {nameIdx >= 0 ? row[nameIdx] : "—"}{addrIdx >= 0 ? ` · ${row[addrIdx]}` : ""}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" size="sm" onClick={() => setCsvImportOpen(false)}>Cancel</Button>
+            <Button size="sm" onClick={handleCsvImport}>
+              <Upload className="h-3.5 w-3.5" /> Import {csvRows.length} Customers
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
