@@ -11,6 +11,7 @@ import JobsPage from "@/pages/JobsPage";
 import PaymentsPage from "@/pages/PaymentsPage";
 import AgendaPage from "@/pages/AgendaPage";
 import RoutePage from "@/pages/RoutePage";
+import ServicesPage from "@/pages/ServicesPage";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
