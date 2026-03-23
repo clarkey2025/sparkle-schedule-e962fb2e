@@ -15,7 +15,7 @@ import {
   Plus, Search, Trash2, Pencil, MapPin, Phone, Mail,
   AlertTriangle, CheckCircle2, ChevronRight, ChevronLeft,
   Clock, PoundSterling, Receipt, ArrowRight, User, Calendar,
-  StickyNote, Check, Banknote, Download, FileText,
+  StickyNote, Check, Banknote, Download, FileText, Upload,
 } from "lucide-react";
 import type { Customer, Payment, CustomerService as CustomerServiceType } from "@/lib/store";
 import { Wrench } from "lucide-react";
