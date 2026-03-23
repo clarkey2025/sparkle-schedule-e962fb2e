@@ -205,6 +205,25 @@ const PAYMENTS: Payment[] = [
   { id: "p22", customerId: "c16", amount: 28, date: "2026-02-09", method: "bank-transfer", notes: "" },
 ];
 
+const SERVICES: Service[] = [
+  { id: "sv1", name: "Window Cleaning", category: "window-cleaning", description: "Standard residential window clean — interior & exterior.", defaultPrice: 0 },
+  { id: "sv2", name: "Gutter Cleaning", category: "gutter-cleaning", description: "Full gutter clear-out including downpipes. Vacuum & flush.", defaultPrice: 45 },
+  { id: "sv3", name: "Soffit & Fascia Cleaning", category: "soffit-fascia", description: "Pressure-safe clean of soffits, fascias & bargeboards.", defaultPrice: 60 },
+  { id: "sv4", name: "Jet Washing", category: "jet-washing", description: "Driveways, patios, paths & decking. Price per m².", defaultPrice: 80 },
+  { id: "sv5", name: "Caravan Cleaning — Full External", category: "caravan-cleaning", description: "Complete exterior wash including roof, walls & windows.", defaultPrice: 55, caravanTier: "full-external" },
+  { id: "sv6", name: "Caravan Cleaning — Roof Only", category: "caravan-cleaning", description: "Roof wash & treat. Removes moss, algae & black streaks.", defaultPrice: 35, caravanTier: "roof-only" },
+  { id: "sv7", name: "Caravan Cleaning — Rinse Down", category: "caravan-cleaning", description: "Quick rinse & dry. Ideal for pre-holiday prep.", defaultPrice: 20, caravanTier: "rinse-down" },
+];
+
+const CUSTOMER_SERVICES: CustomerService[] = [
+  { id: "cs1", customerId: "c3", serviceId: "sv2", price: 45, type: "recurring", frequency: "quarterly", notes: "Autumn & spring priority" },
+  { id: "cs2", customerId: "c7", serviceId: "sv3", price: 70, type: "recurring", frequency: "6-weekly", notes: "Large property surcharge" },
+  { id: "cs3", customerId: "c4", serviceId: "sv4", price: 90, type: "one-off", notes: "Patio only — booked for April" },
+  { id: "cs4", customerId: "c1", serviceId: "sv5", price: 55, type: "one-off", notes: "Static caravan at Cala Gran" },
+  { id: "cs5", customerId: "c10", serviceId: "sv7", price: 20, type: "recurring", frequency: "monthly", notes: "Touring caravan on drive" },
+  { id: "cs6", customerId: "c12", serviceId: "sv2", price: 40, type: "recurring", frequency: "6-weekly", notes: "" },
+];
+
 export function generateMockData() {
-  return { customers: CUSTOMERS, jobs: JOBS, payments: PAYMENTS };
+  return { customers: CUSTOMERS, jobs: JOBS, payments: PAYMENTS, services: SERVICES, customerServices: CUSTOMER_SERVICES };
 }
