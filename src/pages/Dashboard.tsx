@@ -5,12 +5,14 @@ import {
   Users, PoundSterling, AlertTriangle, CalendarCheck, CheckCircle2,
   Cloud, Sun, CloudRain, CloudSnow, CloudLightning, CloudDrizzle, Wind, MapPin,
   MoreHorizontal, Check, BellOff, CalendarX, ChevronDown, ChevronRight,
+  TrendingUp, Banknote,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
 // ─── Snooze store ─────────────────────────────────────────────────────────
 const SNOOZE_KEY = "pane-pro-snoozes";
@@ -70,6 +72,17 @@ function getGroupLabel(key: string): string {
   if (key === "this-week") return "This Week";
   const [, year, month] = key.split("-");
   return new Date(Number(year), Number(month) - 1, 1).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+}
+
+// ─── Custom tooltip for chart ──────────────────────────────────────────────
+function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="rounded-md bg-card border border-border px-3 py-2 shadow-lg">
+      <p className="text-[11px] text-muted-foreground">{label}</p>
+      <p className="text-[13px] font-semibold text-primary font-mono">{formatCurrency(payload[0].value)}</p>
+    </div>
+  );
 }
 
 // ─── Dashboard ────────────────────────────────────────────────────────────
@@ -150,7 +163,6 @@ export default function Dashboard() {
       .filter(({ daysOverdue }) => daysOverdue > 0)
       .sort((a, b) => b.daysOverdue - a.daysOverdue);
 
-    // All upcoming scheduled jobs
     const upcomingRaw = jobs
       .filter((j) => {
         if (j.status !== "scheduled") return false;
@@ -163,7 +175,6 @@ export default function Dashboard() {
         return { job: j, customer: customers.find((c) => c.id === j.customerId), group: getGroupKey(diff, j.date), diff };
       });
 
-    // Group them
     const groupMap = new Map<string, typeof upcomingRaw>();
     for (const item of upcomingRaw) {
       if (!groupMap.has(item.group)) groupMap.set(item.group, []);
@@ -177,7 +188,38 @@ export default function Dashboard() {
       .filter((p) => { const d = new Date(p.date); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); })
       .reduce((s, p) => s + p.amount, 0);
 
-    return { overdueCustomers, orderedGroups, thisMonthRevenue, snoozedCount: activeSnoozes.length };
+    // Monthly earnings data (last 6 months)
+    const monthlyEarnings: { month: string; revenue: number; jobs: number }[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthLabel = d.toLocaleDateString("en-GB", { month: "short", year: i > 0 && d.getFullYear() !== now.getFullYear() ? "2-digit" : undefined });
+      const monthPayments = payments.filter((p) => {
+        const pd = new Date(p.date);
+        return pd.getMonth() === d.getMonth() && pd.getFullYear() === d.getFullYear();
+      });
+      const monthJobs = jobs.filter((j) => {
+        const jd = new Date(j.date);
+        return j.status === "completed" && jd.getMonth() === d.getMonth() && jd.getFullYear() === d.getFullYear();
+      });
+      monthlyEarnings.push({ month: monthLabel, revenue: monthPayments.reduce((s, p) => s + p.amount, 0), jobs: monthJobs.length });
+    }
+
+    // Outstanding balances per customer
+    const outstandingCustomers = customers.map((c) => {
+      const totalBilled = jobs
+        .filter((j) => j.customerId === c.id && j.status === "completed")
+        .reduce((s, j) => s + j.price, 0) + (c.importedBalance ?? 0);
+      const totalPaid = payments
+        .filter((p) => p.customerId === c.id)
+        .reduce((s, p) => s + p.amount, 0);
+      const outstanding = totalBilled - totalPaid;
+      return { customer: c, outstanding };
+    }).filter(({ outstanding }) => outstanding > 0.01)
+      .sort((a, b) => b.outstanding - a.outstanding);
+
+    const totalOutstanding = outstandingCustomers.reduce((s, { outstanding }) => s + outstanding, 0);
+
+    return { overdueCustomers, orderedGroups, thisMonthRevenue, snoozedCount: activeSnoozes.length, monthlyEarnings, outstandingCustomers, totalOutstanding };
   }, [customers, jobs, payments, snoozes]);
 
   const today = weather?.[0];
@@ -220,7 +262,6 @@ export default function Dashboard() {
           </div>
         ) : (
           <div className="flex overflow-x-auto">
-            {/* Today — slightly wider with verdict */}
             {weather.map((day, i) => {
               const d = new Date(day.date + "T12:00:00");
               const dayName = i === 0 ? "Today" : d.toLocaleDateString("en-GB", { weekday: "short" });
@@ -251,7 +292,6 @@ export default function Dashboard() {
                 </div>
               );
             })}
-            {/* Location tag at far right */}
             {locationName && (
               <div className="flex flex-col items-center justify-center px-3 border-l border-border bg-muted/10 min-w-[70px]">
                 <MapPin className="h-3 w-3 text-muted-foreground/30 mb-1" />
@@ -262,7 +302,41 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* ── Scheduled + Overdue ── */}
+      {/* ── Monthly Earnings Chart ── */}
+      <div className="animate-fade-up bg-card rounded-md overflow-hidden border border-border" style={{ animationDelay: "0.17s" }}>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="h-3.5 w-3.5 text-primary" />
+            <span className="text-[13px] font-semibold text-foreground">Earnings</span>
+          </div>
+          <span className="text-[11px] text-muted-foreground">Last 6 months</span>
+        </div>
+        <div className="px-2 py-3" style={{ height: 180 }}>
+          {stats.monthlyEarnings.every((m) => m.revenue === 0) ? (
+            <div className="flex items-center justify-center h-full">
+              <p className="text-[12px] text-muted-foreground/40">No payment data yet</p>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={stats.monthlyEarnings} margin={{ top: 5, right: 10, left: 10, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="primaryGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="month" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => `£${v}`} width={45} />
+                <Tooltip content={<ChartTooltip />} />
+                <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#primaryGrad)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+      </div>
+
+      {/* ── Scheduled + Overdue + Outstanding ── */}
       <div className="grid gap-4 lg:grid-cols-2">
 
         {/* Scheduled Jobs — collapsible groups, 7-day window */}
@@ -289,7 +363,6 @@ export default function Dashboard() {
                 const groupTotal = items.reduce((s, { job }) => s + job.price, 0);
                 return (
                   <div key={groupKey}>
-                    {/* Collapsible group header */}
                     <button
                       onClick={() => toggleGroup(groupKey)}
                       className="w-full flex items-center justify-between px-4 py-2 bg-muted/40 hover:bg-muted/60 transition-colors sticky top-0 z-10"
@@ -308,7 +381,6 @@ export default function Dashboard() {
                       </span>
                     </button>
 
-                    {/* Jobs */}
                     {!isCollapsed && items.map(({ job, customer }) => {
                       const isToday = job.date === todayStr;
                       const d = new Date(job.date + "T12:00:00");
@@ -400,6 +472,48 @@ export default function Dashboard() {
               </div>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* ── Outstanding Balances ── */}
+      <div className="animate-fade-up bg-card rounded-md overflow-hidden border border-border" style={{ animationDelay: "0.26s" }}>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+          <div className="flex items-center gap-2">
+            <Banknote className="h-3.5 w-3.5 text-warning" />
+            <span className="text-[13px] font-semibold text-foreground">Outstanding Balances</span>
+          </div>
+          {stats.totalOutstanding > 0 ? (
+            <span className="rounded bg-warning/15 border border-warning/25 px-2 py-0.5 text-[10px] font-semibold text-warning font-mono">
+              {formatCurrency(stats.totalOutstanding)} owed
+            </span>
+          ) : (
+            <CheckCircle2 className="h-4 w-4 text-success/50" />
+          )}
+        </div>
+        <div className="overflow-y-auto max-h-56">
+          {stats.outstandingCustomers.length === 0 ? (
+            <div className="py-8 text-center flex flex-col items-center gap-2">
+              <CheckCircle2 className="h-6 w-6 text-success/30" />
+              <p className="text-[13px] text-muted-foreground">All customers paid up.</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-border">
+              {stats.outstandingCustomers.map(({ customer: c, outstanding }) => (
+                <div key={c.id} className="flex items-center justify-between px-4 py-2.5 hover:bg-muted/20 transition-colors">
+                  <div className="min-w-0">
+                    <p className="text-[12px] font-medium text-foreground truncate">{c.name}</p>
+                    <p className="text-[11px] text-muted-foreground truncate">{c.address}</p>
+                  </div>
+                  <span className={cn(
+                    "font-mono text-[12px] font-semibold shrink-0 ml-3",
+                    outstanding > 50 ? "text-destructive" : "text-warning"
+                  )}>
+                    {formatCurrency(outstanding)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

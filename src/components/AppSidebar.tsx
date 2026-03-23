@@ -8,6 +8,7 @@ import {
   ClipboardList,
   Route,
   Wrench,
+  CircleDot,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import bucketListIcon from "@/assets/bucket-list-icon.png";
@@ -31,6 +32,7 @@ const sections = [
     label: "Customers",
     links: [
       { to: "/customers", label: "Customers", icon: Users },
+      { to: "/rounds", label: "Rounds", icon: CircleDot },
       { to: "/services", label: "Services", icon: Wrench },
     ],
   },

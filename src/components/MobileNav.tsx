@@ -1,7 +1,7 @@
 import { NavLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Users, CalendarCheck, CreditCard,
-  ClipboardList, Route, Wrench, MoreHorizontal,
+  ClipboardList, Route, Wrench, MoreHorizontal, CircleDot,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -15,6 +15,7 @@ const primaryLinks = [
 
 const moreLinks = [
   { to: "/route", label: "Route", icon: Route },
+  { to: "/rounds", label: "Rounds", icon: CircleDot },
   { to: "/services", label: "Services", icon: Wrench },
   { to: "/payments", label: "Payments", icon: CreditCard },
 ];

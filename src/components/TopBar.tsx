@@ -8,6 +8,7 @@ const TITLES: Record<string, { label: string; desc: string }> = {
   "/payments": { label: "Payments", desc: "Record and review earnings" },
   "/agenda": { label: "Today's Agenda", desc: "What's on for today" },
   "/route": { label: "Route Planner", desc: "Plan your cleaning round" },
+  "/rounds": { label: "Rounds", desc: "Organise your cleaning rounds" },
 };
 
 export default function TopBar() {

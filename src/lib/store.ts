@@ -16,6 +16,7 @@ export interface Customer {
   lastCleanDate?: string;
   nextDueDate?: string;
   importedBalance?: number;
+  roundId?: string;
 }
 
 export interface Job {
@@ -58,6 +59,14 @@ export interface CustomerService {
   notes: string;
 }
 
+export interface Round {
+  id: string;
+  name: string;
+  day: "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday" | "";
+  colour: string;
+  createdAt: string;
+}
+
 const STORAGE_KEY = "pane-pro-data";
 
 interface AppData {
@@ -66,6 +75,7 @@ interface AppData {
   payments: Payment[];
   services: Service[];
   customerServices: CustomerService[];
+  rounds: Round[];
 }
 
 const MOCK_VERSION = "v12-empty";
@@ -82,9 +92,10 @@ function loadData(): AppData {
       mock.jobs = [];
       mock.payments = [];
       mock.customerServices = [];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(mock));
+      const data: AppData = { ...mock, rounds: [] };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       localStorage.setItem(MOCK_VERSION_KEY, MOCK_VERSION);
-      return mock;
+      return data;
     }
 
     if (raw) {
@@ -93,6 +104,7 @@ function loadData(): AppData {
         // Migrate old data missing new fields
         if (!parsed.services) parsed.services = generateMockData().services;
         if (!parsed.customerServices) parsed.customerServices = generateMockData().customerServices;
+        if (!parsed.rounds) parsed.rounds = [];
 
         // One-time migration: set monthly customers + "Darts Academy" due tomorrow
         const MIGRATE_KEY = "pane-pro-migrate-due-tomorrow-v3";
@@ -115,9 +127,10 @@ function loadData(): AppData {
     }
   } catch {}
   const mock = generateMockData();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(mock));
+  const data: AppData = { ...mock, rounds: [] };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   localStorage.setItem(MOCK_VERSION_KEY, MOCK_VERSION);
-  return mock;
+  return data;
 }
 
 function saveData(data: AppData) {
@@ -205,6 +218,23 @@ export function useAppData() {
     update((d) => ({ ...d, customerServices: d.customerServices.filter((x) => x.id !== id) }));
   }, [update]);
 
+  // Rounds CRUD
+  const addRound = useCallback((r: Omit<Round, "id" | "createdAt">) => {
+    update((d) => ({ ...d, rounds: [...d.rounds, { ...r, id: crypto.randomUUID(), createdAt: new Date().toISOString() }] }));
+  }, [update]);
+
+  const updateRound = useCallback((id: string, r: Partial<Round>) => {
+    update((d) => ({ ...d, rounds: d.rounds.map((x) => (x.id === id ? { ...x, ...r } : x)) }));
+  }, [update]);
+
+  const deleteRound = useCallback((id: string) => {
+    update((d) => ({
+      ...d,
+      rounds: d.rounds.filter((x) => x.id !== id),
+      customers: d.customers.map((c) => c.roundId === id ? { ...c, roundId: undefined } : c),
+    }));
+  }, [update]);
+
   return {
     ...data,
     addCustomer, updateCustomer, deleteCustomer,
@@ -212,5 +242,6 @@ export function useAppData() {
     addPayment, deletePayment,
     addService, updateService, deleteService,
     addCustomerService, deleteCustomerService,
+    addRound, updateRound, deleteRound,
   };
 }
