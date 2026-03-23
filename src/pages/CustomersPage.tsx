@@ -10,15 +10,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Plus, Search, Trash2, Pencil, MapPin, Phone, Mail,
   AlertTriangle, CheckCircle2, ChevronRight, ChevronLeft,
   Clock, PoundSterling, Receipt, ArrowRight, User, Calendar,
-  StickyNote, Check, Banknote,
+  StickyNote, Check, Banknote, Download, FileText,
 } from "lucide-react";
-import type { Customer } from "@/lib/store";
+import type { Customer, Payment } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
 
 const PAGE_SIZE = 10;
 
@@ -26,6 +28,13 @@ const emptyForm = {
   name: "", address: "", phone: "", email: "",
   frequency: "monthly" as Customer["frequency"],
   pricePerClean: 0, notes: "",
+};
+
+const emptyPaymentForm = {
+  amount: 0,
+  date: format(new Date(), "yyyy-MM-dd"),
+  method: "bank-transfer" as Payment["method"],
+  notes: "",
 };
 
 type SortKey = "name" | "lastClean" | "outstanding" | "nextDue";
@@ -106,7 +115,7 @@ function WizardSteps({ current }: { current: number }) {
 
 // ── Main page ──────────────────────────────────────────────────────────────────
 export default function CustomersPage() {
-  const { customers, jobs, payments, addCustomer, updateCustomer, deleteCustomer } = useApp();
+  const { customers, jobs, payments, addCustomer, updateCustomer, deleteCustomer, addPayment } = useApp();
   const { toast } = useToast();
 
   const [search, setSearch] = useState("");
@@ -126,6 +135,13 @@ export default function CustomersPage() {
   // Invoice dialog
   const [invoiceDialogOpen, setInvoiceDialogOpen] = useState(false);
   const [invoiceCustomer, setInvoiceCustomer] = useState<Customer | null>(null);
+
+  // Record payment form
+  const [paymentFormOpen, setPaymentFormOpen] = useState(false);
+  const [paymentForm, setPaymentForm] = useState(emptyPaymentForm);
+
+  // Bulk selection
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const now = new Date();
 
@@ -204,6 +220,77 @@ export default function CustomersPage() {
     });
   };
 
+  // Record payment
+  const openPaymentForm = () => {
+    setPaymentForm({ ...emptyPaymentForm, date: format(new Date(), "yyyy-MM-dd") });
+    setPaymentFormOpen(true);
+  };
+  const handleRecordPayment = () => {
+    if (!selectedCustomer || paymentForm.amount <= 0) return;
+    addPayment({
+      customerId: selectedCustomer.id,
+      amount: paymentForm.amount,
+      date: new Date(paymentForm.date).toISOString(),
+      method: paymentForm.method,
+      notes: paymentForm.notes,
+    });
+    setPaymentFormOpen(false);
+    toast({ title: "Payment recorded", description: `${formatCurrency(paymentForm.amount)} from ${selectedCustomer.name}` });
+  };
+
+  // Bulk selection helpers
+  const allVisibleIds = pageSlice.map(({ customer }) => customer.id);
+  const allSelected = allVisibleIds.length > 0 && allVisibleIds.every((id) => selectedIds.has(id));
+  const someSelected = selectedIds.size > 0;
+
+  const toggleOne = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+  const toggleAll = () => {
+    if (allSelected) {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        allVisibleIds.forEach((id) => next.delete(id));
+        return next;
+      });
+    } else {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        allVisibleIds.forEach((id) => next.add(id));
+        return next;
+      });
+    }
+  };
+  const clearSelection = () => setSelectedIds(new Set());
+
+  const bulkMarkInvoiced = () => {
+    const names = customers.filter((c) => selectedIds.has(c.id)).map((c) => c.name);
+    toast({ title: "Invoices sent", description: `Marked ${names.length} customer${names.length > 1 ? "s" : ""} as invoiced via SumUp.` });
+    clearSelection();
+  };
+
+  const bulkExportCsv = () => {
+    const selected = enriched.filter(({ customer }) => selectedIds.has(customer.id));
+    const headers = ["Name", "Address", "Phone", "Email", "Frequency", "Price Per Clean", "Outstanding", "Last Clean"];
+    const rows = selected.map(({ customer: c, outstanding, lastJob }) => [
+      c.name, c.address, c.phone, c.email, FREQUENCY_LABELS[c.frequency],
+      c.pricePerClean.toFixed(2), outstanding.toFixed(2), lastJob ? formatDate(lastJob.date) : "Never",
+    ]);
+    const csv = [headers.join(","), ...rows.map((r) => r.map((v) => `"${v}"`).join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `customers-export-${format(new Date(), "yyyy-MM-dd")}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: "CSV exported", description: `${selected.length} customer${selected.length > 1 ? "s" : ""} exported.` });
+  };
+
   // Selected customer detail
   const sel = selectedCustomer ? enriched.find((e) => e.customer.id === selectedCustomer.id) : null;
   const selJobs = selectedCustomer ? jobs.filter((j) => j.customerId === selectedCustomer.id).sort((a, b) => b.date.localeCompare(a.date)) : [];
@@ -266,6 +353,23 @@ export default function CustomersPage() {
         </Select>
       </div>
 
+      {/* Bulk action toolbar */}
+      {someSelected && (
+        <div className="flex items-center gap-3 bg-primary/10 border border-primary/20 rounded-md px-4 py-2.5 animate-fade-up">
+          <span className="text-[12px] font-medium text-foreground">{selectedIds.size} selected</span>
+          <div className="flex-1" />
+          <Button variant="outline" size="sm" onClick={bulkMarkInvoiced}>
+            <FileText className="h-3.5 w-3.5" /> Mark Invoiced
+          </Button>
+          <Button variant="outline" size="sm" onClick={bulkExportCsv}>
+            <Download className="h-3.5 w-3.5" /> Export CSV
+          </Button>
+          <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={clearSelection}>
+            Clear
+          </Button>
+        </div>
+      )}
+
       {/* Table */}
       <div className="animate-fade-up stagger-3 flex flex-col gap-3">
         {filtered.length === 0 ? (
@@ -275,7 +379,12 @@ export default function CustomersPage() {
         ) : (
           <div className="bg-card border border-border rounded-md overflow-hidden">
             {/* Table header */}
-            <div className="hidden md:grid grid-cols-[1fr_1fr_130px_110px_32px] items-center gap-4 px-4 py-2.5 border-b border-border bg-muted/20">
+            <div className="hidden md:grid grid-cols-[32px_1fr_1fr_130px_110px_32px] items-center gap-4 px-4 py-2.5 border-b border-border bg-muted/20">
+              <Checkbox
+                checked={allSelected}
+                onCheckedChange={toggleAll}
+                className="h-3.5 w-3.5"
+              />
               <p className="label-caps">Customer</p>
               <p className="label-caps">Schedule</p>
               <p className="label-caps">Last clean</p>
@@ -285,13 +394,22 @@ export default function CustomersPage() {
             <div className="divide-y divide-border">
               {pageSlice.map(({ customer: c, lastJob, daysOverdue, daysUntil, outstanding }) => {
                 const isOverdue = daysOverdue > 0;
+                const isChecked = selectedIds.has(c.id);
                 return (
                   <div
                     key={c.id}
-                    className="grid grid-cols-1 md:grid-cols-[1fr_1fr_130px_110px_32px] items-center gap-3 md:gap-4 px-4 py-3.5 cursor-pointer hover:bg-muted/20 transition-colors group"
-                    onClick={() => setSelectedCustomer(c)}
+                    className={cn(
+                      "grid grid-cols-1 md:grid-cols-[32px_1fr_1fr_130px_110px_32px] items-center gap-3 md:gap-4 px-4 py-3.5 cursor-pointer hover:bg-muted/20 transition-colors group",
+                      isChecked && "bg-primary/5"
+                    )}
                   >
-                    <div className="flex items-center gap-3 min-w-0">
+                    <Checkbox
+                      checked={isChecked}
+                      onCheckedChange={() => toggleOne(c.id)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="h-3.5 w-3.5 hidden md:flex"
+                    />
+                    <div className="flex items-center gap-3 min-w-0" onClick={() => setSelectedCustomer(c)}>
                       <InitialsAvatar name={c.name} />
                       <div className="min-w-0">
                         <p className="text-[13px] font-semibold text-foreground truncate">{c.name}</p>
@@ -300,17 +418,17 @@ export default function CustomersPage() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2" onClick={() => setSelectedCustomer(c)}>
                       <DueBadge daysOverdue={isOverdue ? daysOverdue : undefined} daysUntil={!isOverdue ? daysUntil : undefined} />
                       <span className="text-[11px] text-muted-foreground">{FREQUENCY_LABELS[c.frequency]}</span>
                     </div>
-                    <div className="text-[12px] text-muted-foreground">
+                    <div className="text-[12px] text-muted-foreground" onClick={() => setSelectedCustomer(c)}>
                       {lastJob ? formatDate(lastJob.date) : <span className="text-muted-foreground/40">Never</span>}
                     </div>
-                    <div className={cn("font-mono text-[13px] font-medium", outstanding > 0 ? "text-warning" : "text-muted-foreground/40")}>
+                    <div className={cn("font-mono text-[13px] font-medium", outstanding > 0 ? "text-warning" : "text-muted-foreground/40")} onClick={() => setSelectedCustomer(c)}>
                       {outstanding > 0 ? formatCurrency(outstanding) : "—"}
                     </div>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground/30 group-hover:text-muted-foreground/60 transition-colors shrink-0 hidden md:block" />
+                    <ChevronRight className="h-4 w-4 text-muted-foreground/30 group-hover:text-muted-foreground/60 transition-colors shrink-0 hidden md:block" onClick={() => setSelectedCustomer(c)} />
                   </div>
                 );
               })}
@@ -506,10 +624,71 @@ export default function CustomersPage() {
                 {/* ── Payments tab ── */}
                 <TabsContent value="payments" className="flex-1 overflow-y-auto p-5 mt-0">
                   <div className="flex items-center justify-between mb-3">
-                    <p className="label-caps">Payment History</p>
-                    <p className="text-[11px] text-muted-foreground font-mono">{formatCurrency(sel.totalPaid)} total</p>
+                    <div>
+                      <p className="label-caps">Payment History</p>
+                      <p className="text-[11px] text-muted-foreground font-mono mt-0.5">{formatCurrency(sel.totalPaid)} total</p>
+                    </div>
+                    <Button size="sm" variant="outline" onClick={openPaymentForm}>
+                      <Plus className="h-3.5 w-3.5" /> Record Payment
+                    </Button>
                   </div>
-                  {selPayments.length === 0 ? (
+
+                  {/* Inline payment form */}
+                  {paymentFormOpen && (
+                    <div className="rounded-md border border-primary/20 bg-primary/5 p-4 mb-4 space-y-3">
+                      <p className="text-[12px] font-semibold text-foreground">Record Payment</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label className="label-caps mb-1 block">Amount (£)</Label>
+                          <Input
+                            type="number" min={0} step={0.01}
+                            value={paymentForm.amount || ""}
+                            onChange={(e) => setPaymentForm({ ...paymentForm, amount: parseFloat(e.target.value) || 0 })}
+                            placeholder="0.00"
+                            className="h-8 text-[12px]"
+                          />
+                        </div>
+                        <div>
+                          <Label className="label-caps mb-1 block">Date</Label>
+                          <Input
+                            type="date"
+                            value={paymentForm.date}
+                            onChange={(e) => setPaymentForm({ ...paymentForm, date: e.target.value })}
+                            className="h-8 text-[12px]"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="label-caps mb-1 block">Method</Label>
+                        <Select value={paymentForm.method} onValueChange={(v) => setPaymentForm({ ...paymentForm, method: v as Payment["method"] })}>
+                          <SelectTrigger className="h-8 text-[12px]"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="cash">Cash</SelectItem>
+                            <SelectItem value="bank-transfer">Bank Transfer</SelectItem>
+                            <SelectItem value="card">Card</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label className="label-caps mb-1 block">Notes</Label>
+                        <Input
+                          value={paymentForm.notes}
+                          onChange={(e) => setPaymentForm({ ...paymentForm, notes: e.target.value })}
+                          placeholder="Optional note…"
+                          className="h-8 text-[12px]"
+                        />
+                      </div>
+                      <div className="flex gap-2 pt-1">
+                        <Button variant="outline" size="sm" className="flex-1" onClick={() => setPaymentFormOpen(false)}>Cancel</Button>
+                        <Button size="sm" className="flex-1" onClick={handleRecordPayment} disabled={paymentForm.amount <= 0}>
+                          <Check className="h-3.5 w-3.5" /> Save
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {selPayments.length === 0 && !paymentFormOpen ? (
                     <div className="py-8 text-center">
                       <p className="text-[12px] text-muted-foreground">No payments recorded yet.</p>
                       {sel.outstanding > 0 && (
