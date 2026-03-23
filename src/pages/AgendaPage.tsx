@@ -458,7 +458,7 @@ export default function AgendaPage() {
   if (fullscreen) {
     return (
       <div className="fixed inset-0 z-50 bg-background flex flex-col">
-        <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border shrink-0 bg-card">
+        <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border shrink-0 bg-card flex-wrap">
           <Navigation className="h-3.5 w-3.5 text-primary" />
           <span className="text-[13px] font-semibold text-foreground">Route Map</span>
           {routeLoading && (
@@ -474,17 +474,40 @@ export default function AgendaPage() {
               </span>
             </div>
           )}
-          {optimised && (
-            <span className="flex items-center gap-1 text-[10px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full ml-1">
-              <Sparkles className="h-2.5 w-2.5" /> Optimised
-            </span>
-          )}
-          <button
-            onClick={() => setFullscreen(false)}
-            className="ml-auto flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <X className="h-4 w-4" /> Exit Fullscreen
-          </button>
+          <div className="ml-auto flex items-center gap-2">
+            {optimised ? (
+              <>
+                <span className="flex items-center gap-1 text-[10px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                  <Sparkles className="h-2.5 w-2.5" /> Optimised
+                </span>
+                <button
+                  onClick={handleReset}
+                  className="flex items-center gap-1 text-[11px] font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <RotateCcw className="h-3 w-3" /> Reset
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={handleOptimise}
+                disabled={stops.length < 2}
+                className={cn(
+                  "flex items-center gap-1 text-[11px] font-semibold transition-colors",
+                  stops.length < 2
+                    ? "text-muted-foreground/30 cursor-not-allowed"
+                    : "text-primary hover:text-primary/80"
+                )}
+              >
+                <Shuffle className="h-3 w-3" /> Optimise
+              </button>
+            )}
+            <button
+              onClick={() => setFullscreen(false)}
+              className="flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="h-4 w-4" /> Exit
+            </button>
+          </div>
         </div>
         <div className="flex-1 relative">
           <RouteMap
@@ -560,7 +583,7 @@ export default function AgendaPage() {
 
         {/* Map */}
         <div className="bg-card border border-border rounded-md overflow-hidden flex flex-col h-full min-h-0">
-          <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border shrink-0">
+          <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border shrink-0 flex-wrap">
             <Navigation className="h-3.5 w-3.5 text-primary" />
             <span className="text-[13px] font-semibold text-foreground">Route Map</span>
             {routeLoading && (
@@ -576,12 +599,41 @@ export default function AgendaPage() {
                 </span>
               </div>
             )}
-            <button
-              onClick={() => setFullscreen(true)}
-              className="ml-auto flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <Maximize2 className="h-3.5 w-3.5" /> Fullscreen
-            </button>
+            <div className="ml-auto flex items-center gap-2">
+              {optimised ? (
+                <>
+                  <span className="flex items-center gap-1 text-[10px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                    <Sparkles className="h-2.5 w-2.5" /> Optimised
+                  </span>
+                  <button
+                    onClick={handleReset}
+                    className="flex items-center gap-1 text-[11px] font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <RotateCcw className="h-3 w-3" /> Reset
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={handleOptimise}
+                  disabled={stops.length < 2}
+                  className={cn(
+                    "flex items-center gap-1 text-[11px] font-semibold transition-colors",
+                    stops.length < 2
+                      ? "text-muted-foreground/30 cursor-not-allowed"
+                      : "text-primary hover:text-primary/80"
+                  )}
+                >
+                  <Shuffle className="h-3 w-3" /> Optimise
+                </button>
+              )}
+              <button
+                onClick={() => setFullscreen(true)}
+                className="flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Maximize2 className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Fullscreen</span>
+              </button>
+            </div>
           </div>
 
           {stops.length === 0 ? (
