@@ -32,10 +32,25 @@ function cleanQuery(value: string) {
 // UK postcode regex
 const UK_POSTCODE_RE = /\b([A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2})\b/i;
 
+// Known UK counties to skip when looking for the city/town
+const UK_COUNTIES = new Set([
+  "lancashire", "yorkshire", "cheshire", "cumbria", "derbyshire", "devon",
+  "dorset", "durham", "essex", "gloucestershire", "hampshire", "herefordshire",
+  "hertfordshire", "kent", "leicestershire", "lincolnshire", "norfolk",
+  "northamptonshire", "northumberland", "nottinghamshire", "oxfordshire",
+  "rutland", "shropshire", "somerset", "staffordshire", "suffolk", "surrey",
+  "sussex", "warwickshire", "wiltshire", "worcestershire", "bedfordshire",
+  "berkshire", "buckinghamshire", "cambridgeshire", "cornwall", "middlesex",
+  "east sussex", "west sussex", "north yorkshire", "south yorkshire",
+  "west yorkshire", "east yorkshire", "greater manchester", "merseyside",
+  "tyne and wear", "west midlands", "england", "scotland", "wales",
+]);
+
 interface ParsedAddress {
   houseNumber: string;
   street: string;
   city: string;
+  county: string;
   postcode: string;
   full: string;
 }
@@ -59,7 +74,6 @@ function parseUKAddress(raw: string): ParsedAddress {
 
   let houseNumber = "";
   let street = parts[0] || "";
-  const city = parts.length >= 2 ? parts[parts.length - 1] : "";
 
   // Extract house number from start of street
   const numMatch = street.match(/^(\d+[A-Za-z]?)\s+(.+)$/);
@@ -68,7 +82,19 @@ function parseUKAddress(raw: string): ParsedAddress {
     street = numMatch[2];
   }
 
-  return { houseNumber, street, city, postcode, full };
+  // Find city (first non-street, non-county part) and county
+  let city = "";
+  let county = "";
+  for (let i = 1; i < parts.length; i++) {
+    const lower = parts[i].toLowerCase().trim();
+    if (UK_COUNTIES.has(lower)) {
+      county = parts[i];
+    } else if (!city) {
+      city = parts[i];
+    }
+  }
+
+  return { houseNumber, street, city, county, postcode, full };
 }
 
 function buildAddressVariants(address: string): string[] {
