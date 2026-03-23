@@ -15,9 +15,19 @@ import type { Job } from "@/lib/store";
 
 export default function JobsPage() {
   const { customers, jobs, addJob, updateJob, deleteJob } = useApp();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [filter, setFilter] = useState<"all" | "scheduled" | "completed" | "cancelled">("all");
   const [form, setForm] = useState({ customerId: "", date: "", price: 0, notes: "" });
+
+  // Auto-open dialog from ?add=1 (e.g. mobile FAB)
+  useEffect(() => {
+    if (searchParams.get("add") === "1" && customers.length > 0) {
+      setForm({ customerId: customers[0]?.id ?? "", date: new Date().toISOString().split("T")[0], price: 0, notes: "" });
+      setDialogOpen(true);
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams, customers]);
 
   const filtered = useMemo(() => {
     let list = [...jobs].sort((a, b) => b.date.localeCompare(a.date));
