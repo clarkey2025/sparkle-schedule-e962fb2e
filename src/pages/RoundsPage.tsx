@@ -25,7 +25,7 @@ const ROUND_COLOURS = [
   "#8B5CF6", "#06B6D4", "#F97316",
 ];
 
-const emptyForm = { name: "", day: "" as Round["day"], colour: "#FF1CE9" };
+const emptyForm = { name: "", day: "none", colour: "#FF1CE9" };
 
 export default function RoundsPage() {
   const { rounds, customers, addRound, updateRound, deleteRound, updateCustomer } = useApp();
@@ -46,14 +46,15 @@ export default function RoundsPage() {
   const unassigned = useMemo(() => customers.filter((c) => !c.roundId || !rounds.some((r) => r.id === c.roundId)), [customers, rounds]);
 
   const openAdd = () => { setEditing(null); setForm(emptyForm); setDialogOpen(true); };
-  const openEdit = (r: Round) => { setEditing(r); setForm({ name: r.name, day: r.day, colour: r.colour }); setDialogOpen(true); };
+  const openEdit = (r: Round) => { setEditing(r); setForm({ name: r.name, day: r.day || "none", colour: r.colour }); setDialogOpen(true); };
 
   const handleSave = () => {
     if (!form.name.trim()) return;
+    const saveData = { ...form, day: (form.day === "none" ? "" : form.day) as Round["day"] };
     if (editing) {
-      updateRound(editing.id, form);
+      updateRound(editing.id, saveData);
     } else {
-      addRound(form);
+      addRound(saveData);
     }
     setDialogOpen(false);
   };
@@ -206,7 +207,7 @@ export default function RoundsPage() {
 
       {/* Add/Edit dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-sm bg-card border border-border">
+        <DialogContent className="sm:max-w-sm border-border/50">
           <DialogHeader>
             <DialogTitle>{editing ? "Edit Round" : "New Round"}</DialogTitle>
           </DialogHeader>
@@ -217,10 +218,10 @@ export default function RoundsPage() {
             </div>
             <div>
               <Label className="text-[11px]">Day of Week</Label>
-              <Select value={form.day} onValueChange={(v) => setForm({ ...form, day: v as Round["day"] })}>
+              <Select value={form.day} onValueChange={(v) => setForm({ ...form, day: v })}>
                 <SelectTrigger><SelectValue placeholder="Select a day" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No set day</SelectItem>
+                  <SelectItem value="none">No set day</SelectItem>
                   {Object.entries(DAY_LABELS).filter(([k]) => k !== "").map(([k, v]) => (
                     <SelectItem key={k} value={k}>{v}</SelectItem>
                   ))}
