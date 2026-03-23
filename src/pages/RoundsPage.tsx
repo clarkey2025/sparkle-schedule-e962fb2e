@@ -206,7 +206,7 @@ export default function RoundsPage() {
 
       {/* Add/Edit dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-sm bg-popover border border-border shadow-2xl">
+        <DialogContent className="sm:max-w-sm border-border/50">
           <DialogHeader>
             <DialogTitle>{editing ? "Edit Round" : "New Round"}</DialogTitle>
           </DialogHeader>
