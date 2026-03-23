@@ -378,6 +378,14 @@ export default function CustomersPage() {
     clearSelection();
   };
 
+  const [showBulkDelete, setShowBulkDelete] = useState(false);
+  const bulkDelete = () => {
+    selectedIds.forEach((id) => deleteCustomer(id));
+    toast({ title: "Deleted", description: `Removed ${selectedIds.size} customer${selectedIds.size > 1 ? "s" : ""}.` });
+    clearSelection();
+    setShowBulkDelete(false);
+  };
+
   const bulkExportCsv = () => {
     const selected = enriched.filter(({ customer }) => selectedIds.has(customer.id));
     const headers = ["Name", "Address", "Phone", "Email", "Frequency", "Price Per Clean", "Outstanding", "Last Clean"];
