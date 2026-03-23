@@ -95,7 +95,7 @@ function loadData(): AppData {
         if (!parsed.customerServices) parsed.customerServices = generateMockData().customerServices;
 
         // One-time migration: set monthly customers + "Darts Academy" due tomorrow
-        const MIGRATE_KEY = "pane-pro-migrate-due-tomorrow";
+        const MIGRATE_KEY = "pane-pro-migrate-due-tomorrow-v2";
         if (!localStorage.getItem(MIGRATE_KEY)) {
           const tomorrow = new Date();
           tomorrow.setDate(tomorrow.getDate() + 1);
