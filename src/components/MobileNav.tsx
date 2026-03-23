@@ -15,6 +15,7 @@ const primaryLinks = [
 
 const moreLinks = [
   { to: "/route", label: "Route", icon: Route },
+  { to: "/rounds", label: "Rounds", icon: CircleDot },
   { to: "/services", label: "Services", icon: Wrench },
   { to: "/payments", label: "Payments", icon: CreditCard },
 ];
