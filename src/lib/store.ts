@@ -243,11 +243,30 @@ export function useAppData() {
 
   return {
     ...data,
+    isDemoActive,
     addCustomer, updateCustomer, deleteCustomer,
     addJob, updateJob, deleteJob,
     addPayment, deletePayment,
     addService, updateService, deleteService,
     addCustomerService, deleteCustomerService,
     addRound, updateRound, deleteRound,
+    loadMockData: useCallback(() => {
+      const mock = generateMockData();
+      saveData(mock);
+      localStorage.setItem(DEMO_FLAG_KEY, "1");
+      setData(mock);
+      setIsDemoActive(true);
+    }, []),
+    clearMockData: useCallback(() => {
+      const empty: AppData = {
+        customers: [], jobs: [], payments: [],
+        services: generateMockData().services,
+        customerServices: [], rounds: [],
+      };
+      saveData(empty);
+      localStorage.removeItem(DEMO_FLAG_KEY);
+      setData(empty);
+      setIsDemoActive(false);
+    }, []),
   };
 }
