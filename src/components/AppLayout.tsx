@@ -2,12 +2,14 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import AppSidebar from "./AppSidebar";
 import MobileNav from "./MobileNav";
 import TopBar from "./TopBar";
-import { Plus } from "lucide-react";
+import { Plus, CalendarCheck } from "lucide-react";
 
 export default function AppLayout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const isCustomersPage = location.pathname === "/customers";
+  const path = location.pathname;
+  const hideFab = path === "/customers" || path === "/jobs";
+  const isAgenda = path === "/agenda";
 
   return (
     <div className="h-dvh bg-background overflow-hidden">
@@ -24,14 +26,14 @@ export default function AppLayout() {
         </main>
       </div>
 
-      {/* Mobile FAB — Add Customer (hidden on desktop & on customers page where button exists) */}
-      {!isCustomersPage && (
+      {/* Mobile FAB — context-aware (hidden on desktop & pages with their own add button) */}
+      {!hideFab && (
         <button
-          onClick={() => navigate("/customers?add=1")}
+          onClick={() => navigate(isAgenda ? "/jobs?add=1" : "/customers?add=1")}
           className="fixed right-4 bottom-[68px] z-[45] flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg active:scale-95 transition-transform md:hidden"
-          aria-label="Add customer"
+          aria-label={isAgenda ? "Log job" : "Add customer"}
         >
-          <Plus className="h-5 w-5" />
+          {isAgenda ? <CalendarCheck className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
         </button>
       )}
     </div>
