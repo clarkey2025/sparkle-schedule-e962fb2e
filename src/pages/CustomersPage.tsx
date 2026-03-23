@@ -122,7 +122,7 @@ function WizardSteps({ current }: { current: number }) {
 
 // ── Main page ──────────────────────────────────────────────────────────────────
 export default function CustomersPage() {
-  const { customers, jobs, payments, services, customerServices, addCustomer, updateCustomer, deleteCustomer, addPayment, addCustomerService, deleteCustomerService } = useApp();
+  const { customers, jobs, payments, services, customerServices, rounds, addCustomer, updateCustomer, deleteCustomer, addPayment, addCustomerService, deleteCustomerService } = useApp();
   const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
 
