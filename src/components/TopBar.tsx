@@ -24,7 +24,7 @@ export default function TopBar() {
       </div>
       <div className="flex items-center gap-1.5 rounded bg-primary/10 px-2.5 py-1">
         <Droplets className="h-3.5 w-3.5 text-primary" />
-        <span className="text-[12px] font-semibold text-primary tracking-tight">PanePro</span>
+        <span className="text-[12px] font-semibold text-primary tracking-tight">Bucket List</span>
       </div>
     </header>
   );
