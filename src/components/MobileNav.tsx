@@ -1,7 +1,7 @@
 import { NavLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Users, CalendarCheck, CreditCard,
-  ClipboardList, Route, Wrench, MoreHorizontal,
+  ClipboardList, Route, Wrench, MoreHorizontal, CircleDot,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
