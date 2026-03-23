@@ -36,7 +36,7 @@ export default function RoundsPage() {
   const [expandedRound, setExpandedRound] = useState<string | null>(null);
 
   const roundStats = useMemo(() => {
-    const map = new Map<string, typeof customers>();
+    const map = new Map();
     for (const r of rounds) {
       map.set(r.id, customers.filter((c) => c.roundId === r.id));
     }
