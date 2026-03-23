@@ -1,4 +1,4 @@
-import type { Customer, Job, Payment, Service, CustomerService } from "./store";
+import type { Customer, Job, Payment, Service, CustomerService, Round } from "./store";
 
 // Today = 2026-03-22 — customers in/around Fleetwood, Lancashire
 const CUSTOMERS: Customer[] = [
@@ -7,96 +7,112 @@ const CUSTOMERS: Customer[] = [
     phone: "07712 340182", email: "m.harlow@outlook.com",
     frequency: "monthly", pricePerClean: 18, notes: "Side gate always unlocked.",
     createdAt: "2024-06-12T09:00:00.000Z", lat: 53.9230, lng: -3.0055,
+    roundId: "r1",
   },
   {
     id: "c2", name: "David Nettles", address: "7 Beach Road, Cleveleys, FY5 1LZ",
     phone: "07834 910423", email: "d.nettles@gmail.com",
     frequency: "fortnightly", pricePerClean: 24, notes: "",
     createdAt: "2024-07-03T10:30:00.000Z", lat: 53.8791, lng: -3.0371,
+    roundId: "r2",
   },
   {
     id: "c3", name: "Sandra Briggs", address: "22 Oak Avenue, Thornton-Cleveleys, FY5 2HA",
     phone: "07901 234567", email: "sandra.briggs@hotmail.co.uk",
     frequency: "6-weekly", pricePerClean: 32, notes: "Two dogs — keep gate shut.",
     createdAt: "2024-05-20T11:00:00.000Z", lat: 53.8762, lng: -2.9992,
+    roundId: "r2",
   },
   {
     id: "c4", name: "Paul & Karen Whitmore", address: "5 Mill Road, Poulton-le-Fylde, FY6 7AE",
     phone: "07700 901123", email: "pwhitmore@icloud.com",
     frequency: "monthly", pricePerClean: 20, notes: "",
     createdAt: "2024-08-14T14:00:00.000Z", lat: 53.8481, lng: -2.9963,
+    roundId: "r3",
   },
   {
     id: "c5", name: "Terry Yates", address: "31 Birch Close, Preesall, FY6 0HP",
     phone: "07788 554321", email: "terry.yates@btinternet.com",
     frequency: "fortnightly", pricePerClean: 15, notes: "Cash only. Leave invoice in letterbox.",
     createdAt: "2024-09-01T09:00:00.000Z", lat: 53.9092, lng: -2.9421,
+    roundId: "r3",
   },
   {
     id: "c6", name: "Anita Sharma", address: "8 Victoria Road, Knott End-on-Sea, FY6 0AJ",
     phone: "07956 112233", email: "anita.s84@gmail.com",
     frequency: "monthly", pricePerClean: 22, notes: "",
     createdAt: "2024-10-10T10:00:00.000Z", lat: 53.9305, lng: -2.9980,
+    roundId: "r1",
   },
   {
     id: "c7", name: "Robert Finch", address: "19 Station Road, Garstang, PR3 1DZ",
     phone: "07623 445566", email: "r.finch@gmail.com",
     frequency: "quarterly", pricePerClean: 45, notes: "Large property — 3 storey. Bring extension pole.",
     createdAt: "2024-04-22T11:30:00.000Z", lat: 53.8942, lng: -2.7791,
+    roundId: "r3",
   },
   {
     id: "c8", name: "Helen Cross", address: "3 Meadow View, Fleetwood, FY7 7LX",
     phone: "07811 998877", email: "helcross@hotmail.com",
     frequency: "monthly", pricePerClean: 18, notes: "",
     createdAt: "2025-01-08T09:00:00.000Z", lat: 53.9178, lng: -3.0101,
+    roundId: "r1",
   },
   {
     id: "c9", name: "Colin Baker", address: "12 Highfield Drive, Blackpool, FY2 0PJ",
     phone: "07745 667788", email: "colinbaker56@yahoo.co.uk",
     frequency: "monthly", pricePerClean: 20, notes: "Key in lockbox: 4419.",
     createdAt: "2024-11-15T13:00:00.000Z", lat: 53.8407, lng: -3.0441,
+    roundId: "r4",
   },
   {
     id: "c10", name: "Fiona Marsh", address: "6 Orchard Way, Cleveleys, FY5 3PA",
     phone: "07932 110099", email: "fiona.marsh@gmail.com",
     frequency: "weekly", pricePerClean: 12, notes: "Pay by bank transfer each month.",
     createdAt: "2025-02-17T10:00:00.000Z", lat: 53.8720, lng: -3.0188,
+    roundId: "r2",
   },
   {
     id: "c11", name: "Joyce Pemberton", address: "45 Dock Street, Fleetwood, FY7 6JT",
     phone: "07811 223344", email: "j.pemberton@gmail.com",
     frequency: "monthly", pricePerClean: 16, notes: "Ring bell twice — hard of hearing.",
     createdAt: "2025-03-01T09:00:00.000Z", lat: 53.9271, lng: -3.0142,
+    roundId: "r1",
   },
   {
     id: "c12", name: "Gary & Sue Platt", address: "9 Rossall Lane, Fleetwood, FY7 8HZ",
     phone: "07900 556677", email: "garyplatt@outlook.com",
     frequency: "fortnightly", pricePerClean: 22, notes: "Van on drive — squeeze past left side.",
     createdAt: "2025-03-05T10:30:00.000Z", lat: 53.9082, lng: -3.0265,
+    roundId: "r1",
   },
   {
     id: "c13", name: "Norah Eccles", address: "2 Warren Drive, Cleveleys, FY5 2QA",
     phone: "07733 881122", email: "noraheccles@btinternet.com",
     frequency: "monthly", pricePerClean: 18, notes: "Conservatory included in price.",
     createdAt: "2025-02-10T11:00:00.000Z", lat: 53.8840, lng: -3.0320,
+    roundId: "r2",
   },
   {
     id: "c14", name: "Kevin Draper", address: "17 Poulton Road, Blackpool, FY3 7AS",
     phone: "07855 990011", email: "kev.draper@yahoo.co.uk",
     frequency: "monthly", pricePerClean: 20, notes: "",
     createdAt: "2025-01-20T09:00:00.000Z", lat: 53.8311, lng: -3.0178,
+    roundId: "r4",
   },
   {
     id: "c15", name: "Pauline Holt", address: "33 Queens Terrace, Fleetwood, FY7 6BT",
     phone: "07712 667788", email: "pholt@hotmail.co.uk",
     frequency: "fortnightly", pricePerClean: 14, notes: "Front only — no rear access.",
     createdAt: "2025-04-01T10:00:00.000Z", lat: 53.9245, lng: -3.0098,
+    roundId: "r1",
   },
   {
     id: "c16", name: "Dennis Waldron", address: "11 Lonsdale Road, Cleveleys, FY5 1ST",
     phone: "07966 334455", email: "d.waldron@gmail.com",
     frequency: "6-weekly", pricePerClean: 28, notes: "Key under flowerpot by back door.",
     createdAt: "2025-02-28T14:00:00.000Z", lat: 53.8755, lng: -3.0290,
+    roundId: "r4",
   },
 ];
 
@@ -224,6 +240,13 @@ const CUSTOMER_SERVICES: CustomerService[] = [
   { id: "cs6", customerId: "c12", serviceId: "sv2", price: 40, type: "recurring", frequency: "6-weekly", notes: "" },
 ];
 
+const ROUNDS: Round[] = [
+  { id: "r1", name: "Monday Round", day: "monday", colour: "#FF1CE9", createdAt: "2024-01-01T00:00:00.000Z" },
+  { id: "r2", name: "Tuesday Round", day: "tuesday", colour: "#3B82F6", createdAt: "2024-01-01T00:00:00.000Z" },
+  { id: "r3", name: "Wednesday Round", day: "wednesday", colour: "#22C55E", createdAt: "2024-01-01T00:00:00.000Z" },
+  { id: "r4", name: "Friday Round", day: "friday", colour: "#F59E0B", createdAt: "2024-01-01T00:00:00.000Z" },
+];
+
 export function generateMockData() {
-  return { customers: CUSTOMERS, jobs: JOBS, payments: PAYMENTS, services: SERVICES, customerServices: CUSTOMER_SERVICES };
+  return { customers: CUSTOMERS, jobs: JOBS, payments: PAYMENTS, services: SERVICES, customerServices: CUSTOMER_SERVICES, rounds: ROUNDS };
 }
