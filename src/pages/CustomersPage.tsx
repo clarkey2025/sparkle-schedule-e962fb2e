@@ -200,7 +200,12 @@ export default function CustomersPage() {
   const openAdd = () => { setEditing(null); setForm(emptyForm); setWizardStep(0); setWizardOpen(true); };
   const openEdit = (c: Customer) => {
     setEditing(c);
-    setForm({ name: c.name, address: c.address, phone: c.phone, email: c.email, frequency: c.frequency, pricePerClean: c.pricePerClean, notes: c.notes });
+    setForm({
+      name: c.name, address: c.address, phone: c.phone, email: c.email,
+      frequency: c.frequency, pricePerClean: c.pricePerClean, notes: c.notes,
+      lastCleanDate: c.lastCleanDate || "",
+      nextDueDate: c.nextDueDate || "",
+    });
     setWizardStep(0);
     setWizardOpen(true);
   };
