@@ -240,6 +240,13 @@ const CUSTOMER_SERVICES: CustomerService[] = [
   { id: "cs6", customerId: "c12", serviceId: "sv2", price: 40, type: "recurring", frequency: "6-weekly", notes: "" },
 ];
 
+const ROUNDS: Round[] = [
+  { id: "r1", name: "Monday Round", day: "monday", colour: "#FF1CE9", createdAt: "2024-01-01T00:00:00.000Z" },
+  { id: "r2", name: "Tuesday Round", day: "tuesday", colour: "#3B82F6", createdAt: "2024-01-01T00:00:00.000Z" },
+  { id: "r3", name: "Wednesday Round", day: "wednesday", colour: "#22C55E", createdAt: "2024-01-01T00:00:00.000Z" },
+  { id: "r4", name: "Friday Round", day: "friday", colour: "#F59E0B", createdAt: "2024-01-01T00:00:00.000Z" },
+];
+
 export function generateMockData() {
-  return { customers: CUSTOMERS, jobs: JOBS, payments: PAYMENTS, services: SERVICES, customerServices: CUSTOMER_SERVICES };
+  return { customers: CUSTOMERS, jobs: JOBS, payments: PAYMENTS, services: SERVICES, customerServices: CUSTOMER_SERVICES, rounds: ROUNDS };
 }
