@@ -412,9 +412,15 @@ export default function CustomersPage() {
         title="Customers"
         description={`${customers.length} customers · ${overdueCount > 0 ? `${overdueCount} overdue` : "all up to date"}`}
         action={
-          <Button onClick={openAdd} size="sm">
-            <Plus className="h-3.5 w-3.5" /> Add Customer
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => csvInputRef.current?.click()}>
+              <Upload className="h-3.5 w-3.5" /> Import CSV
+            </Button>
+            <input ref={csvInputRef} type="file" accept=".csv" className="hidden" onChange={handleCsvFile} />
+            <Button onClick={openAdd} size="sm">
+              <Plus className="h-3.5 w-3.5" /> Add Customer
+            </Button>
+          </div>
         }
       />
 
