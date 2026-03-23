@@ -185,9 +185,15 @@ async function runWithRetry(fn: () => Promise<GeocodeAttempt>): Promise<GeoResul
 }
 
 export async function geocodeAddress(address: string): Promise<GeoResult | null> {
-  const queries = buildAddressVariants(address);
-  if (queries.length === 0) return null;
+  if (!address.trim()) return null;
 
+  // 1. Try structured Nominatim query (most precise — resolves house numbers)
+  const parsed = parseUKAddress(address);
+  const fromStructured = await runWithRetry(() => geocodeStructuredNominatim(parsed));
+  if (fromStructured) return fromStructured;
+
+  // 2. Fall back to free-text queries with address variants
+  const queries = buildAddressVariants(address);
   for (const query of queries) {
     const fromNominatim = await runWithRetry(() => geocodeWithNominatim(query));
     if (fromNominatim) return fromNominatim;
