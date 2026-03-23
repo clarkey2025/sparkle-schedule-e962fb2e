@@ -26,11 +26,11 @@ export default function AppLayout() {
         </main>
       </div>
 
-      {/* Mobile FAB — context-aware (hidden on desktop & pages with their own add button) */}
+      {/* FAB — context-aware (hidden on pages with their own add button) */}
       {!hideFab && (
         <button
           onClick={() => navigate(isAgenda ? "/jobs?add=1" : "/customers?add=1")}
-          className="fixed right-4 bottom-[68px] z-[45] flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg active:scale-95 transition-transform md:hidden"
+          className="fixed right-4 bottom-[68px] md:bottom-6 z-[45] flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 active:scale-95 transition-all"
           aria-label={isAgenda ? "Log job" : "Add customer"}
         >
           {isAgenda ? <CalendarCheck className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
