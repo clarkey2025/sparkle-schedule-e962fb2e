@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useCallback } from "react";
+import React, { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { useApp } from "@/lib/AppContext";
 import { formatCurrency, formatDate, getNextDueDate, FREQUENCY_LABELS } from "@/lib/helpers";
 import { geocodeCustomers, type GeocodeResult } from "@/lib/geocode";
