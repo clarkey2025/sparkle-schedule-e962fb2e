@@ -67,7 +67,7 @@ interface AppData {
   customerServices: CustomerService[];
 }
 
-const MOCK_VERSION = "v6-empty";
+const MOCK_VERSION = "v7-empty";
 const MOCK_VERSION_KEY = "pane-pro-mock-version";
 
 function loadData(): AppData {
