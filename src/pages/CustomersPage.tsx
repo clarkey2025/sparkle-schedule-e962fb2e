@@ -416,6 +416,7 @@ export default function CustomersPage() {
       frequency: c.frequency, pricePerClean: c.pricePerClean, notes: c.notes,
       lastCleanDate: c.lastCleanDate || "",
       nextDueDate: c.nextDueDate || "",
+      roundId: c.roundId || "",
     });
     setWizardStep(0);
     setWizardOpen(true);
