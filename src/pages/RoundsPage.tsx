@@ -75,6 +75,52 @@ export default function RoundsPage() {
         }
       />
 
+      {/* Summary cards */}
+      {rounds.length > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 animate-fade-up">
+          {(() => {
+            const assigned = customers.filter((c) => c.roundId && rounds.some((r) => r.id === c.roundId));
+            const totalAssigned = assigned.length;
+            const totalCustomers = customers.length;
+            const weeklyValue = assigned.reduce((s, c) => {
+              const freq = c.frequency;
+              const price = c.pricePerClean;
+              if (freq === "weekly") return s + price;
+              if (freq === "fortnightly") return s + price / 2;
+              if (freq === "monthly") return s + price / 4.33;
+              if (freq === "6-weekly") return s + price / 6;
+              if (freq === "quarterly") return s + price / 13;
+              return s + price / 4.33;
+            }, 0);
+            const monthlyValue = weeklyValue * 4.33;
+            return (
+              <>
+                <div className="surface rounded-md p-4">
+                  <p className="label-caps mb-1">Assigned</p>
+                  <p className="font-mono text-xl font-medium text-foreground">{totalAssigned}</p>
+                  <p className="text-[11px] text-muted-foreground">of {totalCustomers} customers</p>
+                </div>
+                <div className="surface rounded-md p-4">
+                  <p className="label-caps mb-1">Unassigned</p>
+                  <p className="font-mono text-xl font-medium text-foreground">{unassigned.length}</p>
+                  <p className="text-[11px] text-muted-foreground">{totalCustomers > 0 ? `${Math.round((unassigned.length / totalCustomers) * 100)}%` : "—"}</p>
+                </div>
+                <div className="surface rounded-md p-4">
+                  <p className="label-caps mb-1">Weekly Value</p>
+                  <p className="font-mono text-xl font-medium text-foreground">{formatCurrency(weeklyValue)}</p>
+                  <p className="text-[11px] text-muted-foreground">{rounds.length} round{rounds.length !== 1 ? "s" : ""}</p>
+                </div>
+                <div className="surface rounded-md p-4">
+                  <p className="label-caps mb-1">Monthly Value</p>
+                  <p className="font-mono text-xl font-medium text-foreground">{formatCurrency(monthlyValue)}</p>
+                  <p className="text-[11px] text-muted-foreground">estimated</p>
+                </div>
+              </>
+            );
+          })()}
+        </div>
+      )}
+
       {rounds.length === 0 ? (
         <div className="surface rounded-md p-10 text-center animate-fade-up">
           <Map className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
