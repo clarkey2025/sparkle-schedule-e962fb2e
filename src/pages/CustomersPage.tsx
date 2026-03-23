@@ -405,6 +405,7 @@ export default function CustomersPage() {
   const handleSearchChange = (v: string) => { setSearch(v); setPage(1); };
   const handleFilterChange = (v: FilterKey) => { setFilter(v); setPage(1); };
   const handleSortChange = (v: SortKey) => { setSort(v); setPage(1); };
+  const handleRoundFilterChange = (v: string) => { setRoundFilter(v); setPage(1); };
 
   // Summary stats
   const totalOutstanding = enriched.reduce((s, { outstanding }) => s + outstanding, 0);
