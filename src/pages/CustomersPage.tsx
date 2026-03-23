@@ -296,6 +296,11 @@ export default function CustomersPage() {
   const sel = selectedCustomer ? enriched.find((e) => e.customer.id === selectedCustomer.id) : null;
   const selJobs = selectedCustomer ? jobs.filter((j) => j.customerId === selectedCustomer.id).sort((a, b) => b.date.localeCompare(a.date)) : [];
   const selPayments = selectedCustomer ? payments.filter((p) => p.customerId === selectedCustomer.id).sort((a, b) => b.date.localeCompare(a.date)) : [];
+  const selServices = selectedCustomer ? customerServices.filter((cs) => cs.customerId === selectedCustomer.id) : [];
+
+  // Add service state
+  const [addServiceOpen, setAddServiceOpen] = useState(false);
+  const [serviceForm, setServiceForm] = useState({ serviceId: "", price: 0, type: "recurring" as "recurring" | "one-off", frequency: "monthly" as Customer["frequency"], notes: "" });
 
   return (
     <div className="pb-24 md:pb-0 flex flex-col gap-5">
