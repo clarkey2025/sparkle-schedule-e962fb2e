@@ -4,13 +4,13 @@ import {
   Users,
   CalendarCheck,
   CreditCard,
-  Droplets,
   MapPin,
   ClipboardList,
   Route,
   Wrench,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import bucketListIcon from "@/assets/bucket-list-icon.png";
 
 const sections = [
   {
@@ -49,9 +49,7 @@ export default function AppSidebar() {
     <aside className="fixed inset-y-0 left-0 z-30 flex w-56 flex-col bg-sidebar animate-slide-in-left border-r border-sidebar-border">
       {/* Brand */}
       <div className="flex items-center gap-2.5 px-5 py-5 border-b border-sidebar-border">
-        <div className="flex h-7 w-7 items-center justify-center rounded bg-sidebar-primary/15">
-          <Droplets className="h-4 w-4 text-sidebar-primary" />
-        </div>
+        <img src={bucketListIcon} alt="Bucket List" className="h-7 w-7 rounded" />
         <span className="text-[13px] font-semibold tracking-tight text-white">Bucket List</span>
       </div>
 

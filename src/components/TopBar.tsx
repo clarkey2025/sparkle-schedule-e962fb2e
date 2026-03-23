@@ -1,5 +1,5 @@
 import { useLocation } from "react-router-dom";
-import { Droplets } from "lucide-react";
+import bucketListIcon from "@/assets/bucket-list-icon.png";
 
 const TITLES: Record<string, { label: string; desc: string }> = {
   "/": { label: "Dashboard", desc: "Your business at a glance" },
@@ -23,7 +23,7 @@ export default function TopBar() {
         )}
       </div>
       <div className="flex items-center gap-1.5 rounded bg-primary/10 px-2.5 py-1">
-        <Droplets className="h-3.5 w-3.5 text-primary" />
+        <img src={bucketListIcon} alt="Bucket List" className="h-4 w-4" />
         <span className="text-[12px] font-semibold text-primary tracking-tight">Bucket List</span>
       </div>
     </header>
