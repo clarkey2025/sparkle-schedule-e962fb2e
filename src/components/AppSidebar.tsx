@@ -22,7 +22,7 @@ const sections = [
   {
     label: "Operations",
     links: [
-      { to: "/agenda", label: "Today's Agenda", icon: ClipboardList },
+      { to: "/agenda", label: "Agenda", icon: ClipboardList },
       { to: "/route", label: "Route Planner", icon: Route },
       { to: "/jobs", label: "Jobs", icon: CalendarCheck },
     ],
