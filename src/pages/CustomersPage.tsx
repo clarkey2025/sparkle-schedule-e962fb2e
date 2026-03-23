@@ -163,8 +163,27 @@ export default function CustomersPage() {
     { key: "pricePerClean", label: "Price per Clean" },
     { key: "lastCleanDate", label: "Last Clean Date" },
     { key: "nextDueDate", label: "Next Due Date" },
+    { key: "outstanding", label: "Outstanding Balance" },
     { key: "notes", label: "Notes" },
   ];
+
+  // Parse dates in various formats (DD/MM/YYYY, MM/DD/YYYY, YYYY-MM-DD, etc.)
+  const parseFlexibleDate = (raw: string): string => {
+    if (!raw) return "";
+    const trimmed = raw.trim();
+    // Already ISO (YYYY-MM-DD)
+    if (/^\d{4}-\d{2}-\d{2}/.test(trimmed)) return trimmed.slice(0, 10);
+    // DD/MM/YYYY or DD-MM-YYYY (UK format)
+    const ukMatch = trimmed.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/);
+    if (ukMatch) {
+      const [, day, month, year] = ukMatch;
+      return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+    }
+    // Try native parse as fallback
+    const d = new Date(trimmed);
+    if (!isNaN(d.getTime())) return d.toISOString().slice(0, 10);
+    return "";
+  };
 
   const parseCSV = (text: string) => {
     const lines = text.split(/\r?\n/).filter((l) => l.trim());
