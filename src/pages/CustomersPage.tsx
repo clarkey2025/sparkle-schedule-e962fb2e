@@ -276,7 +276,7 @@ export default function CustomersPage() {
     if (filter === "clear") list = list.filter(({ outstanding }) => outstanding === 0);
     list = [...list].sort((a, b) => {
       if (sort === "name") return a.customer.name.localeCompare(b.customer.name);
-      if (sort === "lastClean") return (b.lastJob?.date ?? "").localeCompare(a.lastJob?.date ?? "");
+      if (sort === "lastClean") return (b.lastCleanDate ?? "").localeCompare(a.lastCleanDate ?? "");
       if (sort === "outstanding") return b.outstanding - a.outstanding;
       if (sort === "nextDue") return a.nextDue.getTime() - b.nextDue.getTime();
       return 0;
