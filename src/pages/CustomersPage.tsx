@@ -163,8 +163,27 @@ export default function CustomersPage() {
     { key: "pricePerClean", label: "Price per Clean" },
     { key: "lastCleanDate", label: "Last Clean Date" },
     { key: "nextDueDate", label: "Next Due Date" },
+    { key: "outstanding", label: "Outstanding Balance" },
     { key: "notes", label: "Notes" },
   ];
+
+  // Parse dates in various formats (DD/MM/YYYY, MM/DD/YYYY, YYYY-MM-DD, etc.)
+  const parseFlexibleDate = (raw: string): string => {
+    if (!raw) return "";
+    const trimmed = raw.trim();
+    // Already ISO (YYYY-MM-DD)
+    if (/^\d{4}-\d{2}-\d{2}/.test(trimmed)) return trimmed.slice(0, 10);
+    // DD/MM/YYYY or DD-MM-YYYY (UK format)
+    const ukMatch = trimmed.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/);
+    if (ukMatch) {
+      const [, day, month, year] = ukMatch;
+      return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+    }
+    // Try native parse as fallback
+    const d = new Date(trimmed);
+    if (!isNaN(d.getTime())) return d.toISOString().slice(0, 10);
+    return "";
+  };
 
   const parseCSV = (text: string) => {
     const lines = text.split(/\r?\n/).filter((l) => l.trim());
@@ -229,6 +248,10 @@ export default function CustomersPage() {
       const rawFreq = getValue("frequency").toLowerCase().replace(/\s/g, "-");
       const frequency = VALID_FREQUENCIES.includes(rawFreq) ? rawFreq as Customer["frequency"] : "monthly";
       const price = parseFloat(getValue("pricePerClean")) || 0;
+      const lastClean = parseFlexibleDate(getValue("lastCleanDate"));
+      const nextDue = parseFlexibleDate(getValue("nextDueDate"));
+      const outstandingRaw = parseFloat(getValue("outstanding")) || 0;
+
       addCustomer({
         name,
         address: getValue("address"),
@@ -237,8 +260,9 @@ export default function CustomersPage() {
         frequency,
         pricePerClean: price,
         notes: getValue("notes"),
-        lastCleanDate: getValue("lastCleanDate") || "",
-        nextDueDate: getValue("nextDueDate") || "",
+        lastCleanDate: lastClean,
+        nextDueDate: nextDue,
+        importedBalance: outstandingRaw,
       });
       imported++;
     });
@@ -260,7 +284,7 @@ export default function CustomersPage() {
       const daysUntil = -daysOverdue;
       const totalCharged = completedJobs.reduce((s, j) => s + j.price, 0);
       const totalPaid = payments.filter((p) => p.customerId === c.id).reduce((s, p) => s + p.amount, 0);
-      const outstanding = Math.max(0, totalCharged - totalPaid);
+      const outstanding = Math.max(0, totalCharged - totalPaid + (c.importedBalance || 0));
       return { customer: c, lastJob, lastCleanDate, nextDue, daysOverdue, daysUntil, totalCharged, totalPaid, outstanding };
     });
   }, [customers, jobs, payments]);

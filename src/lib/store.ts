@@ -15,6 +15,7 @@ export interface Customer {
   lng?: number;
   lastCleanDate?: string;
   nextDueDate?: string;
+  importedBalance?: number;
 }
 
 export interface Job {
@@ -67,7 +68,7 @@ interface AppData {
   customerServices: CustomerService[];
 }
 
-const MOCK_VERSION = "v8-empty";
+const MOCK_VERSION = "v9-empty";
 const MOCK_VERSION_KEY = "pane-pro-mock-version";
 
 function loadData(): AppData {
