@@ -906,6 +906,24 @@ export default function CustomersPage() {
                 </Select>
               </div>
               <div>
+                <Label className="label-caps mb-1.5 block">Last Cleaned On</Label>
+                <Input
+                  type="date"
+                  value={form.lastCleanDate}
+                  onChange={(e) => setForm({ ...form, lastCleanDate: e.target.value })}
+                />
+                <p className="text-[10px] text-muted-foreground mt-1">When was their last clean? Leave blank if new customer.</p>
+              </div>
+              <div>
+                <Label className="label-caps mb-1.5 block">Next Clean Due</Label>
+                <Input
+                  type="date"
+                  value={form.nextDueDate}
+                  onChange={(e) => setForm({ ...form, nextDueDate: e.target.value })}
+                />
+                <p className="text-[10px] text-muted-foreground mt-1">Override the calculated due date, or leave blank to auto-calculate from frequency.</p>
+              </div>
+              <div>
                 <Label className="label-caps mb-1.5 block">Price per clean (£)</Label>
                 <Input
                   type="number" min={0} step={0.5}
