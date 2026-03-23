@@ -334,7 +334,7 @@ export default function CustomersPage() {
   // One-time re-geocode with structured queries
   const hasRegeocoded = useRef(false);
   useEffect(() => {
-    const key = "pane-pro-structured-geocode-v2";
+    const key = "pane-pro-structured-geocode-v3";
     if (!hasRegeocoded.current && !localStorage.getItem(key) && customers.length > 0) {
       hasRegeocoded.current = true;
       localStorage.setItem(key, "done");
