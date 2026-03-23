@@ -34,15 +34,38 @@ export interface Payment {
   notes: string;
 }
 
+export type CaravanTier = "full-external" | "roof-only" | "rinse-down";
+
+export interface Service {
+  id: string;
+  name: string;
+  category: "gutter-cleaning" | "soffit-fascia" | "jet-washing" | "caravan-cleaning" | "window-cleaning" | "custom";
+  description: string;
+  defaultPrice: number;
+  caravanTier?: CaravanTier;
+}
+
+export interface CustomerService {
+  id: string;
+  customerId: string;
+  serviceId: string;
+  price: number;
+  type: "recurring" | "one-off";
+  frequency?: Customer["frequency"];
+  notes: string;
+}
+
 const STORAGE_KEY = "pane-pro-data";
 
 interface AppData {
   customers: Customer[];
   jobs: Job[];
   payments: Payment[];
+  services: Service[];
+  customerServices: CustomerService[];
 }
 
-const MOCK_VERSION = "v4";
+const MOCK_VERSION = "v5";
 const MOCK_VERSION_KEY = "pane-pro-mock-version";
 
 function loadData(): AppData {
@@ -50,7 +73,6 @@ function loadData(): AppData {
     const seededVersion = localStorage.getItem(MOCK_VERSION_KEY);
     const raw = localStorage.getItem(STORAGE_KEY);
 
-    // Re-seed if never seeded, or if mock version changed and no real edits exist
     if (seededVersion !== MOCK_VERSION || !raw) {
       const mock = generateMockData();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(mock));
@@ -60,7 +82,12 @@ function loadData(): AppData {
 
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (parsed.customers !== undefined) return parsed;
+      if (parsed.customers !== undefined) {
+        // Migrate old data missing new fields
+        if (!parsed.services) parsed.services = generateMockData().services;
+        if (!parsed.customerServices) parsed.customerServices = generateMockData().customerServices;
+        return parsed;
+      }
     }
   } catch {}
   const mock = generateMockData();
@@ -104,6 +131,7 @@ export function useAppData() {
       customers: d.customers.filter((x) => x.id !== id),
       jobs: d.jobs.filter((j) => j.customerId !== id),
       payments: d.payments.filter((p) => p.customerId !== id),
+      customerServices: d.customerServices.filter((cs) => cs.customerId !== id),
     }));
   }, [update]);
 
@@ -127,10 +155,38 @@ export function useAppData() {
     update((d) => ({ ...d, payments: d.payments.filter((x) => x.id !== id) }));
   }, [update]);
 
+  // Services CRUD
+  const addService = useCallback((s: Omit<Service, "id">) => {
+    update((d) => ({ ...d, services: [...d.services, { ...s, id: crypto.randomUUID() }] }));
+  }, [update]);
+
+  const updateService = useCallback((id: string, s: Partial<Service>) => {
+    update((d) => ({ ...d, services: d.services.map((x) => (x.id === id ? { ...x, ...s } : x)) }));
+  }, [update]);
+
+  const deleteService = useCallback((id: string) => {
+    update((d) => ({
+      ...d,
+      services: d.services.filter((x) => x.id !== id),
+      customerServices: d.customerServices.filter((cs) => cs.serviceId !== id),
+    }));
+  }, [update]);
+
+  // Customer-service assignments
+  const addCustomerService = useCallback((cs: Omit<CustomerService, "id">) => {
+    update((d) => ({ ...d, customerServices: [...d.customerServices, { ...cs, id: crypto.randomUUID() }] }));
+  }, [update]);
+
+  const deleteCustomerService = useCallback((id: string) => {
+    update((d) => ({ ...d, customerServices: d.customerServices.filter((x) => x.id !== id) }));
+  }, [update]);
+
   return {
     ...data,
     addCustomer, updateCustomer, deleteCustomer,
     addJob, updateJob, deleteJob,
     addPayment, deletePayment,
+    addService, updateService, deleteService,
+    addCustomerService, deleteCustomerService,
   };
 }

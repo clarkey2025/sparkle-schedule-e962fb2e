@@ -17,7 +17,8 @@ import {
   Clock, PoundSterling, Receipt, ArrowRight, User, Calendar,
   StickyNote, Check, Banknote, Download, FileText,
 } from "lucide-react";
-import type { Customer, Payment } from "@/lib/store";
+import type { Customer, Payment, CustomerService as CustomerServiceType } from "@/lib/store";
+import { Wrench } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
@@ -115,7 +116,7 @@ function WizardSteps({ current }: { current: number }) {
 
 // ── Main page ──────────────────────────────────────────────────────────────────
 export default function CustomersPage() {
-  const { customers, jobs, payments, addCustomer, updateCustomer, deleteCustomer, addPayment } = useApp();
+  const { customers, jobs, payments, services, customerServices, addCustomer, updateCustomer, deleteCustomer, addPayment, addCustomerService, deleteCustomerService } = useApp();
   const { toast } = useToast();
 
   const [search, setSearch] = useState("");
@@ -295,6 +296,11 @@ export default function CustomersPage() {
   const sel = selectedCustomer ? enriched.find((e) => e.customer.id === selectedCustomer.id) : null;
   const selJobs = selectedCustomer ? jobs.filter((j) => j.customerId === selectedCustomer.id).sort((a, b) => b.date.localeCompare(a.date)) : [];
   const selPayments = selectedCustomer ? payments.filter((p) => p.customerId === selectedCustomer.id).sort((a, b) => b.date.localeCompare(a.date)) : [];
+  const selServices = selectedCustomer ? customerServices.filter((cs) => cs.customerId === selectedCustomer.id) : [];
+
+  // Add service state
+  const [addServiceOpen, setAddServiceOpen] = useState(false);
+  const [serviceForm, setServiceForm] = useState({ serviceId: "", price: 0, type: "recurring" as "recurring" | "one-off", frequency: "monthly" as Customer["frequency"], notes: "" });
 
   return (
     <div className="pb-24 md:pb-0 flex flex-col gap-5">
@@ -534,7 +540,7 @@ export default function CustomersPage() {
               {/* Tabs */}
               <Tabs defaultValue="overview" className="flex flex-col flex-1 overflow-hidden">
                 <TabsList className="w-full rounded-none border-b border-border bg-transparent h-10 px-6 gap-1 justify-start shrink-0">
-                  {["overview", "jobs", "payments"].map((tab) => (
+                  {["overview", "jobs", "payments", "services"].map((tab) => (
                     <TabsTrigger
                       key={tab}
                       value={tab}
@@ -711,6 +717,126 @@ export default function CustomersPage() {
                           <p className="font-mono text-[12px] text-success">+{formatCurrency(p.amount)}</p>
                         </div>
                       ))}
+                    </div>
+                  )}
+                </TabsContent>
+
+                {/* ── Services tab ── */}
+                <TabsContent value="services" className="flex-1 overflow-y-auto p-5 mt-0">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <p className="label-caps">Attached Services</p>
+                      <p className="text-[11px] text-muted-foreground font-mono mt-0.5">{selServices.length} service{selServices.length !== 1 ? "s" : ""}</p>
+                    </div>
+                    <Button size="sm" variant="outline" onClick={() => { setServiceForm({ serviceId: services[0]?.id || "", price: services[0]?.defaultPrice || 0, type: "recurring", frequency: "monthly", notes: "" }); setAddServiceOpen(true); }}>
+                      <Plus className="h-3.5 w-3.5" /> Add Service
+                    </Button>
+                  </div>
+
+                  {addServiceOpen && (
+                    <div className="rounded-md border border-primary/20 bg-primary/5 p-4 mb-4 space-y-3">
+                      <p className="text-[12px] font-semibold text-foreground">Attach Service</p>
+                      <div>
+                        <Label className="label-caps mb-1 block">Service</Label>
+                        <Select value={serviceForm.serviceId} onValueChange={(v) => {
+                          const svc = services.find((s) => s.id === v);
+                          setServiceForm({ ...serviceForm, serviceId: v, price: svc?.defaultPrice || 0 });
+                        }}>
+                          <SelectTrigger className="h-8 text-[12px]"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {services.filter((s) => s.category !== "window-cleaning").map((s) => (
+                              <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label className="label-caps mb-1 block">Price (£)</Label>
+                          <Input type="number" min={0} step={0.5} value={serviceForm.price || ""} onChange={(e) => setServiceForm({ ...serviceForm, price: parseFloat(e.target.value) || 0 })} className="h-8 text-[12px]" />
+                        </div>
+                        <div>
+                          <Label className="label-caps mb-1 block">Type</Label>
+                          <Select value={serviceForm.type} onValueChange={(v) => setServiceForm({ ...serviceForm, type: v as "recurring" | "one-off" })}>
+                            <SelectTrigger className="h-8 text-[12px]"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="recurring">Recurring</SelectItem>
+                              <SelectItem value="one-off">One-off</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      {serviceForm.type === "recurring" && (
+                        <div>
+                          <Label className="label-caps mb-1 block">Frequency</Label>
+                          <Select value={serviceForm.frequency} onValueChange={(v) => setServiceForm({ ...serviceForm, frequency: v as Customer["frequency"] })}>
+                            <SelectTrigger className="h-8 text-[12px]"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              {Object.entries(FREQUENCY_LABELS).map(([k, v]) => (
+                                <SelectItem key={k} value={k}>{v}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                      <div>
+                        <Label className="label-caps mb-1 block">Notes</Label>
+                        <Input value={serviceForm.notes} onChange={(e) => setServiceForm({ ...serviceForm, notes: e.target.value })} placeholder="Optional…" className="h-8 text-[12px]" />
+                      </div>
+                      <div className="flex gap-2 pt-1">
+                        <Button variant="outline" size="sm" className="flex-1" onClick={() => setAddServiceOpen(false)}>Cancel</Button>
+                        <Button size="sm" className="flex-1" disabled={!serviceForm.serviceId} onClick={() => {
+                          if (!selectedCustomer) return;
+                          addCustomerService({
+                            customerId: selectedCustomer.id,
+                            serviceId: serviceForm.serviceId,
+                            price: serviceForm.price,
+                            type: serviceForm.type,
+                            ...(serviceForm.type === "recurring" ? { frequency: serviceForm.frequency } : {}),
+                            notes: serviceForm.notes,
+                          });
+                          setAddServiceOpen(false);
+                          toast({ title: "Service attached", description: services.find((s) => s.id === serviceForm.serviceId)?.name });
+                        }}>
+                          <Check className="h-3.5 w-3.5" /> Add
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {selServices.length === 0 && !addServiceOpen ? (
+                    <div className="py-8 text-center">
+                      <p className="text-[12px] text-muted-foreground">No extra services attached.</p>
+                      <p className="text-[10px] text-muted-foreground/50 mt-1">Add gutters, jet washing, caravan cleans & more.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-1.5">
+                      {selServices.map((cs) => {
+                        const svc = services.find((s) => s.id === cs.serviceId);
+                        return (
+                          <div key={cs.id} className="flex items-center justify-between rounded-md bg-muted/30 border border-border/50 px-3 py-2.5 group">
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <Wrench className="h-3.5 w-3.5 text-primary shrink-0" />
+                              <div className="min-w-0">
+                                <p className="text-[12px] font-medium text-foreground truncate">{svc?.name || "Unknown"}</p>
+                                <p className="text-[10px] text-muted-foreground capitalize">
+                                  {cs.type === "recurring" ? FREQUENCY_LABELS[cs.frequency || "monthly"] : "One-off"}
+                                  {cs.notes ? ` · ${cs.notes}` : ""}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <p className="font-mono text-[12px] text-foreground">{formatCurrency(cs.price)}</p>
+                              <Button
+                                variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-destructive/60 hover:text-destructive"
+                                onClick={() => { deleteCustomerService(cs.id); toast({ title: "Service removed" }); }}
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </TabsContent>

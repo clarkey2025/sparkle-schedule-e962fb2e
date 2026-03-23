@@ -8,6 +8,7 @@ import {
   MapPin,
   ClipboardList,
   Route,
+  Wrench,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -30,6 +31,7 @@ const sections = [
     label: "Customers",
     links: [
       { to: "/customers", label: "Customers", icon: Users },
+      { to: "/services", label: "Services", icon: Wrench },
     ],
   },
   {
