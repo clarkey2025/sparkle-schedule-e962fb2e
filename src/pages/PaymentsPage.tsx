@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Trash2 } from "lucide-react";
 import type { Payment } from "@/lib/store";
 
@@ -50,29 +51,44 @@ export default function PaymentsPage() {
       />
 
       {sorted.length === 0 ? (
-        <div className="glass-card rounded-xl p-8 text-center animate-fade-up stagger-1">
-          <p className="text-muted-foreground">No payments recorded yet.</p>
+        <div className="surface rounded-md p-8 text-center animate-fade-up stagger-1">
+          <p className="text-muted-foreground text-sm">No payments recorded yet.</p>
         </div>
       ) : (
-        <div className="space-y-3 animate-fade-up stagger-1">
-          {sorted.map((p) => {
-            const customer = customers.find((c) => c.id === p.customerId);
-            return (
-              <div key={p.id} className="glass-card group flex items-center justify-between rounded-xl px-5 py-4 transition-shadow hover:shadow-md">
-                <div className="min-w-0">
-                  <p className="font-medium truncate">{customer?.name ?? "Unknown"}</p>
-                  <p className="text-xs text-muted-foreground">{formatDate(p.date)}{p.notes ? ` · ${p.notes}` : ""}</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Badge variant="secondary" className="text-xs">{METHOD_LABELS[p.method]}</Badge>
-                  <span className="text-sm font-bold text-success">{formatCurrency(p.amount)}</span>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive opacity-0 transition-opacity group-hover:opacity-100" onClick={() => deletePayment(p.id)}>
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              </div>
-            );
-          })}
+        <div className="surface rounded-md animate-fade-up stagger-1 overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="label-caps">Customer</TableHead>
+                <TableHead className="label-caps">Date</TableHead>
+                <TableHead className="label-caps">Method</TableHead>
+                <TableHead className="label-caps">Notes</TableHead>
+                <TableHead className="label-caps text-right">Amount</TableHead>
+                <TableHead className="label-caps text-right w-[60px]"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {sorted.map((p) => {
+                const customer = customers.find((c) => c.id === p.customerId);
+                return (
+                  <TableRow key={p.id} className="group border-border">
+                    <TableCell className="font-medium text-foreground">{customer?.name ?? "Unknown"}</TableCell>
+                    <TableCell className="mono text-sm text-muted-foreground">{formatDate(p.date)}</TableCell>
+                    <TableCell>
+                      <Badge variant="secondary" className="text-[10px] uppercase tracking-wider">{METHOD_LABELS[p.method]}</Badge>
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate">{p.notes || "—"}</TableCell>
+                    <TableCell className="mono text-sm text-right font-bold text-success">{formatCurrency(p.amount)}</TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive opacity-0 transition-opacity group-hover:opacity-100" onClick={() => deletePayment(p.id)}>
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
         </div>
       )}
 
