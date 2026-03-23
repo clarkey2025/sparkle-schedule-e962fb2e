@@ -290,8 +290,27 @@ export default function CustomersPage() {
       imported++;
     });
     setCsvImportOpen(false);
-    toast({ title: `Imported ${imported} customers`, description: `${imported} customers added from CSV.` });
+    toast({ title: `Imported ${imported} customers`, description: `${imported} customers added from CSV. Geocoding addresses…` });
+    // Auto-geocode after import
+    triggerGeocode();
   };
+
+  const [geocoding, setGeocoding] = useState(false);
+  const [geoProgress, setGeoProgress] = useState({ done: 0, total: 0 });
+
+  const triggerGeocode = useCallback(async () => {
+    const needsGeo = customers.filter((c) => !c.lat && !c.lng && c.address.trim());
+    if (needsGeo.length === 0) return;
+    setGeocoding(true);
+    setGeoProgress({ done: 0, total: needsGeo.length });
+    const count = await geocodeCustomers(
+      needsGeo,
+      (id, coords) => updateCustomer(id, coords),
+      (done, total) => setGeoProgress({ done, total }),
+    );
+    setGeocoding(false);
+    toast({ title: `Geocoded ${count} addresses`, description: `${count} of ${needsGeo.length} addresses mapped.` });
+  }, [customers, updateCustomer, toast]);
 
   const now = new Date();
 
