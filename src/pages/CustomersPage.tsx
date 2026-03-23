@@ -425,7 +425,8 @@ export default function CustomersPage() {
   const handleWizardBack = () => setWizardStep((s) => Math.max(s - 1, 0));
   const handleSave = () => {
     if (!form.name.trim()) return;
-    editing ? updateCustomer(editing.id, form) : addCustomer(form);
+    const saveData = { ...form, roundId: form.roundId || undefined };
+    editing ? updateCustomer(editing.id, saveData) : addCustomer(saveData);
     setWizardOpen(false);
     toast({ title: editing ? "Customer updated" : "Customer added", description: form.name });
   };
