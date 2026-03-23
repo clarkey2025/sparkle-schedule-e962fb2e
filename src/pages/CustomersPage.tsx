@@ -1233,6 +1233,7 @@ export default function CustomersPage() {
                   { label: "Address", value: form.address || "—" },
                   { label: "Frequency", value: FREQUENCY_LABELS[form.frequency] },
                   { label: "Price", value: formatCurrency(form.pricePerClean) },
+                  ...(form.roundId ? [{ label: "Round", value: rounds.find((r) => r.id === form.roundId)?.name || "—" }] : []),
                 ].map(({ label, value }) => (
                   <div key={label} className="flex justify-between px-3 py-2">
                     <span className="text-muted-foreground">{label}</span>
