@@ -129,6 +129,7 @@ export default function CustomersPage() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<FilterKey>("all");
   const [sort, setSort] = useState<SortKey>("name");
+  const [roundFilter, setRoundFilter] = useState<string>("all");
   const [page, setPage] = useState(1);
 
   // Wizard state
@@ -384,6 +385,8 @@ export default function CustomersPage() {
     if (filter === "overdue") list = list.filter(({ daysOverdue }) => daysOverdue > 0);
     if (filter === "upcoming") list = list.filter(({ daysUntil }) => daysUntil >= 0 && daysUntil <= 7);
     if (filter === "clear") list = list.filter(({ outstanding }) => outstanding === 0);
+    if (roundFilter === "unassigned") list = list.filter(({ customer: c }) => !c.roundId);
+    else if (roundFilter !== "all") list = list.filter(({ customer: c }) => c.roundId === roundFilter);
     list = [...list].sort((a, b) => {
       if (sort === "name") return a.customer.name.localeCompare(b.customer.name);
       if (sort === "lastClean") return (b.lastCleanDate ?? "").localeCompare(a.lastCleanDate ?? "");
@@ -392,7 +395,7 @@ export default function CustomersPage() {
       return 0;
     });
     return list;
-  }, [enriched, search, filter, sort]);
+  }, [enriched, search, filter, sort, roundFilter]);
 
   // Pagination
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -402,6 +405,7 @@ export default function CustomersPage() {
   const handleSearchChange = (v: string) => { setSearch(v); setPage(1); };
   const handleFilterChange = (v: FilterKey) => { setFilter(v); setPage(1); };
   const handleSortChange = (v: SortKey) => { setSort(v); setPage(1); };
+  const handleRoundFilterChange = (v: string) => { setRoundFilter(v); setPage(1); };
 
   // Summary stats
   const totalOutstanding = enriched.reduce((s, { outstanding }) => s + outstanding, 0);
@@ -590,6 +594,21 @@ export default function CustomersPage() {
             <SelectItem value="clear">Paid up</SelectItem>
           </SelectContent>
         </Select>
+        {rounds.length > 0 && (
+          <Select value={roundFilter} onValueChange={handleRoundFilterChange}>
+            <SelectTrigger className="w-[150px] h-9"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All rounds</SelectItem>
+              <SelectItem value="unassigned">Unassigned</SelectItem>
+              {rounds.map((r) => (
+                <SelectItem key={r.id} value={r.id}>
+                  <span className="inline-block h-2 w-2 rounded-full mr-1.5 align-middle" style={{ backgroundColor: r.colour }} />
+                  {r.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
         <Select value={sort} onValueChange={(v) => handleSortChange(v as SortKey)}>
           <SelectTrigger className="w-[150px] h-9"><SelectValue /></SelectTrigger>
           <SelectContent>
