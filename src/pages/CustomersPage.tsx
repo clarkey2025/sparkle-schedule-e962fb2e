@@ -249,8 +249,15 @@ export default function CustomersPage() {
       const frequency = VALID_FREQUENCIES.includes(rawFreq) ? rawFreq as Customer["frequency"] : "monthly";
       const price = parseFloat(getValue("pricePerClean")) || 0;
       const lastClean = parseFlexibleDate(getValue("lastCleanDate"));
-      const nextDue = parseFlexibleDate(getValue("nextDueDate"));
+      const nextDueRaw = parseFlexibleDate(getValue("nextDueDate"));
       const outstandingRaw = parseFloat(getValue("outstanding")) || 0;
+
+      // If next due is empty, calculate from last clean + frequency (or from today if no last clean)
+      let nextDue = nextDueRaw;
+      if (!nextDue) {
+        const calculatedNext = getNextDueDate(lastClean || undefined, frequency);
+        nextDue = calculatedNext.toISOString().slice(0, 10);
+      }
 
       addCustomer({
         name,
