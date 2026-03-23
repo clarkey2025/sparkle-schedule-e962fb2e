@@ -32,6 +32,7 @@ const sections = [
     label: "Customers",
     links: [
       { to: "/customers", label: "Customers", icon: Users },
+      { to: "/rounds", label: "Rounds", icon: CircleDot },
       { to: "/services", label: "Services", icon: Wrench },
     ],
   },
