@@ -80,6 +80,11 @@ interface AppData {
 
 const MOCK_VERSION = "v12-empty";
 const MOCK_VERSION_KEY = "pane-pro-mock-version";
+const DEMO_FLAG_KEY = "pane-pro-demo-active";
+
+export function isDemoDataActive(): boolean {
+  return localStorage.getItem(DEMO_FLAG_KEY) === "1";
+}
 
 function loadData(): AppData {
   try {
