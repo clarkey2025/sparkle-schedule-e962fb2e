@@ -536,7 +536,7 @@ export default function CustomersPage() {
               <p />
             </div>
             <div className="divide-y divide-border">
-              {pageSlice.map(({ customer: c, lastJob, daysOverdue, daysUntil, outstanding }) => {
+              {pageSlice.map(({ customer: c, lastCleanDate, daysOverdue, daysUntil, outstanding }) => {
                 const isOverdue = daysOverdue > 0;
                 const isChecked = selectedIds.has(c.id);
                 return (
