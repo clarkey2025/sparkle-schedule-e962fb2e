@@ -1182,6 +1182,24 @@ export default function CustomersPage() {
                   placeholder="0.00"
                 />
               </div>
+              {/* Round assignment */}
+              {rounds.length > 0 && (
+                <div>
+                  <Label className="label-caps mb-1.5 block">Round</Label>
+                  <Select value={form.roundId || "none"} onValueChange={(v) => setForm({ ...form, roundId: v === "none" ? "" : v })}>
+                    <SelectTrigger><SelectValue placeholder="No round" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">No round</SelectItem>
+                      {rounds.map((r) => (
+                        <SelectItem key={r.id} value={r.id}>
+                          <span className="inline-block h-2 w-2 rounded-full mr-1.5 align-middle" style={{ backgroundColor: r.colour }} />
+                          {r.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               {/* Quick preview */}
               <div className="rounded-md bg-muted/30 border border-border px-3 py-2.5 flex justify-between items-center">
                 <span className="text-[11px] text-muted-foreground">Est. annual revenue</span>
