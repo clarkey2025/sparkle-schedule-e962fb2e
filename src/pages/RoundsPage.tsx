@@ -221,7 +221,7 @@ export default function RoundsPage() {
               <Select value={form.day} onValueChange={(v) => setForm({ ...form, day: v as Round["day"] })}>
                 <SelectTrigger><SelectValue placeholder="Select a day" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No set day</SelectItem>
+                  <SelectItem value="none">No set day</SelectItem>
                   {Object.entries(DAY_LABELS).filter(([k]) => k !== "").map(([k, v]) => (
                     <SelectItem key={k} value={k}>{v}</SelectItem>
                   ))}
