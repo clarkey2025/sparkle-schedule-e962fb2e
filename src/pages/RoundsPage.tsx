@@ -218,7 +218,7 @@ export default function RoundsPage() {
             </div>
             <div>
               <Label className="text-[11px]">Day of Week</Label>
-              <Select value={form.day} onValueChange={(v) => setForm({ ...form, day: v as Round["day"] })}>
+              <Select value={form.day} onValueChange={(v) => setForm({ ...form, day: v })}>
                 <SelectTrigger><SelectValue placeholder="Select a day" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">No set day</SelectItem>
