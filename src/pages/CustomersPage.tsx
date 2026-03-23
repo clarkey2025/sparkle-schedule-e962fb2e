@@ -567,7 +567,7 @@ export default function CustomersPage() {
                       <span className="text-[11px] text-muted-foreground">{FREQUENCY_LABELS[c.frequency]}</span>
                     </div>
                     <div className="text-[12px] text-muted-foreground" onClick={() => setSelectedCustomer(c)}>
-                      {lastJob ? formatDate(lastJob.date) : <span className="text-muted-foreground/40">Never</span>}
+                      {lastCleanDate ? formatDate(lastCleanDate) : <span className="text-muted-foreground/40">Never</span>}
                     </div>
                     <div className={cn("font-mono text-[13px] font-medium", outstanding > 0 ? "text-warning" : "text-muted-foreground/40")} onClick={() => setSelectedCustomer(c)}>
                       {outstanding > 0 ? formatCurrency(outstanding) : "—"}
