@@ -594,6 +594,21 @@ export default function CustomersPage() {
             <SelectItem value="clear">Paid up</SelectItem>
           </SelectContent>
         </Select>
+        {rounds.length > 0 && (
+          <Select value={roundFilter} onValueChange={handleRoundFilterChange}>
+            <SelectTrigger className="w-[150px] h-9"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All rounds</SelectItem>
+              <SelectItem value="unassigned">Unassigned</SelectItem>
+              {rounds.map((r) => (
+                <SelectItem key={r.id} value={r.id}>
+                  <span className="inline-block h-2 w-2 rounded-full mr-1.5 align-middle" style={{ backgroundColor: r.colour }} />
+                  {r.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
         <Select value={sort} onValueChange={(v) => handleSortChange(v as SortKey)}>
           <SelectTrigger className="w-[150px] h-9"><SelectValue /></SelectTrigger>
           <SelectContent>
