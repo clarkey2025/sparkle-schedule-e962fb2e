@@ -15,6 +15,7 @@ export interface Customer {
   lng?: number;
   lastCleanDate?: string;
   nextDueDate?: string;
+  importedBalance?: number;
 }
 
 export interface Job {
