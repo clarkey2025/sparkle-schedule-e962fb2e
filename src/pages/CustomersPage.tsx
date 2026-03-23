@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useCallback } from "react";
 import { useApp } from "@/lib/AppContext";
 import { formatCurrency, formatDate, getNextDueDate, FREQUENCY_LABELS } from "@/lib/helpers";
-import { geocodeCustomers } from "@/lib/geocode";
+import { geocodeCustomers, type GeocodeResult } from "@/lib/geocode";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -297,19 +297,30 @@ export default function CustomersPage() {
 
   const [geocoding, setGeocoding] = useState(false);
   const [geoProgress, setGeoProgress] = useState({ done: 0, total: 0 });
+  const [geoFailedList, setGeoFailedList] = useState<GeocodeResult["failed"]>([]);
+  const [geoSummaryOpen, setGeoSummaryOpen] = useState(false);
 
   const triggerGeocode = useCallback(async () => {
-    const needsGeo = customers.filter((c) => !c.lat && !c.lng && c.address.trim());
-    if (needsGeo.length === 0) return;
+    const needsGeo = customers.filter((c) => (!c.lat || !c.lng) && c.address.trim());
+    if (needsGeo.length === 0) {
+      toast({ title: "All geocoded", description: "Every customer already has coordinates." });
+      return;
+    }
     setGeocoding(true);
     setGeoProgress({ done: 0, total: needsGeo.length });
-    const count = await geocodeCustomers(
-      needsGeo,
+    const result = await geocodeCustomers(
+      needsGeo.map((c) => ({ id: c.id, name: c.name, address: c.address, lat: c.lat, lng: c.lng })),
       (id, coords) => updateCustomer(id, coords),
       (done, total) => setGeoProgress({ done, total }),
     );
     setGeocoding(false);
-    toast({ title: `Geocoded ${count} addresses`, description: `${count} of ${needsGeo.length} addresses mapped.` });
+    if (result.failed.length > 0) {
+      setGeoFailedList(result.failed);
+      setGeoSummaryOpen(true);
+      toast({ title: `Geocoded ${result.successCount} addresses`, description: `${result.failed.length} failed — tap for details.`, variant: "destructive" });
+    } else {
+      toast({ title: `All ${result.successCount} addresses geocoded`, description: "Every address was mapped successfully." });
+    }
   }, [customers, updateCustomer, toast]);
 
   const now = new Date();
@@ -1273,6 +1284,48 @@ export default function CustomersPage() {
             <Button variant="outline" size="sm" onClick={() => setCsvImportOpen(false)}>Cancel</Button>
             <Button size="sm" onClick={handleCsvImport}>
               <Upload className="h-3.5 w-3.5" /> Import {csvRows.length} Customers
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Geocode failed summary dialog */}
+      <Dialog open={geoSummaryOpen} onOpenChange={setGeoSummaryOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="h-4 w-4" />
+              {geoFailedList.length} Address{geoFailedList.length !== 1 ? "es" : ""} Failed
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-[12px] text-muted-foreground -mt-2">
+            These addresses couldn't be geocoded. Edit them to fix typos or add postcodes, then re-run Geocode.
+          </p>
+          <div className="max-h-[300px] overflow-auto rounded-md border border-border divide-y divide-border">
+            {geoFailedList.map((item) => (
+              <div
+                key={item.id}
+                className="flex items-start gap-3 px-3 py-2.5 hover:bg-muted/20 transition-colors cursor-pointer"
+                onClick={() => {
+                  const c = customers.find((c) => c.id === item.id);
+                  if (c) { openEdit(c); setGeoSummaryOpen(false); }
+                }}
+              >
+                <MapPin className="h-3.5 w-3.5 text-destructive/60 mt-0.5 shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[12px] font-medium text-foreground">{item.name}</p>
+                  <p className="text-[11px] text-muted-foreground truncate">{item.address || "No address"}</p>
+                </div>
+                <Pencil className="h-3 w-3 text-muted-foreground/40 mt-1 shrink-0" />
+              </div>
+            ))}
+          </div>
+          <div className="flex justify-end gap-2 pt-1">
+            <Button variant="outline" size="sm" onClick={() => setGeoSummaryOpen(false)}>
+              Dismiss
+            </Button>
+            <Button size="sm" onClick={() => { setGeoSummaryOpen(false); triggerGeocode(); }}>
+              <MapPin className="h-3.5 w-3.5" /> Retry All
             </Button>
           </div>
         </DialogContent>

@@ -123,25 +123,33 @@ export async function geocodeAddress(address: string): Promise<GeoResult | null>
   return null;
 }
 
+export interface GeocodeResult {
+  successCount: number;
+  failed: { id: string; name: string; address: string }[];
+}
+
 export async function geocodeCustomers(
-  customers: { id: string; address: string; lat?: number; lng?: number }[],
+  customers: { id: string; name?: string; address: string; lat?: number; lng?: number }[],
   onUpdate: (id: string, coords: { lat: number; lng: number }) => void,
   onProgress?: (done: number, total: number) => void,
-): Promise<number> {
+): Promise<GeocodeResult> {
   const needsGeo = customers.filter((c) => (!c.lat || !c.lng) && c.address.trim());
-  let geocoded = 0;
+  let successCount = 0;
+  const failed: GeocodeResult["failed"] = [];
 
   for (let i = 0; i < needsGeo.length; i++) {
     const c = needsGeo[i];
     const result = await geocodeAddress(c.address);
     if (result) {
       onUpdate(c.id, result);
-      geocoded++;
+      successCount++;
+    } else {
+      failed.push({ id: c.id, name: c.name ?? "Unknown", address: c.address });
     }
 
     onProgress?.(i + 1, needsGeo.length);
     if (i < needsGeo.length - 1) await delay(CUSTOMER_DELAY_MS);
   }
 
-  return geocoded;
+  return { successCount, failed };
 }
