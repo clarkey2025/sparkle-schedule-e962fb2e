@@ -228,7 +228,32 @@ export default function Dashboard() {
   return (
     <div className="pb-24 md:pb-0 space-y-4">
 
-      {/* ── Stat cards ── */}
+      {/* ── Demo data banner ── */}
+      <div className={`flex items-center gap-3 rounded-md border px-4 py-3 text-[12px] transition-all ${
+        isDemoActive
+          ? "bg-primary/10 border-primary/30 text-foreground"
+          : "bg-muted/30 border-border text-muted-foreground"
+      }`}>
+        <FlaskConical className={`h-4 w-4 shrink-0 ${isDemoActive ? "text-primary" : "text-muted-foreground/50"}`} />
+        <div className="flex-1 min-w-0">
+          <span className="font-medium">{isDemoActive ? "Demo data active" : "Demo data off"}</span>
+          <span className="ml-2 opacity-70">
+            {isDemoActive ? "16 sample customers, jobs, payments & rounds loaded." : "Load sample data to explore all features."}
+          </span>
+        </div>
+        <button
+          onClick={isDemoActive ? clearMockData : loadMockData}
+          className={`shrink-0 rounded px-3 py-1.5 text-[11px] font-semibold transition-all ${
+            isDemoActive
+              ? "bg-destructive/15 text-destructive border border-destructive/30 hover:bg-destructive/25"
+              : "bg-primary text-primary-foreground hover:bg-primary/85 shadow-glow-pink"
+          }`}
+        >
+          {isDemoActive ? "Clear demo data" : "Load demo data"}
+        </button>
+      </div>
+
+
       <div className="grid grid-cols-3 gap-3">
         {[
           { label: "Total Customers", value: String(customers.length), sub: "properties on round", colour: "text-foreground", icon: Users },
