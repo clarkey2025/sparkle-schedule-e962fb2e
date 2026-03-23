@@ -95,6 +95,9 @@ function parseUKAddress(raw: string): ParsedAddress {
     }
   }
 
+  // Default to Fleetwood if no city found
+  if (!city) city = DEFAULT_TOWN;
+
   return { houseNumber, street, city, county, postcode, full };
 }
 
