@@ -237,8 +237,8 @@ export default function CustomersPage() {
         frequency,
         pricePerClean: price,
         notes: getValue("notes"),
-        lastCleanDate: "",
-        nextDueDate: "",
+        lastCleanDate: getValue("lastCleanDate") || "",
+        nextDueDate: getValue("nextDueDate") || "",
       });
       imported++;
     });
