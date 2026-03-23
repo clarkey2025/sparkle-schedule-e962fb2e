@@ -52,7 +52,7 @@ export default function AppSidebar() {
         <div className="flex h-7 w-7 items-center justify-center rounded bg-sidebar-primary/15">
           <Droplets className="h-4 w-4 text-sidebar-primary" />
         </div>
-        <span className="text-[13px] font-semibold tracking-tight text-white">PanePro</span>
+        <span className="text-[13px] font-semibold tracking-tight text-white">Bucket List</span>
       </div>
 
       {/* Nav */}
