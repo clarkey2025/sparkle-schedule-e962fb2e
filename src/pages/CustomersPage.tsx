@@ -261,7 +261,7 @@ export default function CustomersPage() {
       const totalCharged = completedJobs.reduce((s, j) => s + j.price, 0);
       const totalPaid = payments.filter((p) => p.customerId === c.id).reduce((s, p) => s + p.amount, 0);
       const outstanding = Math.max(0, totalCharged - totalPaid);
-      return { customer: c, lastJob, nextDue, daysOverdue, daysUntil, totalCharged, totalPaid, outstanding };
+      return { customer: c, lastJob, lastCleanDate, nextDue, daysOverdue, daysUntil, totalCharged, totalPaid, outstanding };
     });
   }, [customers, jobs, payments]);
 
