@@ -34,6 +34,7 @@ const emptyForm = {
   pricePerClean: 0, notes: "",
   lastCleanDate: "" as string,
   nextDueDate: "" as string,
+  roundId: "" as string,
 };
 
 const emptyPaymentForm = {
