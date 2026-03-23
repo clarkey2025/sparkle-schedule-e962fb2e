@@ -385,6 +385,8 @@ export default function CustomersPage() {
     if (filter === "overdue") list = list.filter(({ daysOverdue }) => daysOverdue > 0);
     if (filter === "upcoming") list = list.filter(({ daysUntil }) => daysUntil >= 0 && daysUntil <= 7);
     if (filter === "clear") list = list.filter(({ outstanding }) => outstanding === 0);
+    if (roundFilter === "unassigned") list = list.filter(({ customer: c }) => !c.roundId);
+    else if (roundFilter !== "all") list = list.filter(({ customer: c }) => c.roundId === roundFilter);
     list = [...list].sort((a, b) => {
       if (sort === "name") return a.customer.name.localeCompare(b.customer.name);
       if (sort === "lastClean") return (b.lastCleanDate ?? "").localeCompare(a.lastCleanDate ?? "");
