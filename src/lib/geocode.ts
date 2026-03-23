@@ -133,6 +133,7 @@ async function geocodeStructuredNominatim(parsed: ParsedAddress): Promise<Geocod
   const streetQuery = parsed.houseNumber ? `${parsed.houseNumber} ${parsed.street}` : parsed.street;
   params.set("street", streetQuery);
   if (parsed.city) params.set("city", parsed.city);
+  if (parsed.county) params.set("county", parsed.county);
   if (parsed.postcode) params.set("postalcode", parsed.postcode);
 
   const res = await fetchWithTimeout(`${NOMINATIM_URL}?${params}`);
