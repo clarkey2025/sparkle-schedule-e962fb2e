@@ -29,12 +29,54 @@ function cleanQuery(value: string) {
     .trim();
 }
 
+// UK postcode regex
+const UK_POSTCODE_RE = /\b([A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2})\b/i;
+
+interface ParsedAddress {
+  houseNumber: string;
+  street: string;
+  city: string;
+  postcode: string;
+  full: string;
+}
+
+function parseUKAddress(raw: string): ParsedAddress {
+  const full = cleanQuery(raw);
+  let postcode = "";
+  const pcMatch = full.match(UK_POSTCODE_RE);
+  if (pcMatch) postcode = pcMatch[1].trim();
+
+  // Remove postcode and "UK"/"United Kingdom" for part splitting
+  let remainder = full
+    .replace(UK_POSTCODE_RE, "")
+    .replace(/\b(United Kingdom|UK)\b/gi, "")
+    .replace(/,\s*,/g, ",")
+    .replace(/,\s*$/, "")
+    .replace(/^\s*,/, "")
+    .trim();
+
+  const parts = remainder.split(",").map((p) => p.trim()).filter(Boolean);
+
+  let houseNumber = "";
+  let street = parts[0] || "";
+  const city = parts.length >= 2 ? parts[parts.length - 1] : "";
+
+  // Extract house number from start of street
+  const numMatch = street.match(/^(\d+[A-Za-z]?)\s+(.+)$/);
+  if (numMatch) {
+    houseNumber = numMatch[1];
+    street = numMatch[2];
+  }
+
+  return { houseNumber, street, city, postcode, full };
+}
+
 function buildAddressVariants(address: string): string[] {
   const normalized = cleanQuery(address);
   if (!normalized) return [];
 
   const withoutCountry = cleanQuery(normalized.replace(/\b(United Kingdom|UK)\b/gi, ""));
-  const withoutPostcode = cleanQuery(normalized.replace(/\b[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}\b/gi, ""));
+  const withoutPostcode = cleanQuery(normalized.replace(UK_POSTCODE_RE, ""));
 
   return [...new Set([normalized, withoutCountry, withoutPostcode].filter(Boolean))];
 }
@@ -48,6 +90,40 @@ async function fetchWithTimeout(url: string): Promise<Response | null> {
     return null;
   } finally {
     clearTimeout(timeout);
+  }
+}
+
+// Try structured Nominatim query first (more precise for house numbers)
+async function geocodeStructuredNominatim(parsed: ParsedAddress): Promise<GeocodeAttempt> {
+  if (!parsed.street) return { coords: null, retryable: false };
+
+  const params = new URLSearchParams({
+    format: "jsonv2",
+    limit: "1",
+    countrycodes: "gb",
+  });
+
+  // Build structured query
+  const streetQuery = parsed.houseNumber ? `${parsed.houseNumber} ${parsed.street}` : parsed.street;
+  params.set("street", streetQuery);
+  if (parsed.city) params.set("city", parsed.city);
+  if (parsed.postcode) params.set("postalcode", parsed.postcode);
+
+  const res = await fetchWithTimeout(`${NOMINATIM_URL}?${params}`);
+  if (!res) return { coords: null, retryable: true };
+  if (!res.ok) return { coords: null, retryable: res.status === 429 || res.status >= 500 };
+
+  try {
+    const data: Array<{ lat: string; lon: string; place_rank?: number }> = await res.json();
+    if (!Array.isArray(data) || data.length === 0) return { coords: null, retryable: false };
+
+    const lat = parseFloat(data[0].lat);
+    const lng = parseFloat(data[0].lon);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return { coords: null, retryable: false };
+
+    return { coords: { lat, lng }, retryable: false };
+  } catch {
+    return { coords: null, retryable: true };
   }
 }
 
@@ -109,9 +185,15 @@ async function runWithRetry(fn: () => Promise<GeocodeAttempt>): Promise<GeoResul
 }
 
 export async function geocodeAddress(address: string): Promise<GeoResult | null> {
-  const queries = buildAddressVariants(address);
-  if (queries.length === 0) return null;
+  if (!address.trim()) return null;
 
+  // 1. Try structured Nominatim query (most precise — resolves house numbers)
+  const parsed = parseUKAddress(address);
+  const fromStructured = await runWithRetry(() => geocodeStructuredNominatim(parsed));
+  if (fromStructured) return fromStructured;
+
+  // 2. Fall back to free-text queries with address variants
+  const queries = buildAddressVariants(address);
   for (const query of queries) {
     const fromNominatim = await runWithRetry(() => geocodeWithNominatim(query));
     if (fromNominatim) return fromNominatim;
