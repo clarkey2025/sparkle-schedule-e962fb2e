@@ -502,7 +502,20 @@ export default function AgendaPage() {
   // ── Normal view ───────────────────────────────────────────────────────────────
   return (
     <div className="flex flex-col gap-4 h-full min-h-0 pb-4 md:pb-0">
-      <PageHeader title="Today's Agenda" description={today} />
+      <PageHeader title={viewDate === "today" ? "Today's Agenda" : "Tomorrow's Agenda"} description={dateLabel}
+        action={
+          <div className="flex gap-2">
+            <button
+              onClick={() => { setViewDate("today"); setOptimised(false); setStopOrder([]); }}
+              className={cn("px-3 py-1.5 rounded-md text-[12px] font-medium transition-colors", viewDate === "today" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground")}
+            >Today</button>
+            <button
+              onClick={() => { setViewDate("tomorrow"); setOptimised(false); setStopOrder([]); }}
+              className={cn("px-3 py-1.5 rounded-md text-[12px] font-medium transition-colors", viewDate === "tomorrow" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground")}
+            >Tomorrow</button>
+          </div>
+        }
+      />
 
       {/* Stat cards */}
       <div className="grid grid-cols-3 gap-3 shrink-0">
