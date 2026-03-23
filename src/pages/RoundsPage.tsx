@@ -25,7 +25,7 @@ const ROUND_COLOURS = [
   "#8B5CF6", "#06B6D4", "#F97316",
 ];
 
-const emptyForm = { name: "", day: "" as Round["day"], colour: "#FF1CE9" };
+const emptyForm = { name: "", day: "none" as Round["day"], colour: "#FF1CE9" };
 
 export default function RoundsPage() {
   const { rounds, customers, addRound, updateRound, deleteRound, updateCustomer } = useApp();
