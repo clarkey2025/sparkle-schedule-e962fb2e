@@ -395,7 +395,7 @@ export default function CustomersPage() {
       return 0;
     });
     return list;
-  }, [enriched, search, filter, sort]);
+  }, [enriched, search, filter, sort, roundFilter]);
 
   // Pagination
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
