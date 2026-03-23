@@ -254,13 +254,14 @@ export default function CustomersPage() {
       const customerJobs = jobs.filter((j) => j.customerId === c.id);
       const completedJobs = customerJobs.filter((j) => j.status === "completed");
       const lastJob = [...completedJobs].sort((a, b) => b.date.localeCompare(a.date))[0];
-      const nextDue = getNextDueDate(lastJob?.date, c.frequency);
+      const lastCleanDate = lastJob?.date || c.lastCleanDate || undefined;
+      const nextDue = c.nextDueDate ? new Date(c.nextDueDate) : getNextDueDate(lastCleanDate, c.frequency);
       const daysOverdue = Math.round((now.getTime() - nextDue.getTime()) / (1000 * 60 * 60 * 24));
       const daysUntil = -daysOverdue;
       const totalCharged = completedJobs.reduce((s, j) => s + j.price, 0);
       const totalPaid = payments.filter((p) => p.customerId === c.id).reduce((s, p) => s + p.amount, 0);
       const outstanding = Math.max(0, totalCharged - totalPaid);
-      return { customer: c, lastJob, nextDue, daysOverdue, daysUntil, totalCharged, totalPaid, outstanding };
+      return { customer: c, lastJob, lastCleanDate, nextDue, daysOverdue, daysUntil, totalCharged, totalPaid, outstanding };
     });
   }, [customers, jobs, payments]);
 
@@ -275,7 +276,7 @@ export default function CustomersPage() {
     if (filter === "clear") list = list.filter(({ outstanding }) => outstanding === 0);
     list = [...list].sort((a, b) => {
       if (sort === "name") return a.customer.name.localeCompare(b.customer.name);
-      if (sort === "lastClean") return (b.lastJob?.date ?? "").localeCompare(a.lastJob?.date ?? "");
+      if (sort === "lastClean") return (b.lastCleanDate ?? "").localeCompare(a.lastCleanDate ?? "");
       if (sort === "outstanding") return b.outstanding - a.outstanding;
       if (sort === "nextDue") return a.nextDue.getTime() - b.nextDue.getTime();
       return 0;
@@ -392,9 +393,9 @@ export default function CustomersPage() {
   const bulkExportCsv = () => {
     const selected = enriched.filter(({ customer }) => selectedIds.has(customer.id));
     const headers = ["Name", "Address", "Phone", "Email", "Frequency", "Price Per Clean", "Outstanding", "Last Clean"];
-    const rows = selected.map(({ customer: c, outstanding, lastJob }) => [
+    const rows = selected.map(({ customer: c, outstanding, lastCleanDate }) => [
       c.name, c.address, c.phone, c.email, FREQUENCY_LABELS[c.frequency],
-      c.pricePerClean.toFixed(2), outstanding.toFixed(2), lastJob ? formatDate(lastJob.date) : "Never",
+      c.pricePerClean.toFixed(2), outstanding.toFixed(2), lastCleanDate ? formatDate(lastCleanDate) : "Never",
     ]);
     const csv = [headers.join(","), ...rows.map((r) => r.map((v) => `"${v}"`).join(","))].join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
@@ -535,7 +536,7 @@ export default function CustomersPage() {
               <p />
             </div>
             <div className="divide-y divide-border">
-              {pageSlice.map(({ customer: c, lastJob, daysOverdue, daysUntil, outstanding }) => {
+              {pageSlice.map(({ customer: c, lastCleanDate, daysOverdue, daysUntil, outstanding }) => {
                 const isOverdue = daysOverdue > 0;
                 const isChecked = selectedIds.has(c.id);
                 return (
@@ -566,7 +567,7 @@ export default function CustomersPage() {
                       <span className="text-[11px] text-muted-foreground">{FREQUENCY_LABELS[c.frequency]}</span>
                     </div>
                     <div className="text-[12px] text-muted-foreground" onClick={() => setSelectedCustomer(c)}>
-                      {lastJob ? formatDate(lastJob.date) : <span className="text-muted-foreground/40">Never</span>}
+                      {lastCleanDate ? formatDate(lastCleanDate) : <span className="text-muted-foreground/40">Never</span>}
                     </div>
                     <div className={cn("font-mono text-[13px] font-medium", outstanding > 0 ? "text-warning" : "text-muted-foreground/40")} onClick={() => setSelectedCustomer(c)}>
                       {outstanding > 0 ? formatCurrency(outstanding) : "—"}
