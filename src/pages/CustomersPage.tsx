@@ -261,8 +261,7 @@ export default function CustomersPage() {
       };
       const name = getValue("name");
       if (!name) return;
-      const rawFreq = getValue("frequency").toLowerCase().replace(/\s/g, "-");
-      const frequency = VALID_FREQUENCIES.includes(rawFreq) ? rawFreq as Customer["frequency"] : "monthly";
+      const frequency = parseFrequency(getValue("frequency"));
       const price = parseFloat(getValue("pricePerClean")) || 0;
       const lastClean = parseFlexibleDate(getValue("lastCleanDate"));
       const nextDueRaw = parseFlexibleDate(getValue("nextDueDate"));
