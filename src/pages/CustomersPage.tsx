@@ -489,11 +489,27 @@ export default function CustomersPage() {
           <Button variant="outline" size="sm" onClick={bulkExportCsv}>
             <Download className="h-3.5 w-3.5" /> Export CSV
           </Button>
+          <Button variant="destructive" size="sm" onClick={() => setShowBulkDelete(true)}>
+            <Trash2 className="h-3.5 w-3.5" /> Delete
+          </Button>
           <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={clearSelection}>
             Clear
           </Button>
         </div>
       )}
+
+      <AlertDialog open={showBulkDelete} onOpenChange={setShowBulkDelete}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selectedIds.size} customer{selectedIds.size > 1 ? "s" : ""}?</AlertDialogTitle>
+            <AlertDialogDescription>This will permanently remove the selected customers and all their jobs, payments, and services. This cannot be undone.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={bulkDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Table */}
       <div className="animate-fade-up stagger-3 flex flex-col gap-3">
