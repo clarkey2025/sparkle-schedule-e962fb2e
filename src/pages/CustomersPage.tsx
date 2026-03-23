@@ -254,7 +254,8 @@ export default function CustomersPage() {
       const customerJobs = jobs.filter((j) => j.customerId === c.id);
       const completedJobs = customerJobs.filter((j) => j.status === "completed");
       const lastJob = [...completedJobs].sort((a, b) => b.date.localeCompare(a.date))[0];
-      const nextDue = getNextDueDate(lastJob?.date, c.frequency);
+      const lastCleanDate = lastJob?.date || c.lastCleanDate || undefined;
+      const nextDue = c.nextDueDate ? new Date(c.nextDueDate) : getNextDueDate(lastCleanDate, c.frequency);
       const daysOverdue = Math.round((now.getTime() - nextDue.getTime()) / (1000 * 60 * 60 * 24));
       const daysUntil = -daysOverdue;
       const totalCharged = completedJobs.reduce((s, j) => s + j.price, 0);
