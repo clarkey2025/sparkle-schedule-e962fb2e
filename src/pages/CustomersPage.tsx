@@ -526,7 +526,7 @@ export default function CustomersPage() {
                 📍 Geocoding {geoProgress.done}/{geoProgress.total}…
               </span>
             )}
-            <Button variant="outline" size="sm" onClick={triggerGeocode} disabled={geocoding}>
+            <Button variant="outline" size="sm" onClick={() => triggerGeocode()} disabled={geocoding}>
               <MapPin className="h-3.5 w-3.5" /> Geocode
             </Button>
             <Button variant="outline" size="sm" onClick={() => csvInputRef.current?.click()}>
