@@ -1,11 +1,14 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, Users, CalendarCheck, CreditCard } from "lucide-react";
+import { LayoutDashboard, Users, CalendarCheck, CreditCard, ClipboardList, Route, Wrench } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const links = [
   { to: "/", label: "Overview", icon: LayoutDashboard },
-  { to: "/customers", label: "Customers", icon: Users },
+  { to: "/agenda", label: "Agenda", icon: ClipboardList },
+  { to: "/route", label: "Route", icon: Route },
   { to: "/jobs", label: "Jobs", icon: CalendarCheck },
+  { to: "/customers", label: "Customers", icon: Users },
+  { to: "/services", label: "Services", icon: Wrench },
   { to: "/payments", label: "Payments", icon: CreditCard },
 ];
 
