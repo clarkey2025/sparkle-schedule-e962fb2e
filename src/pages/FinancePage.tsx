@@ -54,10 +54,17 @@ const emptyExpenseForm = {
 };
 
 export default function FinancePage() {
-  const { customers, jobs, payments, expenses, addExpense, deleteExpense } = useApp();
+  const {
+    customers, jobs, payments, expenses, addExpense, deleteExpense,
+    recurringExpenses, addRecurringExpense, updateRecurringExpense, deleteRecurringExpense,
+  } = useApp();
   const { toast } = useToast();
   const [expenseDialogOpen, setExpenseDialogOpen] = useState(false);
+  const [recurringDialogOpen, setRecurringDialogOpen] = useState(false);
   const [expenseForm, setExpenseForm] = useState(emptyExpenseForm);
+  const [recurringForm, setRecurringForm] = useState({
+    amount: 0, category: "insurance" as ExpenseCategory, description: "", dayOfMonth: 1,
+  });
 
   // ─── Computed metrics ──────────────────────────────────────────────────
   const metrics = useMemo(() => {
