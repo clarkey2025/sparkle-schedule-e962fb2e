@@ -13,7 +13,7 @@ import {
   Pagination, PaginationContent, PaginationItem,
   PaginationNext, PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Download } from "lucide-react";
 import type { Payment } from "@/lib/store";
 
 const PAGE_SIZE = 10;
@@ -47,6 +47,22 @@ export default function PaymentsPage() {
   const safePage = Math.min(page, totalPages);
   const paginated = sorted.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
+  const exportCSV = () => {
+    const header = "Date,Customer,Amount,Method,Notes";
+    const rows = sorted.map((p) => {
+      const cName = customers.find((c) => c.id === p.customerId)?.name ?? "Unknown";
+      const escape = (s: string) => `"${s.replace(/"/g, '""')}"`;
+      return [p.date, escape(cName), p.amount.toFixed(2), METHOD_LABELS[p.method], escape(p.notes)].join(",");
+    });
+    const blob = new Blob([header + "\n" + rows.join("\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `payments-${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const openAdd = () => {
     setForm({
       customerId: customers[0]?.id ?? "",
@@ -72,9 +88,16 @@ export default function PaymentsPage() {
         title="Payments"
         description={`Total received: ${formatCurrency(total)}`}
         action={
-          <Button onClick={openAdd} size="sm" disabled={customers.length === 0}>
-            <Plus className="h-4 w-4 mr-1" /> Record Payment
-          </Button>
+          <div className="flex gap-2">
+            {sorted.length > 0 && (
+              <Button onClick={exportCSV} size="sm" variant="outline">
+                <Download className="h-4 w-4 mr-1" /> Export CSV
+              </Button>
+            )}
+            <Button onClick={openAdd} size="sm" disabled={customers.length === 0}>
+              <Plus className="h-4 w-4 mr-1" /> Record Payment
+            </Button>
+          </div>
         }
       />
 
