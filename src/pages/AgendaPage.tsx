@@ -339,6 +339,16 @@ export default function AgendaPage() {
     setActiveIdx(null);
   }, []);
 
+  // Auto-optimise route when stops are loaded
+  useEffect(() => {
+    if (stops.length >= 2 && !optimised) {
+      const optimisedStops = nearestNeighbour(stops);
+      setStopOrder(optimisedStops.map((s) => s.jobId));
+      setOptimised(true);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stops.length]);
+
   // ── Stops panel ──────────────────────────────────────────────────────────────
  const stopsPanel = (
    <div className="bg-card border border-border rounded-md overflow-hidden flex flex-col h-full min-h-0">
