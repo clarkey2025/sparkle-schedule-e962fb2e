@@ -215,21 +215,34 @@ async function runWithRetry(fn: () => Promise<GeocodeAttempt>): Promise<GeoResul
   return null;
 }
 
+// UK bounding box — any geocoded result must fall within this box
+const UK_BOUNDS = { latMin: 49.8, latMax: 60.9, lngMin: -8.2, lngMax: 2.0 };
+
+function isWithinUK(lat: number, lng: number): boolean {
+  return lat >= UK_BOUNDS.latMin && lat <= UK_BOUNDS.latMax &&
+    lng >= UK_BOUNDS.lngMin && lng <= UK_BOUNDS.lngMax;
+}
+
+function ukFilter(result: GeoResult | null): GeoResult | null {
+  if (!result) return null;
+  return isWithinUK(result.lat, result.lng) ? result : null;
+}
+
 export async function geocodeAddress(address: string): Promise<GeoResult | null> {
   if (!address.trim()) return null;
 
   // 1. Try structured Nominatim query (most precise — resolves house numbers)
   const parsed = parseUKAddress(address);
-  const fromStructured = await runWithRetry(() => geocodeStructuredNominatim(parsed));
+  const fromStructured = ukFilter(await runWithRetry(() => geocodeStructuredNominatim(parsed)));
   if (fromStructured) return fromStructured;
 
   // 2. Fall back to free-text queries with address variants
   const queries = buildAddressVariants(address);
   for (const query of queries) {
-    const fromNominatim = await runWithRetry(() => geocodeWithNominatim(query));
+    const fromNominatim = ukFilter(await runWithRetry(() => geocodeWithNominatim(query)));
     if (fromNominatim) return fromNominatim;
 
-    const fromPhoton = await runWithRetry(() => geocodeWithPhoton(query));
+    const fromPhoton = ukFilter(await runWithRetry(() => geocodeWithPhoton(query)));
     if (fromPhoton) return fromPhoton;
   }
 
