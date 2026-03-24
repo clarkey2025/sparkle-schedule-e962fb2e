@@ -256,7 +256,7 @@ export default function QuotesPage() {
               paginated.map((q) => {
                 return (
                   <TableRow key={q.id} className="group border-border">
-                    <TableCell className="mono text-xs">{q.id.slice(0, 8).toUpperCase()}</TableCell>
+                    <TableCell className="mono text-xs">{q.quoteNumber || q.id.slice(0, 8).toUpperCase()}</TableCell>
                     <TableCell className="font-medium">
                       {getQuoteCustomerName(q)}
                       {q.prospectName && <Badge variant="secondary" className="ml-2 text-[9px] bg-warning/15 text-warning">PROSPECT</Badge>}
