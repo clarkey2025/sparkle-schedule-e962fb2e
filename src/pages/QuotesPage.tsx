@@ -132,7 +132,7 @@ export default function QuotesPage() {
   }
 
   function handlePrintPDF(quote: Quote) {
-    const customer = customerMap.get(quote.customerId);
+    const details = getQuoteCustomerDetails(quote);
     const total = getQuoteTotal(quote);
     const win = window.open("", "_blank");
     if (!win) return;
