@@ -120,8 +120,16 @@ export interface MileageEntry {
 }
 
 export interface FuelSettings {
-  pricePerLitre: number; // in £
-  mpg: number; // miles per gallon
+  pricePerLitre: number;
+  mpg: number;
+}
+
+export interface BusinessSettings {
+  name: string;
+  phone: string;
+  email: string;
+  address: string;
+  logoUrl: string;
 }
 
 const STORAGE_KEY = "pane-pro-data";
