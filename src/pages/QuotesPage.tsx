@@ -14,7 +14,7 @@ import {
   Pagination, PaginationContent, PaginationItem,
   PaginationNext, PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Plus, Trash2, FileText, Download, Eye, X } from "lucide-react";
+import { Plus, Trash2, FileText, Download, Eye, X, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Quote, QuoteLineItem } from "@/lib/store";
 
@@ -129,6 +129,43 @@ export default function QuotesPage() {
     }
     const c = customerMap.get(q.customerId);
     return { name: c?.name || "—", address: c?.address || "" };
+  }
+  function getRecipientEmail(q: Quote) {
+    if (q.prospectEmail) return q.prospectEmail;
+    const c = customerMap.get(q.customerId);
+    return c?.email || "";
+  }
+
+  function handleEmailQuote(quote: Quote) {
+    const details = getQuoteCustomerDetails(quote);
+    const total = getQuoteTotal(quote);
+    const ref = quote.quoteNumber || quote.id.slice(0, 8).toUpperCase();
+    const recipientEmail = getRecipientEmail(quote);
+
+    const subject = `Quote ${ref} from ${businessSettings.name}`;
+    const itemsList = quote.items
+      .map((item) => `• ${item.serviceName} — £${item.price.toFixed(2)}${item.description ? ` (${item.description})` : ""}`)
+      .join("\n");
+
+    const body = [
+      `Hi ${details.name},`,
+      "",
+      `Please find your quote (${ref}) below:`,
+      "",
+      itemsList,
+      "",
+      `Total: £${total.toFixed(2)}`,
+      "",
+      `Valid until: ${formatDate(quote.validUntil)}`,
+      ...(quote.notes ? ["", `Notes: ${quote.notes}`] : []),
+      "",
+      "Kind regards,",
+      businessSettings.name,
+      ...(businessSettings.phone ? [businessSettings.phone] : []),
+      ...(businessSettings.email ? [businessSettings.email] : []),
+    ].join("\n");
+
+    window.open(`mailto:${encodeURIComponent(recipientEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
   }
 
   function handlePrintPDF(quote: Quote) {
@@ -531,7 +568,10 @@ export default function QuotesPage() {
                     <span className="font-medium text-foreground">Notes: </span>{previewQuote.notes}
                   </div>
                 )}
-                <div className="flex justify-end pt-2">
+                <div className="flex justify-end gap-2 pt-2">
+                  <Button size="sm" variant="outline" onClick={() => handleEmailQuote(previewQuote)}>
+                    <Mail className="mr-1.5 h-4 w-4" /> Email Quote
+                  </Button>
                   <Button size="sm" onClick={() => handlePrintPDF(previewQuote)}>
                     <Download className="mr-1.5 h-4 w-4" /> Download PDF
                   </Button>
