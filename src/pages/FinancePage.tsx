@@ -310,7 +310,7 @@ export default function FinancePage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div className="bg-card border border-border rounded-md p-4">
                 <p className="text-[13px] font-semibold text-foreground mb-4 flex items-center gap-2">
-                  <ShoppingBag className="h-4 w-4 text-destructive" /> Expenses by Category
+                  <Minus className="h-4 w-4 text-destructive" /> Expenses by Category
                 </p>
                 {categoryBreakdown.length === 0 ? (
                   <p className="text-[12px] text-muted-foreground py-8 text-center">No expenses logged yet.</p>
