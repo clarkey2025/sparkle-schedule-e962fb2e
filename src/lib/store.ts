@@ -445,3 +445,13 @@ function generateMockExpenses(): Expense[] {
   }
   return expenses.sort((a, b) => b.date.localeCompare(a.date));
 }
+
+function generateMockRecurringExpenses(): RecurringExpense[] {
+  return [
+    { id: crypto.randomUUID(), amount: 45, category: "insurance", description: "Public liability insurance", dayOfMonth: 1, active: true, createdAt: "2025-01-01T00:00:00.000Z" },
+    { id: crypto.randomUUID(), amount: 85, category: "insurance", description: "Van insurance", dayOfMonth: 15, active: true, createdAt: "2025-01-01T00:00:00.000Z" },
+    { id: crypto.randomUUID(), amount: 12.99, category: "software", description: "CRM subscription", dayOfMonth: 1, active: true, createdAt: "2025-03-01T00:00:00.000Z" },
+    { id: crypto.randomUUID(), amount: 9.99, category: "software", description: "Accounting software", dayOfMonth: 5, active: true, createdAt: "2025-06-01T00:00:00.000Z" },
+    { id: crypto.randomUUID(), amount: 35, category: "vehicle", description: "Van finance payment", dayOfMonth: 28, active: true, createdAt: "2024-06-01T00:00:00.000Z" },
+  ];
+}
