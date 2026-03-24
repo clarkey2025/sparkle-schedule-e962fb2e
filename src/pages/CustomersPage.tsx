@@ -682,8 +682,15 @@ export default function CustomersPage() {
                   <div
                     key={c.id}
                     className={cn(
-                      "grid grid-cols-1 md:grid-cols-[32px_1fr_1fr_130px_110px_32px] items-center gap-3 md:gap-4 px-4 py-3.5 cursor-pointer hover:bg-muted/20 transition-colors group",
-                      isChecked && "bg-primary/5"
+                      "grid grid-cols-1 md:grid-cols-[32px_1fr_1fr_130px_110px_32px] items-center gap-3 md:gap-4 px-4 py-3.5 cursor-pointer hover:bg-muted/20 transition-colors group border-l-2",
+                      isChecked && "bg-primary/5",
+                      isOverdue && daysOverdue > 14
+                        ? "border-l-destructive bg-destructive/[0.03]"
+                        : isOverdue
+                        ? "border-l-warning bg-warning/[0.03]"
+                        : daysUntil <= 3
+                        ? "border-l-primary"
+                        : "border-l-transparent"
                     )}
                   >
                     <Checkbox
