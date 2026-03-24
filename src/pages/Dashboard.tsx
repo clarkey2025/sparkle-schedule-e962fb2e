@@ -276,6 +276,25 @@ export default function Dashboard() {
     return { overdueCustomers, orderedGroups, thisMonthRevenue, snoozedCount: activeSnoozes.length, monthlyEarnings, outstandingCustomers, totalOutstanding };
   }, [customers, jobs, payments, snoozes]);
 
+  const quoteStats = useMemo(() => {
+    const now = new Date();
+    const expiring = quotes.filter((q) => {
+      if (q.status === "accepted" || q.status === "declined") return false;
+      const valid = new Date(q.validUntil);
+      if (valid < now) return false;
+      const daysLeft = Math.ceil((valid.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      return daysLeft <= 7;
+    });
+    const expired = quotes.filter((q) => {
+      if (q.status === "accepted" || q.status === "declined") return false;
+      return new Date(q.validUntil) < now;
+    });
+    const recent = [...quotes]
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .slice(0, 5);
+    return { expiring, expired, recent };
+  }, [quotes]);
+
   const today = weather?.[0];
   const verdict = today ? wmoVerdict(today.code, today.rainChance, today.windMax) : null;
 
