@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { format } from "date-fns";
 import { useApp } from "@/lib/AppContext";
 import { formatCurrency, formatDate } from "@/lib/helpers";
 import PageHeader from "@/components/PageHeader";
@@ -13,7 +14,10 @@ import {
   Pagination, PaginationContent, PaginationItem,
   PaginationNext, PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Plus, Trash2, Download } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Plus, Trash2, Download, CalendarIcon, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { Payment } from "@/lib/store";
 
 const PAGE_SIZE = 10;
@@ -29,6 +33,8 @@ export default function PaymentsPage() {
   const { customers, payments, addPayment, deletePayment } = useApp();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [page, setPage] = useState(1);
+  const [dateFrom, setDateFrom] = useState<Date | undefined>();
+  const [dateTo, setDateTo] = useState<Date | undefined>();
   const [form, setForm] = useState({
     customerId: "",
     amount: 0,
@@ -37,19 +43,29 @@ export default function PaymentsPage() {
     notes: "",
   });
 
-  const sorted = useMemo(
-    () => [...payments].sort((a, b) => b.date.localeCompare(a.date)),
-    [payments],
-  );
-  const total = useMemo(() => payments.reduce((s, p) => s + p.amount, 0), [payments]);
+  const filtered = useMemo(() => {
+    let list = [...payments].sort((a, b) => b.date.localeCompare(a.date));
+    if (dateFrom) {
+      const fromStr = format(dateFrom, "yyyy-MM-dd");
+      list = list.filter((p) => p.date >= fromStr);
+    }
+    if (dateTo) {
+      const toStr = format(dateTo, "yyyy-MM-dd");
+      list = list.filter((p) => p.date <= toStr);
+    }
+    return list;
+  }, [payments, dateFrom, dateTo]);
 
-  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
+  const filteredTotal = useMemo(() => filtered.reduce((s, p) => s + p.amount, 0), [filtered]);
+  const hasFilter = dateFrom || dateTo;
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
-  const paginated = sorted.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  const paginated = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   const exportCSV = () => {
     const header = "Date,Customer,Amount,Method,Notes";
-    const rows = sorted.map((p) => {
+    const rows = filtered.map((p) => {
       const cName = customers.find((c) => c.id === p.customerId)?.name ?? "Unknown";
       const escape = (s: string) => `"${s.replace(/"/g, '""')}"`;
       return [p.date, escape(cName), p.amount.toFixed(2), METHOD_LABELS[p.method], escape(p.notes)].join(",");
@@ -61,6 +77,12 @@ export default function PaymentsPage() {
     a.download = `payments-${new Date().toISOString().split("T")[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const clearFilters = () => {
+    setDateFrom(undefined);
+    setDateTo(undefined);
+    setPage(1);
   };
 
   const openAdd = () => {
@@ -78,7 +100,6 @@ export default function PaymentsPage() {
     if (!form.customerId || !form.amount) return;
     addPayment(form);
     setDialogOpen(false);
-    // Go to first page so the new entry is visible
     setPage(1);
   };
 
@@ -86,10 +107,10 @@ export default function PaymentsPage() {
     <div className="pb-20 md:pb-0">
       <PageHeader
         title="Payments"
-        description={`Total received: ${formatCurrency(total)}`}
+        description={`Total received: ${formatCurrency(filteredTotal)}${hasFilter ? ` (filtered)` : ""}`}
         action={
           <div className="flex gap-2">
-            {sorted.length > 0 && (
+            {filtered.length > 0 && (
               <Button onClick={exportCSV} size="sm" variant="outline">
                 <Download className="h-4 w-4 mr-1" /> Export CSV
               </Button>
@@ -101,9 +122,24 @@ export default function PaymentsPage() {
         }
       />
 
-      {sorted.length === 0 ? (
+      {/* Date range filter */}
+      {payments.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 mb-3 animate-fade-up">
+          <DatePicker label="From" date={dateFrom} onSelect={(d) => { setDateFrom(d); setPage(1); }} />
+          <DatePicker label="To" date={dateTo} onSelect={(d) => { setDateTo(d); setPage(1); }} />
+          {hasFilter && (
+            <Button variant="ghost" size="sm" onClick={clearFilters} className="text-xs text-muted-foreground">
+              <X className="h-3 w-3 mr-1" /> Clear
+            </Button>
+          )}
+        </div>
+      )}
+
+      {filtered.length === 0 ? (
         <div className="surface rounded-md p-8 text-center animate-fade-up stagger-1">
-          <p className="text-muted-foreground text-sm">No payments recorded yet.</p>
+          <p className="text-muted-foreground text-sm">
+            {hasFilter ? "No payments in this date range." : "No payments recorded yet."}
+          </p>
         </div>
       ) : (
         <div className="space-y-3 animate-fade-up stagger-1">
@@ -158,11 +194,10 @@ export default function PaymentsPage() {
             </Table>
           </div>
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-between px-1">
               <p className="text-[12px] text-muted-foreground">
-                Showing {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, sorted.length)} of {sorted.length}
+                Showing {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)} of {filtered.length}
               </p>
               <Pagination className="w-auto mx-0">
                 <PaginationContent>
@@ -245,5 +280,27 @@ export default function PaymentsPage() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+function DatePicker({ label, date, onSelect }: { label: string; date?: Date; onSelect: (d: Date | undefined) => void }) {
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="sm" className={cn("text-xs justify-start min-w-[140px]", !date && "text-muted-foreground")}>
+          <CalendarIcon className="h-3 w-3 mr-1.5" />
+          {date ? format(date, "d MMM yyyy") : label}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="start">
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={onSelect}
+          initialFocus
+          className={cn("p-3 pointer-events-auto")}
+        />
+      </PopoverContent>
+    </Popover>
   );
 }
