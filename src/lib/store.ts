@@ -145,6 +145,7 @@ interface AppData {
   recurringExpenses: RecurringExpense[];
   mileageEntries: MileageEntry[];
   fuelSettings: FuelSettings;
+  businessSettings: BusinessSettings;
   quotes: Quote[];
 }
 
