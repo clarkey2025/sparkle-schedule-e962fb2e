@@ -35,6 +35,7 @@ const sections = [
       { to: "/customers", label: "Customers", icon: Users },
       { to: "/rounds", label: "Rounds", icon: CircleDot },
       { to: "/services", label: "Services", icon: Wrench },
+      { to: "/quotes", label: "Quotes", icon: FileText },
     ],
   },
   {

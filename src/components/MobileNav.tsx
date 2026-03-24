@@ -19,6 +19,7 @@ const moreLinks = [
   { to: "/services", label: "Services", icon: Wrench },
   { to: "/payments", label: "Payments", icon: CreditCard },
   { to: "/finances", label: "Finances", icon: BarChart3 },
+  { to: "/quotes", label: "Quotes", icon: FileText },
 ];
 
 export default function MobileNav() {
