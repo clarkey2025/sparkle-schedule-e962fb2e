@@ -8,10 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
 import {
   PoundSterling, TrendingUp, AlertTriangle,
   Users, ArrowUpRight, ArrowDownRight, Receipt,
-  Plus, Trash2, Minus, Check, Fuel, ShoppingBag,
+  Plus, Trash2, Minus, Check, RefreshCw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
