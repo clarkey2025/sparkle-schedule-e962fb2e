@@ -362,8 +362,7 @@ export default function QuotesPage() {
               <TableRow key={`filler-${i}`} className="border-border pointer-events-none select-none">
                 <TableCell colSpan={7} className="py-[18px]" />
               </TableRow>
-            ))
-            )}
+            ))}
           </TableBody>
         </Table>
       </div>
