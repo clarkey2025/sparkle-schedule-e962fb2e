@@ -90,6 +90,18 @@ export interface RecurringExpense {
   createdAt: string;
 }
 
+export interface MileageEntry {
+  id: string;
+  date: string;
+  miles: number;
+  notes: string;
+}
+
+export interface FuelSettings {
+  pricePerLitre: number; // in £
+  mpg: number; // miles per gallon
+}
+
 const STORAGE_KEY = "pane-pro-data";
 
 interface AppData {
@@ -101,6 +113,17 @@ interface AppData {
   rounds: Round[];
   expenses: Expense[];
   recurringExpenses: RecurringExpense[];
+  mileageEntries: MileageEntry[];
+  fuelSettings: FuelSettings;
+}
+
+const DEFAULT_FUEL_SETTINGS: FuelSettings = { pricePerLitre: 1.45, mpg: 35 };
+
+export function calculateFuelCost(miles: number, settings: FuelSettings): number {
+  // Convert MPG to miles per litre (1 gallon = 4.546 litres)
+  const milesPerLitre = settings.mpg / 4.546;
+  const litresUsed = miles / milesPerLitre;
+  return litresUsed * settings.pricePerLitre;
 }
 
 const MOCK_VERSION = "v12-empty";
@@ -189,7 +212,7 @@ function loadData(): AppData {
       mock.jobs = [];
       mock.payments = [];
       mock.customerServices = [];
-      data = { ...mock, rounds: [], expenses: [], recurringExpenses: [] };
+      data = { ...mock, rounds: [], expenses: [], recurringExpenses: [], mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       localStorage.setItem(MOCK_VERSION_KEY, MOCK_VERSION);
       data = autoScheduleJobs(data);
@@ -205,6 +228,8 @@ function loadData(): AppData {
         if (!parsed.rounds) parsed.rounds = [];
         if (!parsed.expenses) parsed.expenses = [];
         if (!parsed.recurringExpenses) parsed.recurringExpenses = [];
+        if (!parsed.mileageEntries) parsed.mileageEntries = [];
+        if (!parsed.fuelSettings) parsed.fuelSettings = DEFAULT_FUEL_SETTINGS;
 
         const MIGRATE_KEY = "pane-pro-migrate-due-tomorrow-v3";
         if (!localStorage.getItem(MIGRATE_KEY)) {
@@ -228,7 +253,7 @@ function loadData(): AppData {
     }
   } catch {}
   const mock = generateMockData();
-  data = { ...mock, rounds: [], expenses: [], recurringExpenses: [] };
+  data = { ...mock, rounds: [], expenses: [], recurringExpenses: [], mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   localStorage.setItem(MOCK_VERSION_KEY, MOCK_VERSION);
   data = autoScheduleJobs(data);
@@ -366,6 +391,19 @@ export function useAppData() {
     update((d) => ({ ...d, recurringExpenses: d.recurringExpenses.filter((x) => x.id !== id) }));
   }, [update]);
 
+  // Mileage CRUD
+  const addMileageEntry = useCallback((m: Omit<MileageEntry, "id">) => {
+    update((d) => ({ ...d, mileageEntries: [...d.mileageEntries, { ...m, id: crypto.randomUUID() }] }));
+  }, [update]);
+
+  const deleteMileageEntry = useCallback((id: string) => {
+    update((d) => ({ ...d, mileageEntries: d.mileageEntries.filter((x) => x.id !== id) }));
+  }, [update]);
+
+  const updateFuelSettings = useCallback((s: Partial<FuelSettings>) => {
+    update((d) => ({ ...d, fuelSettings: { ...d.fuelSettings, ...s } }));
+  }, [update]);
+
   const loadMockData = useCallback(() => {
     const mock = generateMockData();
     const todayStr = new Date().toISOString().slice(0, 10);
@@ -379,7 +417,7 @@ export function useAppData() {
     localStorage.removeItem(`pane-pro-auto-sched-${todayStr}`);
     localStorage.removeItem(`pane-pro-recurring-exp-${thisMonth}`);
     const mockRecurring = generateMockRecurringExpenses();
-    const withData: AppData = { ...mock, expenses: generateMockExpenses(), recurringExpenses: mockRecurring };
+    const withData: AppData = { ...mock, expenses: generateMockExpenses(), recurringExpenses: mockRecurring, mileageEntries: generateMockMileage(), fuelSettings: DEFAULT_FUEL_SETTINGS };
     const scheduled = autoLogRecurringExpenses(autoScheduleJobs(withData));
     saveData(scheduled);
     localStorage.setItem(DEMO_FLAG_KEY, "1");
@@ -392,6 +430,7 @@ export function useAppData() {
       customers: [], jobs: [], payments: [],
       services: generateMockData().services,
       customerServices: [], rounds: [], expenses: [], recurringExpenses: [],
+      mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS,
     };
     saveData(empty);
     localStorage.removeItem(DEMO_FLAG_KEY);
@@ -410,6 +449,7 @@ export function useAppData() {
     addRound, updateRound, deleteRound,
     addExpense, updateExpense, deleteExpense,
     addRecurringExpense, updateRecurringExpense, deleteRecurringExpense,
+    addMileageEntry, deleteMileageEntry, updateFuelSettings,
     loadMockData,
     clearMockData,
   };
@@ -454,4 +494,21 @@ function generateMockRecurringExpenses(): RecurringExpense[] {
     { id: crypto.randomUUID(), amount: 9.99, category: "software", description: "Accounting software", dayOfMonth: 5, active: true, createdAt: "2025-06-01T00:00:00.000Z" },
     { id: crypto.randomUUID(), amount: 35, category: "vehicle", description: "Van finance payment", dayOfMonth: 28, active: true, createdAt: "2024-06-01T00:00:00.000Z" },
   ];
+}
+
+function generateMockMileage(): MileageEntry[] {
+  const entries: MileageEntry[] = [];
+  const now = new Date();
+  const notes = ["Round 1 - North area", "Round 2 - South side", "Emergency callout", "Quote visits", "Full day round", "Town centre jobs"];
+  for (let i = 0; i < 30; i++) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - Math.floor(Math.random() * 90));
+    entries.push({
+      id: crypto.randomUUID(),
+      date: d.toISOString().slice(0, 10),
+      miles: parseFloat((5 + Math.random() * 60).toFixed(1)),
+      notes: notes[Math.floor(Math.random() * notes.length)],
+    });
+  }
+  return entries.sort((a, b) => b.date.localeCompare(a.date));
 }
