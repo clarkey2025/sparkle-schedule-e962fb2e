@@ -88,9 +88,16 @@ export default function PaymentsPage() {
         title="Payments"
         description={`Total received: ${formatCurrency(total)}`}
         action={
-          <Button onClick={openAdd} size="sm" disabled={customers.length === 0}>
-            <Plus className="h-4 w-4 mr-1" /> Record Payment
-          </Button>
+          <div className="flex gap-2">
+            {sorted.length > 0 && (
+              <Button onClick={exportCSV} size="sm" variant="outline">
+                <Download className="h-4 w-4 mr-1" /> Export CSV
+              </Button>
+            )}
+            <Button onClick={openAdd} size="sm" disabled={customers.length === 0}>
+              <Plus className="h-4 w-4 mr-1" /> Record Payment
+            </Button>
+          </div>
         }
       />
 
