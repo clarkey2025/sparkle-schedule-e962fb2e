@@ -221,7 +221,7 @@ function loadData(): AppData {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
         }
 
-        data = autoScheduleJobs(parsed);
+        data = autoLogRecurringExpenses(autoScheduleJobs(parsed));
         saveData(data);
         return data;
       }
