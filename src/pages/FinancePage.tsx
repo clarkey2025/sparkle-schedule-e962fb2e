@@ -185,6 +185,20 @@ export default function FinancePage() {
     setExpenseDialogOpen(false);
   };
 
+  const handleAddRecurring = () => {
+    if (recurringForm.amount <= 0 || !recurringForm.description.trim()) return;
+    addRecurringExpense({
+      amount: recurringForm.amount,
+      category: recurringForm.category,
+      description: recurringForm.description.trim(),
+      dayOfMonth: recurringForm.dayOfMonth,
+      active: true,
+    });
+    toast({ title: "Recurring expense added", description: `${formatCurrency(recurringForm.amount)}/month — ${recurringForm.description}` });
+    setRecurringForm({ amount: 0, category: "insurance", description: "", dayOfMonth: 1 });
+    setRecurringDialogOpen(false);
+  };
+
   return (
     <>
       <PageHeader
