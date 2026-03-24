@@ -90,6 +90,23 @@ export interface RecurringExpense {
   createdAt: string;
 }
 
+export interface QuoteLineItem {
+  serviceId: string;
+  serviceName: string;
+  description: string;
+  price: number;
+}
+
+export interface Quote {
+  id: string;
+  customerId: string;
+  items: QuoteLineItem[];
+  notes: string;
+  status: "draft" | "sent" | "accepted" | "declined";
+  createdAt: string;
+  validUntil: string;
+}
+
 export interface MileageEntry {
   id: string;
   date: string;
