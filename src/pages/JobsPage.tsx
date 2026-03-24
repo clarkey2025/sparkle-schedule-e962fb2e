@@ -24,6 +24,7 @@ export default function JobsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [filter, setFilter] = useState<"all" | "scheduled" | "completed" | "cancelled">("all");
+  const [page, setPage] = useState(1);
   const [form, setForm] = useState({ customerId: "", date: "", price: 0, notes: "" });
 
   // Auto-open dialog from ?add=1 (e.g. mobile FAB)
