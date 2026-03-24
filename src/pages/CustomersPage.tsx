@@ -674,7 +674,7 @@ export default function CustomersPage() {
               <p className="label-caps">Outstanding</p>
               <p />
             </div>
-            <div className="divide-y divide-border">
+            <div className="divide-y divide-border" style={{ minHeight: `${PAGE_SIZE * 65}px` }}>
               {pageSlice.map(({ customer: c, lastCleanDate, daysOverdue, daysUntil, outstanding }) => {
                 const isOverdue = daysOverdue > 0;
                 const isChecked = selectedIds.has(c.id);
