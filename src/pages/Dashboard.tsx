@@ -1,4 +1,5 @@
 import { useMemo, useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { useApp } from "@/lib/AppContext";
 import { formatCurrency, formatDate, getNextDueDate, FREQUENCY_LABELS } from "@/lib/helpers";
 import {
@@ -93,6 +94,7 @@ function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: 
 export default function Dashboard() {
   const { customers, jobs, payments, quotes, addJob, isDemoActive, loadMockData, clearMockData } = useApp();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const now = new Date();
   const todayStr = now.toISOString().slice(0, 10);
 
@@ -511,7 +513,7 @@ export default function Dashboard() {
                 const isExpired = q.status !== "accepted" && q.status !== "declined" && new Date(q.validUntil) < new Date();
                 const isExpiring = !isExpired && q.status !== "accepted" && q.status !== "declined" && Math.ceil((new Date(q.validUntil).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) <= 7;
                 return (
-                  <div key={q.id} className={cn("flex items-center justify-between px-4 py-2.5 border-b border-border last:border-b-0 text-[12px]", isExpired && "opacity-50")}>
+                  <div key={q.id} onClick={() => navigate("/quotes")} className={cn("flex items-center justify-between px-4 py-2.5 border-b border-border last:border-b-0 text-[12px] cursor-pointer hover:bg-muted/40 transition-colors", isExpired && "opacity-50")}>
                     <div className="flex items-center gap-3 min-w-0">
                       <span className="mono text-[10px] text-muted-foreground shrink-0">{q.quoteNumber || q.id.slice(0, 8).toUpperCase()}</span>
                       <span className="font-medium truncate">{name}</span>
