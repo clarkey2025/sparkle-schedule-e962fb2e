@@ -1,6 +1,6 @@
 import { useMemo, useEffect, useState, useCallback } from "react";
 import { useApp } from "@/lib/AppContext";
-import { formatCurrency, getNextDueDate, FREQUENCY_LABELS } from "@/lib/helpers";
+import { formatCurrency, formatDate, getNextDueDate, FREQUENCY_LABELS } from "@/lib/helpers";
 import {
   Users, PoundSterling, AlertTriangle, CalendarCheck, CheckCircle2,
   Cloud, Sun, CloudRain, CloudSnow, CloudLightning, CloudDrizzle, Wind, MapPin,
