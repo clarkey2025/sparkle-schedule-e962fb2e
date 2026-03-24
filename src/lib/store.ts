@@ -204,6 +204,7 @@ function loadData(): AppData {
         if (!parsed.customerServices) parsed.customerServices = generateMockData().customerServices;
         if (!parsed.rounds) parsed.rounds = [];
         if (!parsed.expenses) parsed.expenses = [];
+        if (!parsed.recurringExpenses) parsed.recurringExpenses = [];
 
         const MIGRATE_KEY = "pane-pro-migrate-due-tomorrow-v3";
         if (!localStorage.getItem(MIGRATE_KEY)) {
