@@ -12,7 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import {
   PoundSterling, TrendingUp, AlertTriangle,
   Users, ArrowUpRight, ArrowDownRight, Receipt,
-  Plus, Trash2, Minus, Check, RefreshCw,
+  Plus, Trash2, Minus, Check, RefreshCw, Car, Fuel, Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
