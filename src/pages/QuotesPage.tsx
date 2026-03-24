@@ -485,14 +485,14 @@ export default function QuotesPage() {
             <DialogTitle>Quote Preview</DialogTitle>
           </DialogHeader>
           {previewQuote && (() => {
-            const cust = customerMap.get(previewQuote.customerId);
+            const details = getQuoteCustomerDetails(previewQuote);
             const total = getQuoteTotal(previewQuote);
             return (
               <div className="space-y-4 pt-2" ref={printRef}>
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="font-semibold">{cust?.name}</p>
-                    <p className="text-sm text-muted-foreground">{cust?.address}</p>
+                    <p className="font-semibold">{details.name}</p>
+                    <p className="text-sm text-muted-foreground">{details.address}</p>
                   </div>
                   <div className="text-right text-sm text-muted-foreground">
                     <p>Ref: {previewQuote.id.slice(0, 8).toUpperCase()}</p>
