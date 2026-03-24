@@ -391,6 +391,19 @@ export function useAppData() {
     update((d) => ({ ...d, recurringExpenses: d.recurringExpenses.filter((x) => x.id !== id) }));
   }, [update]);
 
+  // Mileage CRUD
+  const addMileageEntry = useCallback((m: Omit<MileageEntry, "id">) => {
+    update((d) => ({ ...d, mileageEntries: [...d.mileageEntries, { ...m, id: crypto.randomUUID() }] }));
+  }, [update]);
+
+  const deleteMileageEntry = useCallback((id: string) => {
+    update((d) => ({ ...d, mileageEntries: d.mileageEntries.filter((x) => x.id !== id) }));
+  }, [update]);
+
+  const updateFuelSettings = useCallback((s: Partial<FuelSettings>) => {
+    update((d) => ({ ...d, fuelSettings: { ...d.fuelSettings, ...s } }));
+  }, [update]);
+
   const loadMockData = useCallback(() => {
     const mock = generateMockData();
     const todayStr = new Date().toISOString().slice(0, 10);
@@ -436,6 +449,7 @@ export function useAppData() {
     addRound, updateRound, deleteRound,
     addExpense, updateExpense, deleteExpense,
     addRecurringExpense, updateRecurringExpense, deleteRecurringExpense,
+    addMileageEntry, deleteMileageEntry, updateFuelSettings,
     loadMockData,
     clearMockData,
   };
