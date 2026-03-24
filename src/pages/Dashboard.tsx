@@ -478,6 +478,68 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* ── Quotes Widget ── */}
+      {quotes.length > 0 && (
+        <div className="animate-fade-up bg-card rounded-md overflow-hidden border border-border" style={{ animationDelay: "0.19s" }}>
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+            <div className="flex items-center gap-2">
+              <FileText className="h-3.5 w-3.5 text-primary" />
+              <span className="text-[13px] font-semibold text-foreground">Quotes</span>
+            </div>
+            <div className="flex items-center gap-3">
+              {quoteStats.expiring.length > 0 && (
+                <span className="flex items-center gap-1 text-[11px] font-medium text-warning">
+                  <Clock className="h-3 w-3" /> {quoteStats.expiring.length} expiring
+                </span>
+              )}
+              {quoteStats.expired.length > 0 && (
+                <span className="text-[11px] font-medium text-destructive">
+                  {quoteStats.expired.length} expired
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="overflow-y-auto max-h-60">
+            {quoteStats.recent.length === 0 ? (
+              <div className="py-8 text-center">
+                <p className="text-[12px] text-muted-foreground/40">No quotes yet.</p>
+              </div>
+            ) : (
+              quoteStats.recent.map((q) => {
+                const name = q.prospectName || customers.find((c) => c.id === q.customerId)?.name || "—";
+                const total = q.items.reduce((s, i) => s + i.price, 0);
+                const isExpired = q.status !== "accepted" && q.status !== "declined" && new Date(q.validUntil) < new Date();
+                const isExpiring = !isExpired && q.status !== "accepted" && q.status !== "declined" && Math.ceil((new Date(q.validUntil).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) <= 7;
+                return (
+                  <div key={q.id} className={cn("flex items-center justify-between px-4 py-2.5 border-b border-border last:border-b-0 text-[12px]", isExpired && "opacity-50")}>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="mono text-[10px] text-muted-foreground shrink-0">{q.quoteNumber || q.id.slice(0, 8).toUpperCase()}</span>
+                      <span className="font-medium truncate">{name}</span>
+                      {q.prospectName && <span className="text-[8px] font-bold uppercase text-warning bg-warning/15 rounded px-1 py-0.5 shrink-0">Prospect</span>}
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <span className="mono text-muted-foreground">{formatCurrency(total)}</span>
+                      {isExpired ? (
+                        <span className="text-[9px] font-bold uppercase text-destructive bg-destructive/15 rounded px-1.5 py-0.5">Expired</span>
+                      ) : isExpiring ? (
+                        <span className="text-[9px] font-bold uppercase text-warning bg-warning/15 rounded px-1.5 py-0.5 flex items-center gap-0.5"><Clock className="h-2.5 w-2.5" /> Expiring</span>
+                      ) : (
+                        <span className={cn("text-[9px] font-bold uppercase rounded px-1.5 py-0.5",
+                          q.status === "accepted" ? "text-success bg-success/15" :
+                          q.status === "declined" ? "text-destructive bg-destructive/15" :
+                          q.status === "sent" ? "text-primary bg-primary/15" :
+                          "text-muted-foreground bg-muted"
+                        )}>{q.status}</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
+
       {/* ── Scheduled + Overdue + Outstanding ── */}
       <div className="grid gap-4 lg:grid-cols-2">
 
