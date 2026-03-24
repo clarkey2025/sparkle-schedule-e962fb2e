@@ -134,6 +134,14 @@ export interface BusinessSettings {
 
 const STORAGE_KEY = "pane-pro-data";
 
+const DEFAULT_BUSINESS_SETTINGS: BusinessSettings = {
+  name: "Your Business Name",
+  phone: "07700 000000",
+  email: "hello@yourbusiness.co.uk",
+  address: "123 Example Street, Your Town, AB1 2CD",
+  logoUrl: "",
+};
+
 interface AppData {
   customers: Customer[];
   jobs: Job[];
