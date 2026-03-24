@@ -20,7 +20,7 @@ import { Plus, Trash2, Download, CalendarIcon, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Payment } from "@/lib/store";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 5;
 
 const METHOD_LABELS: Record<Payment["method"], string> = {
   cash: "Cash",

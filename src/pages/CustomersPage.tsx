@@ -26,7 +26,7 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 5;
 
 const emptyForm = {
   name: "", address: "", phone: "", email: "",
