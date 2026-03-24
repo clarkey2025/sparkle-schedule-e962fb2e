@@ -94,6 +94,7 @@ function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: 
 export default function Dashboard() {
   const { customers, jobs, payments, quotes, addJob, isDemoActive, loadMockData, clearMockData } = useApp();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const now = new Date();
   const todayStr = now.toISOString().slice(0, 10);
 
