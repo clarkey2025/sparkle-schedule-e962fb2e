@@ -267,9 +267,15 @@ export default function AgendaPage() {
     return [...ordered, ...rest];
   }, [todayJobsRaw, optimised, stopOrder]);
 
+  // UK bounding box — guard against geocoder returning wrong-country results
+  const isUK = (lat: number, lng: number) =>
+    lat >= 49.8 && lat <= 60.9 && lng >= -8.2 && lng <= 2.0;
+
   const stops: Stop[] = useMemo(() =>
     todayJobs
-      .filter(({ customer }) => customer?.lat && customer?.lng)
+      .filter(({ customer }) =>
+        customer?.lat && customer?.lng && isUK(customer.lat, customer.lng)
+      )
       .map(({ job, customer }) => ({
         lat: customer!.lat!,
         lng: customer!.lng!,
