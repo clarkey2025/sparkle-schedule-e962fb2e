@@ -1,6 +1,6 @@
 import { useMemo, useEffect, useRef, useState, useCallback } from "react";
 import { useApp } from "@/lib/AppContext";
-import { formatCurrency } from "@/lib/helpers";
+import { formatCurrency, getNextDueDate } from "@/lib/helpers";
 import PageHeader from "@/components/PageHeader";
 import {
   CalendarCheck, CheckCircle2, PoundSterling, Circle,
