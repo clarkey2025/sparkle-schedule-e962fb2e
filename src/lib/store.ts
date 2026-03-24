@@ -113,6 +113,8 @@ interface AppData {
   rounds: Round[];
   expenses: Expense[];
   recurringExpenses: RecurringExpense[];
+  mileageEntries: MileageEntry[];
+  fuelSettings: FuelSettings;
 }
 
 const MOCK_VERSION = "v12-empty";
