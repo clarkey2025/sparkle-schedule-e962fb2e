@@ -15,6 +15,7 @@ import ServicesPage from "@/pages/ServicesPage";
 import RoundsPage from "@/pages/RoundsPage";
 import FinancePage from "@/pages/FinancePage";
 import QuotesPage from "@/pages/QuotesPage";
+import SettingsPage from "@/pages/SettingsPage";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
