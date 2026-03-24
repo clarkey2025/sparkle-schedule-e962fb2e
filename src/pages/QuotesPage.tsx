@@ -36,7 +36,12 @@ export default function QuotesPage() {
   const printRef = useRef<HTMLDivElement>(null);
 
   // Form state
+  const [isProspect, setIsProspect] = useState(false);
   const [customerId, setCustomerId] = useState("");
+  const [prospectName, setProspectName] = useState("");
+  const [prospectAddress, setProspectAddress] = useState("");
+  const [prospectPhone, setProspectPhone] = useState("");
+  const [prospectEmail, setProspectEmail] = useState("");
   const [notes, setNotes] = useState("");
   const [validDays, setValidDays] = useState("30");
   const [lineItems, setLineItems] = useState<QuoteLineItem[]>([]);
