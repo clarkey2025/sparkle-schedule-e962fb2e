@@ -301,8 +301,9 @@ export default function QuotesPage() {
               </TableRow>
             ) : (
               paginated.map((q) => {
+                const expiry = getExpiryStatus(q);
                 return (
-                  <TableRow key={q.id} className="group border-border">
+                  <TableRow key={q.id} className={cn("group border-border", expiry === "expired" && "opacity-60")}>
                     <TableCell className="mono text-xs">{q.quoteNumber || q.id.slice(0, 8).toUpperCase()}</TableCell>
                     <TableCell className="font-medium">
                       {getQuoteCustomerName(q)}
@@ -311,9 +312,19 @@ export default function QuotesPage() {
                     <TableCell className="text-muted-foreground">{q.items.length} service{q.items.length !== 1 && "s"}</TableCell>
                     <TableCell className="text-right mono">{formatCurrency(getQuoteTotal(q))}</TableCell>
                     <TableCell>
-                      <Badge variant="secondary" className={cn("text-[10px]", STATUS_STYLES[q.status])}>
-                        {q.status.toUpperCase()}
-                      </Badge>
+                      <div className="flex items-center gap-1.5">
+                        <Badge variant="secondary" className={cn("text-[10px]", STATUS_STYLES[q.status])}>
+                          {q.status.toUpperCase()}
+                        </Badge>
+                        {expiry === "expired" && (
+                          <Badge variant="secondary" className="text-[9px] bg-destructive/15 text-destructive">EXPIRED</Badge>
+                        )}
+                        {expiry === "expiring" && (
+                          <Badge variant="secondary" className="text-[9px] bg-warning/15 text-warning flex items-center gap-0.5">
+                            <Clock className="h-3 w-3" /> EXPIRING
+                          </Badge>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell className="text-muted-foreground">{formatDate(q.createdAt)}</TableCell>
                     <TableCell className="text-right">
