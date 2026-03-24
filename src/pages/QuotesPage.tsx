@@ -179,7 +179,7 @@ export default function QuotesPage() {
           </div>
           <div>
             <div class="quote-title">QUOTE</div>
-            <div class="quote-ref">Ref: ${quote.id.slice(0, 8).toUpperCase()}</div>
+            <div class="quote-ref">Ref: ${quote.quoteNumber || quote.id.slice(0, 8).toUpperCase()}</div>
           </div>
         </div>
         <div class="meta">
@@ -256,7 +256,7 @@ export default function QuotesPage() {
               paginated.map((q) => {
                 return (
                   <TableRow key={q.id} className="group border-border">
-                    <TableCell className="mono text-xs">{q.id.slice(0, 8).toUpperCase()}</TableCell>
+                    <TableCell className="mono text-xs">{q.quoteNumber || q.id.slice(0, 8).toUpperCase()}</TableCell>
                     <TableCell className="font-medium">
                       {getQuoteCustomerName(q)}
                       {q.prospectName && <Badge variant="secondary" className="ml-2 text-[9px] bg-warning/15 text-warning">PROSPECT</Badge>}
@@ -499,7 +499,7 @@ export default function QuotesPage() {
                     <p className="text-sm text-muted-foreground">{details.address}</p>
                   </div>
                   <div className="text-right text-sm text-muted-foreground">
-                    <p>Ref: {previewQuote.id.slice(0, 8).toUpperCase()}</p>
+                    <p>Ref: {previewQuote.quoteNumber || previewQuote.id.slice(0, 8).toUpperCase()}</p>
                     <p>{formatDate(previewQuote.createdAt)}</p>
                     <p>Valid until: {formatDate(previewQuote.validUntil)}</p>
                   </div>
