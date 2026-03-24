@@ -177,6 +177,17 @@ export default function FinancePage() {
     [expenses]
   );
 
+  // ─── Mileage metrics ──────────────────────────────────────────────────
+  const mileageMetrics = useMemo(() => {
+    const totalMiles = mileageEntries.reduce((s, m) => s + m.miles, 0);
+    const totalFuelCost = calculateFuelCost(totalMiles, fuelSettings);
+    const thisMonth = new Date().toISOString().slice(0, 7);
+    const thisMonthMiles = mileageEntries.filter((m) => m.date.startsWith(thisMonth)).reduce((s, m) => s + m.miles, 0);
+    const thisMonthFuel = calculateFuelCost(thisMonthMiles, fuelSettings);
+    const recentEntries = [...mileageEntries].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 20);
+    return { totalMiles, totalFuelCost, thisMonthMiles, thisMonthFuel, recentEntries };
+  }, [mileageEntries, fuelSettings]);
+
   // ─── Handlers ─────────────────────────────────────────────────────────
   const handleAddExpense = () => {
     if (expenseForm.amount <= 0 || !expenseForm.description.trim()) return;
@@ -204,6 +215,19 @@ export default function FinancePage() {
     toast({ title: "Recurring expense added", description: `${formatCurrency(recurringForm.amount)}/month — ${recurringForm.description}` });
     setRecurringForm({ amount: 0, category: "insurance", description: "", dayOfMonth: 1 });
     setRecurringDialogOpen(false);
+  };
+
+  const handleAddMileage = () => {
+    if (mileageForm.miles <= 0) return;
+    addMileageEntry({
+      date: mileageForm.date,
+      miles: mileageForm.miles,
+      notes: mileageForm.notes.trim(),
+    });
+    const fuelCost = calculateFuelCost(mileageForm.miles, fuelSettings);
+    toast({ title: "Mileage logged", description: `${mileageForm.miles} miles — est. fuel ${formatCurrency(fuelCost)}` });
+    setMileageForm({ date: format(new Date(), "yyyy-MM-dd"), miles: 0, notes: "" });
+    setMileageDialogOpen(false);
   };
 
   return (
