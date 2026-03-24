@@ -17,7 +17,7 @@ import {
 import { Plus, Check, X, Trash2 } from "lucide-react";
 import type { Job } from "@/lib/store";
 
-const PAGE_SIZE = 15;
+const PAGE_SIZE = 5;
 
 export default function JobsPage() {
   const { customers, jobs, addJob, updateJob, deleteJob } = useApp();

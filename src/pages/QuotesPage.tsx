@@ -18,7 +18,7 @@ import { Plus, Trash2, FileText, Download, Eye, X, Mail, AlertTriangle, Clock } 
 import { cn } from "@/lib/utils";
 import type { Quote, QuoteLineItem } from "@/lib/store";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 5;
 
 const STATUS_STYLES: Record<Quote["status"], string> = {
   draft: "bg-muted text-muted-foreground",
