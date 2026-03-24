@@ -286,6 +286,7 @@ export default function FinancePage() {
           <TabsList className="bg-card border border-border">
             <TabsTrigger value="pnl">Profit & Loss</TabsTrigger>
             <TabsTrigger value="expenses">Expenses</TabsTrigger>
+            <TabsTrigger value="mileage">Mileage</TabsTrigger>
             <TabsTrigger value="overview">Revenue</TabsTrigger>
           </TabsList>
 
