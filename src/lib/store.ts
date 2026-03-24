@@ -495,3 +495,20 @@ function generateMockRecurringExpenses(): RecurringExpense[] {
     { id: crypto.randomUUID(), amount: 35, category: "vehicle", description: "Van finance payment", dayOfMonth: 28, active: true, createdAt: "2024-06-01T00:00:00.000Z" },
   ];
 }
+
+function generateMockMileage(): MileageEntry[] {
+  const entries: MileageEntry[] = [];
+  const now = new Date();
+  const notes = ["Round 1 - North area", "Round 2 - South side", "Emergency callout", "Quote visits", "Full day round", "Town centre jobs"];
+  for (let i = 0; i < 30; i++) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - Math.floor(Math.random() * 90));
+    entries.push({
+      id: crypto.randomUUID(),
+      date: d.toISOString().slice(0, 10),
+      miles: parseFloat((5 + Math.random() * 60).toFixed(1)),
+      notes: notes[Math.floor(Math.random() * notes.length)],
+    });
+  }
+  return entries.sort((a, b) => b.date.localeCompare(a.date));
+}
