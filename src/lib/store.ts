@@ -219,6 +219,8 @@ function loadData(): AppData {
         if (!parsed.rounds) parsed.rounds = [];
         if (!parsed.expenses) parsed.expenses = [];
         if (!parsed.recurringExpenses) parsed.recurringExpenses = [];
+        if (!parsed.mileageEntries) parsed.mileageEntries = [];
+        if (!parsed.fuelSettings) parsed.fuelSettings = DEFAULT_FUEL_SETTINGS;
 
         const MIGRATE_KEY = "pane-pro-migrate-due-tomorrow-v3";
         if (!localStorage.getItem(MIGRATE_KEY)) {
