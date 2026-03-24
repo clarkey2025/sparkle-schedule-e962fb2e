@@ -138,7 +138,7 @@ export default function QuotesPage() {
     if (!win) return;
     win.document.write(`
       <!DOCTYPE html>
-      <html><head><title>Quote - ${customer?.name || "Customer"}</title>
+      <html><head><title>Quote - ${details.name}</title>
       <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; color: #222; padding: 40px; max-width: 800px; margin: 0 auto; }
