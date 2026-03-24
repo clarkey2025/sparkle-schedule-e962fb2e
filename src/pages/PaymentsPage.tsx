@@ -47,6 +47,22 @@ export default function PaymentsPage() {
   const safePage = Math.min(page, totalPages);
   const paginated = sorted.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
+  const exportCSV = () => {
+    const header = "Date,Customer,Amount,Method,Notes";
+    const rows = sorted.map((p) => {
+      const cName = customers.find((c) => c.id === p.customerId)?.name ?? "Unknown";
+      const escape = (s: string) => `"${s.replace(/"/g, '""')}"`;
+      return [p.date, escape(cName), p.amount.toFixed(2), METHOD_LABELS[p.method], escape(p.notes)].join(",");
+    });
+    const blob = new Blob([header + "\n" + rows.join("\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `payments-${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const openAdd = () => {
     setForm({
       customerId: customers[0]?.id ?? "",
