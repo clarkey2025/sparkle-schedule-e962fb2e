@@ -531,7 +531,10 @@ export default function QuotesPage() {
                     <span className="font-medium text-foreground">Notes: </span>{previewQuote.notes}
                   </div>
                 )}
-                <div className="flex justify-end pt-2">
+                <div className="flex justify-end gap-2 pt-2">
+                  <Button size="sm" variant="outline" onClick={() => handleEmailQuote(previewQuote)}>
+                    <Mail className="mr-1.5 h-4 w-4" /> Email Quote
+                  </Button>
                   <Button size="sm" onClick={() => handlePrintPDF(previewQuote)}>
                     <Download className="mr-1.5 h-4 w-4" /> Download PDF
                   </Button>
