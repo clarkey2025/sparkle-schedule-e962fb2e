@@ -90,6 +90,18 @@ export interface RecurringExpense {
   createdAt: string;
 }
 
+export interface MileageEntry {
+  id: string;
+  date: string;
+  miles: number;
+  notes: string;
+}
+
+export interface FuelSettings {
+  pricePerLitre: number; // in £
+  mpg: number; // miles per gallon
+}
+
 const STORAGE_KEY = "pane-pro-data";
 
 interface AppData {
