@@ -14,7 +14,7 @@ import {
   Pagination, PaginationContent, PaginationItem,
   PaginationNext, PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Plus, Trash2, FileText, Download, Eye, X, Mail } from "lucide-react";
+import { Plus, Trash2, FileText, Download, Eye, X, Mail, AlertTriangle, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Quote, QuoteLineItem } from "@/lib/store";
 
@@ -130,6 +130,16 @@ export default function QuotesPage() {
     const c = customerMap.get(q.customerId);
     return { name: c?.name || "—", address: c?.address || "" };
   }
+
+  function getExpiryStatus(q: Quote): "expired" | "expiring" | "ok" {
+    if (q.status === "accepted" || q.status === "declined") return "ok";
+    const now = new Date();
+    const valid = new Date(q.validUntil);
+    if (valid < now) return "expired";
+    const daysLeft = Math.ceil((valid.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    return daysLeft <= 7 ? "expiring" : "ok";
+  }
+
   function getRecipientEmail(q: Quote) {
     if (q.prospectEmail) return q.prospectEmail;
     const c = customerMap.get(q.customerId);
@@ -291,8 +301,9 @@ export default function QuotesPage() {
               </TableRow>
             ) : (
               paginated.map((q) => {
+                const expiry = getExpiryStatus(q);
                 return (
-                  <TableRow key={q.id} className="group border-border">
+                  <TableRow key={q.id} className={cn("group border-border", expiry === "expired" && "opacity-60")}>
                     <TableCell className="mono text-xs">{q.quoteNumber || q.id.slice(0, 8).toUpperCase()}</TableCell>
                     <TableCell className="font-medium">
                       {getQuoteCustomerName(q)}
@@ -301,9 +312,19 @@ export default function QuotesPage() {
                     <TableCell className="text-muted-foreground">{q.items.length} service{q.items.length !== 1 && "s"}</TableCell>
                     <TableCell className="text-right mono">{formatCurrency(getQuoteTotal(q))}</TableCell>
                     <TableCell>
-                      <Badge variant="secondary" className={cn("text-[10px]", STATUS_STYLES[q.status])}>
-                        {q.status.toUpperCase()}
-                      </Badge>
+                      <div className="flex items-center gap-1.5">
+                        <Badge variant="secondary" className={cn("text-[10px]", STATUS_STYLES[q.status])}>
+                          {q.status.toUpperCase()}
+                        </Badge>
+                        {expiry === "expired" && (
+                          <Badge variant="secondary" className="text-[9px] bg-destructive/15 text-destructive">EXPIRED</Badge>
+                        )}
+                        {expiry === "expiring" && (
+                          <Badge variant="secondary" className="text-[9px] bg-warning/15 text-warning flex items-center gap-0.5">
+                            <Clock className="h-3 w-3" /> EXPIRING
+                          </Badge>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell className="text-muted-foreground">{formatDate(q.createdAt)}</TableCell>
                     <TableCell className="text-right">
