@@ -14,7 +14,7 @@ import {
   Pagination, PaginationContent, PaginationItem,
   PaginationNext, PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Plus, Trash2, FileText, Download, Eye, X, Mail } from "lucide-react";
+import { Plus, Trash2, FileText, Download, Eye, X, Mail, AlertTriangle, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Quote, QuoteLineItem } from "@/lib/store";
 
