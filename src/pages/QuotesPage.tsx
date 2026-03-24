@@ -130,8 +130,45 @@ export default function QuotesPage() {
     const c = customerMap.get(q.customerId);
     return { name: c?.name || "—", address: c?.address || "" };
   }
+  function getRecipientEmail(q: Quote) {
+    if (q.prospectEmail) return q.prospectEmail;
+    const c = customerMap.get(q.customerId);
+    return c?.email || "";
+  }
 
-  function handlePrintPDF(quote: Quote) {
+  function handleEmailQuote(quote: Quote) {
+    const details = getQuoteCustomerDetails(quote);
+    const total = getQuoteTotal(quote);
+    const ref = quote.quoteNumber || quote.id.slice(0, 8).toUpperCase();
+    const recipientEmail = getRecipientEmail(quote);
+
+    const subject = `Quote ${ref} from ${businessSettings.name}`;
+    const itemsList = quote.items
+      .map((item) => `• ${item.serviceName} — £${item.price.toFixed(2)}${item.description ? ` (${item.description})` : ""}`)
+      .join("\n");
+
+    const body = [
+      `Hi ${details.name},`,
+      "",
+      `Please find your quote (${ref}) below:`,
+      "",
+      itemsList,
+      "",
+      `Total: £${total.toFixed(2)}`,
+      "",
+      `Valid until: ${formatDate(quote.validUntil)}`,
+      ...(quote.notes ? ["", `Notes: ${quote.notes}`] : []),
+      "",
+      "Kind regards,",
+      businessSettings.name,
+      ...(businessSettings.phone ? [businessSettings.phone] : []),
+      ...(businessSettings.email ? [businessSettings.email] : []),
+    ].join("\n");
+
+    window.open(`mailto:${encodeURIComponent(recipientEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+  }
+
+
     const details = getQuoteCustomerDetails(quote);
     const total = getQuoteTotal(quote);
     const win = window.open("", "_blank");
