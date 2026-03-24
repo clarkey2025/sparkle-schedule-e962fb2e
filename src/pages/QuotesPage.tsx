@@ -165,12 +165,15 @@ export default function QuotesPage() {
       </head><body>
         <div class="header">
           <div class="brand">
-            <div class="brand-icon">BL</div>
+            ${businessSettings.logoUrl
+              ? `<img src="${businessSettings.logoUrl}" alt="Logo" class="brand-logo" />`
+              : `<div class="brand-icon">${businessSettings.name.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase()}</div>`
+            }
             <div>
-              <div class="brand-name">Your Business Name</div>
+              <div class="brand-name">${businessSettings.name}</div>
               <div class="brand-contact">
-                07700 000000 · hello@yourbusiness.co.uk<br/>
-                123 Example Street, Your Town, AB1 2CD
+                ${businessSettings.phone} · ${businessSettings.email}<br/>
+                ${businessSettings.address}
               </div>
             </div>
           </div>
