@@ -132,6 +132,7 @@ interface AppData {
   recurringExpenses: RecurringExpense[];
   mileageEntries: MileageEntry[];
   fuelSettings: FuelSettings;
+  quotes: Quote[];
 }
 
 const DEFAULT_FUEL_SETTINGS: FuelSettings = { pricePerLitre: 1.45, mpg: 35 };
