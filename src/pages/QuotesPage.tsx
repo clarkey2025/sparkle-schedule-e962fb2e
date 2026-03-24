@@ -28,7 +28,7 @@ const STATUS_STYLES: Record<Quote["status"], string> = {
 };
 
 export default function QuotesPage() {
-  const { customers, services, quotes, addQuote, updateQuote, deleteQuote } = useApp();
+  const { customers, services, quotes, businessSettings, addQuote, updateQuote, deleteQuote } = useApp();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [previewQuote, setPreviewQuote] = useState<Quote | null>(null);
   const [page, setPage] = useState(1);
@@ -145,6 +145,7 @@ export default function QuotesPage() {
         .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 3px solid #222; }
         .brand { display: flex; align-items: center; gap: 14px; }
         .brand-icon { width: 48px; height: 48px; background: #e10098; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; font-size: 20px; }
+        .brand-logo { width: 48px; height: 48px; border-radius: 8px; object-fit: contain; }
         .brand-name { font-size: 22px; font-weight: 700; }
         .brand-contact { font-size: 12px; color: #666; margin-top: 4px; line-height: 1.6; }
         .quote-title { font-size: 28px; font-weight: 700; color: #222; text-align: right; }
@@ -164,12 +165,15 @@ export default function QuotesPage() {
       </head><body>
         <div class="header">
           <div class="brand">
-            <div class="brand-icon">BL</div>
+            ${businessSettings.logoUrl
+              ? `<img src="${businessSettings.logoUrl}" alt="Logo" class="brand-logo" />`
+              : `<div class="brand-icon">${businessSettings.name.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase()}</div>`
+            }
             <div>
-              <div class="brand-name">Your Business Name</div>
+              <div class="brand-name">${businessSettings.name}</div>
               <div class="brand-contact">
-                07700 000000 · hello@yourbusiness.co.uk<br/>
-                123 Example Street, Your Town, AB1 2CD
+                ${businessSettings.phone} · ${businessSettings.email}<br/>
+                ${businessSettings.address}
               </div>
             </div>
           </div>
@@ -190,7 +194,7 @@ export default function QuotesPage() {
           </tbody>
         </table>
         ${quote.notes ? `<div class="notes"><strong>Notes:</strong> ${quote.notes}</div>` : ""}
-        <div class="footer">Your Business Name · hello@yourbusiness.co.uk · 07700 000000</div>
+        <div class="footer">${businessSettings.name} · ${businessSettings.email} · ${businessSettings.phone}</div>
       </body></html>
     `);
     win.document.close();

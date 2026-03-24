@@ -10,6 +10,7 @@ import {
   CircleDot,
   BarChart3,
   FileText,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import bucketListIcon from "@/assets/bucket-list-icon.png";
@@ -43,6 +44,12 @@ const sections = [
     links: [
       { to: "/payments", label: "Payments", icon: CreditCard },
       { to: "/finances", label: "Finances", icon: BarChart3 },
+    ],
+  },
+  {
+    label: "System",
+    links: [
+      { to: "/settings", label: "Settings", icon: Settings },
     ],
   },
 ];

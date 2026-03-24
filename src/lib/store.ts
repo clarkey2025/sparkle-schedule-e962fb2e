@@ -120,11 +120,27 @@ export interface MileageEntry {
 }
 
 export interface FuelSettings {
-  pricePerLitre: number; // in £
-  mpg: number; // miles per gallon
+  pricePerLitre: number;
+  mpg: number;
+}
+
+export interface BusinessSettings {
+  name: string;
+  phone: string;
+  email: string;
+  address: string;
+  logoUrl: string;
 }
 
 const STORAGE_KEY = "pane-pro-data";
+
+const DEFAULT_BUSINESS_SETTINGS: BusinessSettings = {
+  name: "Your Business Name",
+  phone: "07700 000000",
+  email: "hello@yourbusiness.co.uk",
+  address: "123 Example Street, Your Town, AB1 2CD",
+  logoUrl: "",
+};
 
 interface AppData {
   customers: Customer[];
@@ -137,6 +153,7 @@ interface AppData {
   recurringExpenses: RecurringExpense[];
   mileageEntries: MileageEntry[];
   fuelSettings: FuelSettings;
+  businessSettings: BusinessSettings;
   quotes: Quote[];
 }
 
@@ -235,7 +252,7 @@ function loadData(): AppData {
       mock.jobs = [];
       mock.payments = [];
       mock.customerServices = [];
-      data = { ...mock, rounds: [], expenses: [], recurringExpenses: [], mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, quotes: [] };
+      data = { ...mock, rounds: [], expenses: [], recurringExpenses: [], mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [] };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       localStorage.setItem(MOCK_VERSION_KEY, MOCK_VERSION);
       data = autoScheduleJobs(data);
@@ -254,6 +271,7 @@ function loadData(): AppData {
         if (!parsed.mileageEntries) parsed.mileageEntries = [];
       if (!parsed.fuelSettings) parsed.fuelSettings = DEFAULT_FUEL_SETTINGS;
         if (!parsed.quotes) parsed.quotes = [];
+        if (!parsed.businessSettings) parsed.businessSettings = DEFAULT_BUSINESS_SETTINGS;
 
         const MIGRATE_KEY = "pane-pro-migrate-due-tomorrow-v3";
         if (!localStorage.getItem(MIGRATE_KEY)) {
@@ -277,7 +295,7 @@ function loadData(): AppData {
     }
   } catch {}
   const mock = generateMockData();
-  data = { ...mock, rounds: [], expenses: [], recurringExpenses: [], mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, quotes: [] };
+  data = { ...mock, rounds: [], expenses: [], recurringExpenses: [], mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [] };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   localStorage.setItem(MOCK_VERSION_KEY, MOCK_VERSION);
   data = autoScheduleJobs(data);
@@ -428,6 +446,10 @@ export function useAppData() {
     update((d) => ({ ...d, fuelSettings: { ...d.fuelSettings, ...s } }));
   }, [update]);
 
+  const updateBusinessSettings = useCallback((s: Partial<BusinessSettings>) => {
+    update((d) => ({ ...d, businessSettings: { ...d.businessSettings, ...s } }));
+  }, [update]);
+
   // Quotes CRUD
   const addQuote = useCallback((q: Omit<Quote, "id" | "createdAt">) => {
     update((d) => ({ ...d, quotes: [...d.quotes, { ...q, id: crypto.randomUUID(), createdAt: new Date().toISOString() }] }));
@@ -454,7 +476,7 @@ export function useAppData() {
     localStorage.removeItem(`pane-pro-auto-sched-${todayStr}`);
     localStorage.removeItem(`pane-pro-recurring-exp-${thisMonth}`);
     const mockRecurring = generateMockRecurringExpenses();
-    const withData: AppData = { ...mock, expenses: generateMockExpenses(), recurringExpenses: mockRecurring, mileageEntries: generateMockMileage(), fuelSettings: DEFAULT_FUEL_SETTINGS, quotes: [] };
+    const withData: AppData = { ...mock, expenses: generateMockExpenses(), recurringExpenses: mockRecurring, mileageEntries: generateMockMileage(), fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [] };
     const scheduled = autoLogRecurringExpenses(autoScheduleJobs(withData));
     saveData(scheduled);
     localStorage.setItem(DEMO_FLAG_KEY, "1");
@@ -467,7 +489,7 @@ export function useAppData() {
       customers: [], jobs: [], payments: [],
       services: generateMockData().services,
       customerServices: [], rounds: [], expenses: [], recurringExpenses: [],
-      mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, quotes: [],
+      mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [],
     };
     saveData(empty);
     localStorage.removeItem(DEMO_FLAG_KEY);
@@ -486,7 +508,7 @@ export function useAppData() {
     addRound, updateRound, deleteRound,
     addExpense, updateExpense, deleteExpense,
     addRecurringExpense, updateRecurringExpense, deleteRecurringExpense,
-    addMileageEntry, deleteMileageEntry, updateFuelSettings,
+    addMileageEntry, deleteMileageEntry, updateFuelSettings, updateBusinessSettings,
     addQuote, updateQuote, deleteQuote,
     loadMockData,
     clearMockData,
