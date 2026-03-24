@@ -250,11 +250,13 @@ export default function QuotesPage() {
               </TableRow>
             ) : (
               paginated.map((q) => {
-                const cust = customerMap.get(q.customerId);
                 return (
                   <TableRow key={q.id} className="group border-border">
                     <TableCell className="mono text-xs">{q.id.slice(0, 8).toUpperCase()}</TableCell>
-                    <TableCell className="font-medium">{cust?.name || "—"}</TableCell>
+                    <TableCell className="font-medium">
+                      {getQuoteCustomerName(q)}
+                      {q.prospectName && <Badge variant="secondary" className="ml-2 text-[9px] bg-warning/15 text-warning">PROSPECT</Badge>}
+                    </TableCell>
                     <TableCell className="text-muted-foreground">{q.items.length} service{q.items.length !== 1 && "s"}</TableCell>
                     <TableCell className="text-right mono">{formatCurrency(getQuoteTotal(q))}</TableCell>
                     <TableCell>
