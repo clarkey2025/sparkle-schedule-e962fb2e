@@ -233,9 +233,13 @@ export default function AgendaPage() {
 
     // Find customers due on this date who don't already have a job
     const customerIdsWithJobs = new Set(existingJobs.map((e) => e.job.customerId));
-    const dueCustomers = customers.filter((c) =>
-      c.nextDueDate === dateStr && !customerIdsWithJobs.has(c.id)
-    );
+    // For today: include overdue customers (nextDueDate <= today) so missed jobs roll forward
+    // For tomorrow: only exact date match
+    const dueCustomers = customers.filter((c) => {
+      if (!c.nextDueDate || customerIdsWithJobs.has(c.id)) return false;
+      if (viewDate === "today") return c.nextDueDate <= todayStr;
+      return c.nextDueDate === dateStr;
+    });
 
     // Create virtual job entries for due customers
     const virtualJobs = dueCustomers.map((c) => ({
