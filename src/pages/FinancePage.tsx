@@ -647,6 +647,118 @@ export default function FinancePage() {
               </div>
             </div>
           </TabsContent>
+
+          {/* ── Mileage Tab ── */}
+          <TabsContent value="mileage" className="space-y-4 mt-0">
+            {/* Mileage stat cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              {[
+                { label: "Total Miles", value: mileageMetrics.totalMiles.toFixed(0), icon: Car, colour: "text-primary" },
+                { label: "Est. Fuel Cost", value: formatCurrency(mileageMetrics.totalFuelCost), icon: Fuel, colour: "text-destructive" },
+                { label: "This Month Miles", value: mileageMetrics.thisMonthMiles.toFixed(0), icon: Car, colour: "text-primary" },
+                { label: "This Month Fuel", value: formatCurrency(mileageMetrics.thisMonthFuel), icon: Fuel, colour: "text-warning" },
+              ].map(({ label, value, icon: Icon, colour }) => (
+                <div key={label} className="bg-card border border-border rounded-md p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="label-caps">{label}</p>
+                    <Icon className={cn("h-4 w-4", colour)} />
+                  </div>
+                  <p className={cn("font-mono text-xl font-semibold", colour)}>{value}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Fuel settings */}
+            <div className="bg-card border border-border rounded-md p-4">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-[13px] font-semibold text-foreground flex items-center gap-2">
+                  <Settings className="h-4 w-4 text-muted-foreground" /> Fuel Cost Settings
+                </p>
+                <p className="text-[11px] text-muted-foreground">
+                  {formatCurrency(fuelSettings.pricePerLitre)}/litre · {fuelSettings.mpg} MPG · ~{formatCurrency(calculateFuelCost(1, fuelSettings))}/mile
+                </p>
+              </div>
+              {fuelSettingsOpen ? (
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="label-caps mb-1.5 block">Price per Litre (£)</Label>
+                    <Input
+                      type="number" min={0} step={0.01}
+                      value={fuelSettings.pricePerLitre}
+                      onChange={(e) => updateFuelSettings({ pricePerLitre: parseFloat(e.target.value) || 0 })}
+                    />
+                  </div>
+                  <div>
+                    <Label className="label-caps mb-1.5 block">Miles per Gallon</Label>
+                    <Input
+                      type="number" min={1} step={1}
+                      value={fuelSettings.mpg}
+                      onChange={(e) => updateFuelSettings({ mpg: parseFloat(e.target.value) || 1 })}
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Button size="sm" variant="outline" onClick={() => setFuelSettingsOpen(false)}>
+                      <Check className="h-3.5 w-3.5" /> Done
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <Button size="sm" variant="outline" onClick={() => setFuelSettingsOpen(true)}>
+                  <Settings className="h-3.5 w-3.5" /> Edit Settings
+                </Button>
+              )}
+            </div>
+
+            {/* Mileage log */}
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[13px] font-semibold text-foreground">Mileage Log</p>
+                <p className="text-[11px] text-muted-foreground">{mileageEntries.length} entries · {mileageMetrics.totalMiles.toFixed(0)} total miles</p>
+              </div>
+              <Button size="sm" onClick={() => { setMileageForm({ date: format(new Date(), "yyyy-MM-dd"), miles: 0, notes: "" }); setMileageDialogOpen(true); }}>
+                <Plus className="h-3.5 w-3.5" /> Log Mileage
+              </Button>
+            </div>
+
+            {mileageMetrics.recentEntries.length === 0 ? (
+              <div className="bg-card border border-border rounded-md py-12 text-center">
+                <p className="text-[12px] text-muted-foreground">No mileage entries yet.</p>
+                <p className="text-[10px] text-muted-foreground/50 mt-1">Track daily miles to auto-calculate fuel costs.</p>
+                <Button size="sm" variant="outline" className="mt-4" onClick={() => { setMileageForm({ date: format(new Date(), "yyyy-MM-dd"), miles: 0, notes: "" }); setMileageDialogOpen(true); }}>
+                  <Plus className="h-3.5 w-3.5" /> Log your first trip
+                </Button>
+              </div>
+            ) : (
+              <div className="bg-card border border-border rounded-md divide-y divide-border">
+                {mileageMetrics.recentEntries.map((m) => {
+                  const fuelCost = calculateFuelCost(m.miles, fuelSettings);
+                  return (
+                    <div key={m.id} className="flex items-center justify-between px-4 py-3 group">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <Car className="h-4 w-4 text-primary shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-[12px] font-medium text-foreground">
+                            {m.miles.toFixed(1)} miles
+                            <span className="text-muted-foreground font-normal ml-2">≈ {formatCurrency(fuelCost)} fuel</span>
+                          </p>
+                          <p className="text-[10px] text-muted-foreground truncate">
+                            {formatDate(m.date)}{m.notes ? ` · ${m.notes}` : ""}
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost" size="icon"
+                        className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-destructive/60 hover:text-destructive"
+                        onClick={() => { deleteMileageEntry(m.id); toast({ title: "Mileage entry deleted" }); }}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </TabsContent>
         </Tabs>
       </div>
 
