@@ -276,7 +276,7 @@ export default function Dashboard() {
   }, [customers, jobs, payments, snoozes]);
 
   const today = weather?.[0];
-  const verdict = today ? wmoVerdict(today.code) : null;
+  const verdict = today ? wmoVerdict(today.code, today.rainChance, today.windMax) : null;
 
   return (
     <div className="pb-24 md:pb-0 space-y-4">
