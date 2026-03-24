@@ -87,7 +87,7 @@ export default function JobsPage() {
 
       <div className="mb-4 flex gap-2 animate-fade-up stagger-1 flex-wrap">
         {(["all", "scheduled", "completed", "cancelled"] as const).map((f) => (
-          <Button key={f} variant={filter === f ? "default" : "outline"} size="sm" onClick={() => setFilter(f)} className="capitalize text-xs">
+          <Button key={f} variant={filter === f ? "default" : "outline"} size="sm" onClick={() => { setFilter(f); setPage(1); }} className="capitalize text-xs">
             {f}
           </Button>
         ))}
