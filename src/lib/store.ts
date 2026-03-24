@@ -408,6 +408,7 @@ export function useAppData() {
       customers: [], jobs: [], payments: [],
       services: generateMockData().services,
       customerServices: [], rounds: [], expenses: [], recurringExpenses: [],
+      mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS,
     };
     saveData(empty);
     localStorage.removeItem(DEMO_FLAG_KEY);
