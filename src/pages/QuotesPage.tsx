@@ -470,7 +470,7 @@ export default function QuotesPage() {
 
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-              <Button onClick={handleSubmit} disabled={!customerId || lineItems.length === 0}>
+              <Button onClick={handleSubmit} disabled={(isProspect ? !prospectName.trim() : !customerId) || lineItems.length === 0}>
                 <FileText className="mr-1.5 h-4 w-4" /> Create Quote
               </Button>
             </div>
