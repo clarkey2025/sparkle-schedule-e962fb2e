@@ -817,7 +817,7 @@ export default function CustomersPage() {
               {/* Tabs */}
               <Tabs defaultValue="overview" className="flex flex-col flex-1 overflow-hidden">
                 <TabsList className="w-full rounded-none border-b border-border bg-transparent h-10 px-6 gap-1 justify-start shrink-0">
-                  {["overview", "jobs", "payments", "services"].map((tab) => (
+                  {["overview", "jobs", "payments", "ledger", "services"].map((tab) => (
                     <TabsTrigger
                       key={tab}
                       value={tab}
