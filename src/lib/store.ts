@@ -99,6 +99,7 @@ export interface QuoteLineItem {
 
 export interface Quote {
   id: string;
+  quoteNumber: string;
   customerId: string;
   /** For prospects not yet in the customer list */
   prospectName?: string;
