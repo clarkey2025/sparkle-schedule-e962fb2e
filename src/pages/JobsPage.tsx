@@ -42,6 +42,10 @@ export default function JobsPage() {
     return list;
   }, [jobs, filter]);
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const paginated = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
   const openAdd = () => {
     setForm({ customerId: customers[0]?.id ?? "", date: new Date().toISOString().split("T")[0], price: 0, notes: "" });
     setDialogOpen(true);
