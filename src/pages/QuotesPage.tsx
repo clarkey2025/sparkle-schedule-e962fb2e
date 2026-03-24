@@ -179,7 +179,7 @@ export default function QuotesPage() {
           </div>
         </div>
         <div class="meta">
-          <div><strong>Customer</strong>${customer?.name || "—"}<br/>${customer?.address || ""}</div>
+          <div><strong>Customer</strong>${details.name}<br/>${details.address}</div>
           <div style="text-align:right"><strong>Date</strong>${formatDate(quote.createdAt)}<br/><strong>Valid Until</strong>${formatDate(quote.validUntil)}</div>
         </div>
         <table>
