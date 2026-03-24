@@ -141,6 +141,42 @@ function autoScheduleJobs(data: AppData): AppData {
   return { ...data, jobs: newJobs };
 }
 
+function autoLogRecurringExpenses(data: AppData): AppData {
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const thisMonth = todayStr.slice(0, 7);
+  const REC_KEY = `pane-pro-recurring-exp-${thisMonth}`;
+  if (localStorage.getItem(REC_KEY)) return data;
+
+  const newExpenses = [...data.expenses];
+  for (const re of (data.recurringExpenses || [])) {
+    if (!re.active) continue;
+    // Check if already logged this month for this recurring expense
+    const alreadyLogged = newExpenses.some(
+      (e) => e.recurringExpenseId === re.id && e.date.startsWith(thisMonth)
+    );
+    if (alreadyLogged) continue;
+    // Log on the recurring day or today if that day has passed
+    const today = new Date();
+    const logDay = Math.min(re.dayOfMonth, new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate());
+    const logDate = new Date(today.getFullYear(), today.getMonth(), logDay);
+    if (logDate <= today) {
+      newExpenses.push({
+        id: crypto.randomUUID(),
+        amount: re.amount,
+        date: logDate.toISOString().slice(0, 10),
+        category: re.category,
+        description: re.description,
+        notes: "Auto-logged (recurring)",
+        recurringExpenseId: re.id,
+      });
+    }
+  }
+
+  localStorage.setItem(REC_KEY, "1");
+  if (newExpenses.length === data.expenses.length) return data;
+  return { ...data, expenses: newExpenses };
+}
+
 function loadData(): AppData {
   let data: AppData;
   try {
