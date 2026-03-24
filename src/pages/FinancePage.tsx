@@ -680,6 +680,61 @@ export default function FinancePage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* ── Add Recurring Expense Dialog ── */}
+      <Dialog open={recurringDialogOpen} onOpenChange={setRecurringDialogOpen}>
+        <DialogContent className="sm:max-w-md bg-card border border-border">
+          <DialogHeader>
+            <DialogTitle className="text-[15px]">Add Recurring Expense</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label className="label-caps mb-1.5 block">Description *</Label>
+              <Input
+                value={recurringForm.description}
+                onChange={(e) => setRecurringForm({ ...recurringForm, description: e.target.value })}
+                placeholder="e.g. Van insurance"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="label-caps mb-1.5 block">Amount (£/month) *</Label>
+                <Input
+                  type="number" min={0} step={0.01}
+                  value={recurringForm.amount || ""}
+                  onChange={(e) => setRecurringForm({ ...recurringForm, amount: parseFloat(e.target.value) || 0 })}
+                  placeholder="0.00"
+                />
+              </div>
+              <div>
+                <Label className="label-caps mb-1.5 block">Day of Month</Label>
+                <Input
+                  type="number" min={1} max={28}
+                  value={recurringForm.dayOfMonth}
+                  onChange={(e) => setRecurringForm({ ...recurringForm, dayOfMonth: Math.min(28, Math.max(1, parseInt(e.target.value) || 1)) })}
+                />
+              </div>
+            </div>
+            <div>
+              <Label className="label-caps mb-1.5 block">Category</Label>
+              <Select value={recurringForm.category} onValueChange={(v) => setRecurringForm({ ...recurringForm, category: v as ExpenseCategory })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {EXPENSE_CATEGORIES.map((c) => (
+                    <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Button variant="outline" className="flex-1" onClick={() => setRecurringDialogOpen(false)}>Cancel</Button>
+              <Button className="flex-1" onClick={handleAddRecurring} disabled={recurringForm.amount <= 0 || !recurringForm.description.trim()}>
+                <Check className="h-3.5 w-3.5" /> Save
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
