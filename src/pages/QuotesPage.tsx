@@ -145,6 +145,7 @@ export default function QuotesPage() {
         .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 3px solid #222; }
         .brand { display: flex; align-items: center; gap: 14px; }
         .brand-icon { width: 48px; height: 48px; background: #e10098; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; font-size: 20px; }
+        .brand-logo { width: 48px; height: 48px; border-radius: 8px; object-fit: contain; }
         .brand-name { font-size: 22px; font-weight: 700; }
         .brand-contact { font-size: 12px; color: #666; margin-top: 4px; line-height: 1.6; }
         .quote-title { font-size: 28px; font-weight: 700; color: #222; text-align: right; }
