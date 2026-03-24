@@ -58,7 +58,12 @@ export default function QuotesPage() {
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   function resetForm() {
+    setIsProspect(false);
     setCustomerId("");
+    setProspectName("");
+    setProspectAddress("");
+    setProspectPhone("");
+    setProspectEmail("");
     setNotes("");
     setValidDays("30");
     setLineItems([]);
