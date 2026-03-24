@@ -428,6 +428,69 @@ export default function FinancePage() {
                 ))}
               </div>
             )}
+
+            {/* Recurring Expenses */}
+            <div className="mt-6">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <p className="text-[13px] font-semibold text-foreground flex items-center gap-2">
+                    <RefreshCw className="h-4 w-4 text-primary" /> Recurring Expenses
+                  </p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    {recurringExpenses.filter((r) => r.active).length} active · {formatCurrency(recurringExpenses.filter((r) => r.active).reduce((s, r) => s + r.amount, 0))}/month
+                  </p>
+                </div>
+                <Button size="sm" variant="outline" onClick={() => {
+                  setRecurringForm({ amount: 0, category: "insurance", description: "", dayOfMonth: 1 });
+                  setRecurringDialogOpen(true);
+                }}>
+                  <Plus className="h-3.5 w-3.5" /> Add Recurring
+                </Button>
+              </div>
+
+              {recurringExpenses.length === 0 ? (
+                <div className="bg-card border border-border rounded-md py-8 text-center">
+                  <p className="text-[12px] text-muted-foreground">No recurring expenses set up.</p>
+                  <p className="text-[10px] text-muted-foreground/50 mt-1">Add monthly bills like insurance, software subscriptions, van finance.</p>
+                </div>
+              ) : (
+                <div className="bg-card border border-border rounded-md divide-y divide-border">
+                  {recurringExpenses.map((re) => (
+                    <div key={re.id} className="flex items-center justify-between px-4 py-3 group">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span
+                          className="h-2.5 w-2.5 rounded-full shrink-0"
+                          style={{ backgroundColor: CATEGORY_COLOURS[re.category] }}
+                        />
+                        <div className="min-w-0">
+                          <p className={cn("text-[12px] font-medium truncate", re.active ? "text-foreground" : "text-muted-foreground line-through")}>{re.description}</p>
+                          <p className="text-[10px] text-muted-foreground capitalize">
+                            {EXPENSE_CATEGORIES.find((c) => c.value === re.category)?.label} · Day {re.dayOfMonth} of each month
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <p className={cn("font-mono text-[13px] font-medium", re.active ? "text-destructive" : "text-muted-foreground")}>
+                          {formatCurrency(re.amount)}/mo
+                        </p>
+                        <Switch
+                          checked={re.active}
+                          onCheckedChange={(checked) => updateRecurringExpense(re.id, { active: checked })}
+                          className="scale-75"
+                        />
+                        <Button
+                          variant="ghost" size="icon"
+                          className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-destructive/60 hover:text-destructive"
+                          onClick={() => { deleteRecurringExpense(re.id); toast({ title: "Recurring expense removed" }); }}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </TabsContent>
 
           {/* ── Revenue Tab ── */}
