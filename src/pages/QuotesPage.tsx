@@ -499,7 +499,7 @@ export default function QuotesPage() {
                     <p className="text-sm text-muted-foreground">{details.address}</p>
                   </div>
                   <div className="text-right text-sm text-muted-foreground">
-                    <p>Ref: {previewQuote.id.slice(0, 8).toUpperCase()}</p>
+                    <p>Ref: {previewQuote.quoteNumber || previewQuote.id.slice(0, 8).toUpperCase()}</p>
                     <p>{formatDate(previewQuote.createdAt)}</p>
                     <p>Valid until: {formatDate(previewQuote.validUntil)}</p>
                   </div>
