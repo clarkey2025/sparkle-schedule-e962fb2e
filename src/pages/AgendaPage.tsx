@@ -307,11 +307,23 @@ export default function AgendaPage() {
       const c = customers.find((x) => x.id === customerId);
       if (c) {
         addJob({ customerId, date: dateStr, status: "completed", price: c.pricePerClean, notes: "" });
+        // Auto-advance nextDueDate based on frequency
+        const nextDue = getNextDueDate(todayStr, c.frequency);
+        updateCustomer(c.id, { lastCleanDate: todayStr, nextDueDate: nextDue.toISOString().slice(0, 10) });
       }
     } else {
       updateJob(jobId, { status: "completed" });
+      // Find customer and advance their nextDueDate
+      const job = jobs.find((j) => j.id === jobId);
+      if (job) {
+        const c = customers.find((x) => x.id === job.customerId);
+        if (c) {
+          const nextDue = getNextDueDate(todayStr, c.frequency);
+          updateCustomer(c.id, { lastCleanDate: todayStr, nextDueDate: nextDue.toISOString().slice(0, 10) });
+        }
+      }
     }
-  }, [updateJob, addJob, customers, dateStr]);
+  }, [updateJob, addJob, updateCustomer, customers, jobs, dateStr, todayStr]);
 
   const handleOptimise = useCallback(() => {
     if (stops.length < 2) return;
