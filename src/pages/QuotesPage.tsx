@@ -179,7 +179,7 @@ export default function QuotesPage() {
           </div>
           <div>
             <div class="quote-title">QUOTE</div>
-            <div class="quote-ref">Ref: ${quote.id.slice(0, 8).toUpperCase()}</div>
+            <div class="quote-ref">Ref: ${quote.quoteNumber || quote.id.slice(0, 8).toUpperCase()}</div>
           </div>
         </div>
         <div class="meta">

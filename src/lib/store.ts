@@ -452,8 +452,15 @@ export function useAppData() {
   }, [update]);
 
   // Quotes CRUD
-  const addQuote = useCallback((q: Omit<Quote, "id" | "createdAt">) => {
-    update((d) => ({ ...d, quotes: [...d.quotes, { ...q, id: crypto.randomUUID(), createdAt: new Date().toISOString() }] }));
+  const addQuote = useCallback((q: Omit<Quote, "id" | "createdAt" | "quoteNumber">) => {
+    update((d) => {
+      const maxNum = d.quotes.reduce((max, existing) => {
+        const match = existing.quoteNumber?.match(/Q-(\d+)/);
+        return match ? Math.max(max, parseInt(match[1], 10)) : max;
+      }, 0);
+      const quoteNumber = `Q-${String(maxNum + 1).padStart(4, "0")}`;
+      return { ...d, quotes: [...d.quotes, { ...q, id: crypto.randomUUID(), quoteNumber, createdAt: new Date().toISOString() }] };
+    });
   }, [update]);
 
   const updateQuote = useCallback((id: string, q: Partial<Quote>) => {
