@@ -298,44 +298,8 @@ export function useAppData() {
     setIsDemoActive(false);
   }, []);
 
-  // ─── Auto-schedule: create real jobs for due/overdue customers on load ──────
-  useEffect(() => {
-    const todayStr = new Date().toISOString().slice(0, 10);
-    const AUTO_KEY = `pane-pro-auto-sched-${todayStr}`;
-    if (localStorage.getItem(AUTO_KEY)) return;
 
-    setData((prev) => {
-      const newJobs = [...prev.jobs];
-      const activeJobCustomerIds = new Set(
-        prev.jobs
-          .filter((j) => j.status === "scheduled" || (j.status === "completed" && j.date === todayStr))
-          .map((j) => j.customerId)
-      );
-
-      for (const c of prev.customers) {
-        if (!c.nextDueDate || c.nextDueDate > todayStr) continue;
-        if (activeJobCustomerIds.has(c.id)) continue;
-        newJobs.push({
-          id: crypto.randomUUID(),
-          customerId: c.id,
-          date: todayStr,
-          status: "scheduled",
-          price: c.pricePerClean,
-          notes: c.nextDueDate < todayStr ? "Auto-scheduled (overdue)" : "",
-        });
-      }
-
-      if (newJobs.length === prev.jobs.length) {
-        localStorage.setItem(AUTO_KEY, "1");
-        return prev;
-      }
-
-      const next = { ...prev, jobs: newJobs };
-      saveData(next);
-      localStorage.setItem(AUTO_KEY, "1");
-      return next;
-    });
-  }, []);
+  
 
   return {
     ...data,
