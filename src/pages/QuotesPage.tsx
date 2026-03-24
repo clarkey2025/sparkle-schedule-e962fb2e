@@ -194,7 +194,7 @@ export default function QuotesPage() {
           </tbody>
         </table>
         ${quote.notes ? `<div class="notes"><strong>Notes:</strong> ${quote.notes}</div>` : ""}
-        <div class="footer">Your Business Name · hello@yourbusiness.co.uk · 07700 000000</div>
+        <div class="footer">${businessSettings.name} · ${businessSettings.email} · ${businessSettings.phone}</div>
       </body></html>
     `);
     win.document.close();
