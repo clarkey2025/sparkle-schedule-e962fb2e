@@ -87,7 +87,38 @@ export function isDemoDataActive(): boolean {
   return localStorage.getItem(DEMO_FLAG_KEY) === "1";
 }
 
+function autoScheduleJobs(data: AppData): AppData {
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const AUTO_KEY = `pane-pro-auto-sched-${todayStr}`;
+  if (localStorage.getItem(AUTO_KEY)) return data;
+
+  const newJobs = [...data.jobs];
+  const activeJobCustomerIds = new Set(
+    data.jobs
+      .filter((j) => j.status === "scheduled" || (j.status === "completed" && j.date === todayStr))
+      .map((j) => j.customerId)
+  );
+
+  for (const c of data.customers) {
+    if (!c.nextDueDate || c.nextDueDate > todayStr) continue;
+    if (activeJobCustomerIds.has(c.id)) continue;
+    newJobs.push({
+      id: crypto.randomUUID(),
+      customerId: c.id,
+      date: todayStr,
+      status: "scheduled" as const,
+      price: c.pricePerClean,
+      notes: c.nextDueDate < todayStr ? "Auto-scheduled (overdue)" : "",
+    });
+  }
+
+  localStorage.setItem(AUTO_KEY, "1");
+  if (newJobs.length === data.jobs.length) return data;
+  return { ...data, jobs: newJobs };
+}
+
 function loadData(): AppData {
+  let data: AppData;
   try {
     const seededVersion = localStorage.getItem(MOCK_VERSION_KEY);
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -98,21 +129,21 @@ function loadData(): AppData {
       mock.jobs = [];
       mock.payments = [];
       mock.customerServices = [];
-      const data: AppData = { ...mock, rounds: [] };
+      data = { ...mock, rounds: [] };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       localStorage.setItem(MOCK_VERSION_KEY, MOCK_VERSION);
+      data = autoScheduleJobs(data);
+      saveData(data);
       return data;
     }
 
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed.customers !== undefined) {
-        // Migrate old data missing new fields
         if (!parsed.services) parsed.services = generateMockData().services;
         if (!parsed.customerServices) parsed.customerServices = generateMockData().customerServices;
         if (!parsed.rounds) parsed.rounds = [];
 
-        // One-time migration: set monthly customers + "Darts Academy" due tomorrow
         const MIGRATE_KEY = "pane-pro-migrate-due-tomorrow-v3";
         if (!localStorage.getItem(MIGRATE_KEY)) {
           const tomorrow = new Date();
@@ -128,14 +159,18 @@ function loadData(): AppData {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
         }
 
-        return parsed;
+        data = autoScheduleJobs(parsed);
+        saveData(data);
+        return data;
       }
     }
   } catch {}
   const mock = generateMockData();
-  const data: AppData = { ...mock, rounds: [] };
+  data = { ...mock, rounds: [] };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   localStorage.setItem(MOCK_VERSION_KEY, MOCK_VERSION);
+  data = autoScheduleJobs(data);
+  saveData(data);
   return data;
 }
 
