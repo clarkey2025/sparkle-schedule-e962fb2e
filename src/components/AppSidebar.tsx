@@ -4,12 +4,12 @@ import {
   Users,
   CalendarCheck,
   CreditCard,
-  MapPin,
   ClipboardList,
   Route,
   Wrench,
   CircleDot,
   BarChart3,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import bucketListIcon from "@/assets/bucket-list-icon.png";
@@ -35,6 +35,7 @@ const sections = [
       { to: "/customers", label: "Customers", icon: Users },
       { to: "/rounds", label: "Rounds", icon: CircleDot },
       { to: "/services", label: "Services", icon: Wrench },
+      { to: "/quotes", label: "Quotes", icon: FileText },
     ],
   },
   {
