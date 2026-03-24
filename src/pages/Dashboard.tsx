@@ -5,8 +5,9 @@ import {
   Users, PoundSterling, AlertTriangle, CalendarCheck, CheckCircle2,
   Cloud, Sun, CloudRain, CloudSnow, CloudLightning, CloudDrizzle, Wind, MapPin,
   MoreHorizontal, Check, BellOff, CalendarX, ChevronDown, ChevronRight,
-  TrendingUp, Banknote, FlaskConical,
+  TrendingUp, Banknote, FlaskConical, Droplets, Pencil, X as XIcon,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
