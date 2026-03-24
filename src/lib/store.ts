@@ -155,6 +155,7 @@ function loadData(): AppData {
         if (!parsed.services) parsed.services = generateMockData().services;
         if (!parsed.customerServices) parsed.customerServices = generateMockData().customerServices;
         if (!parsed.rounds) parsed.rounds = [];
+        if (!parsed.expenses) parsed.expenses = [];
 
         const MIGRATE_KEY = "pane-pro-migrate-due-tomorrow-v3";
         if (!localStorage.getItem(MIGRATE_KEY)) {
