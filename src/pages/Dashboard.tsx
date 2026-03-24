@@ -6,6 +6,7 @@ import {
   Cloud, Sun, CloudRain, CloudSnow, CloudLightning, CloudDrizzle, Wind, MapPin,
   MoreHorizontal, Check, BellOff, CalendarX, ChevronDown, ChevronRight,
   TrendingUp, Banknote, FlaskConical, Droplets, Pencil, X as XIcon,
+  FileText, Clock,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
