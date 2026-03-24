@@ -4,12 +4,12 @@ import {
   Users,
   CalendarCheck,
   CreditCard,
-  MapPin,
   ClipboardList,
   Route,
   Wrench,
   CircleDot,
   BarChart3,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import bucketListIcon from "@/assets/bucket-list-icon.png";
