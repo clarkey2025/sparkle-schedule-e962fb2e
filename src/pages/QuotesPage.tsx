@@ -28,7 +28,7 @@ const STATUS_STYLES: Record<Quote["status"], string> = {
 };
 
 export default function QuotesPage() {
-  const { customers, services, quotes, addQuote, updateQuote, deleteQuote } = useApp();
+  const { customers, services, quotes, businessSettings, addQuote, updateQuote, deleteQuote } = useApp();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [previewQuote, setPreviewQuote] = useState<Quote | null>(null);
   const [page, setPage] = useState(1);
