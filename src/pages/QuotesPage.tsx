@@ -331,23 +331,68 @@ export default function QuotesPage() {
             <DialogTitle>New Quote</DialogTitle>
           </DialogHeader>
           <div className="space-y-5 pt-2">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label>Customer</Label>
-                <Select value={customerId} onValueChange={setCustomerId}>
-                  <SelectTrigger><SelectValue placeholder="Select customer" /></SelectTrigger>
-                  <SelectContent>
-                    {customers.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5">
-                <Label>Valid for (days)</Label>
-                <Input type="number" value={validDays} onChange={(e) => setValidDays(e.target.value)} />
-              </div>
+            {/* Customer toggle */}
+            <div className="flex items-center gap-3 pb-1">
+              <button
+                onClick={() => setIsProspect(false)}
+                className={cn("px-3 py-1.5 text-xs font-medium rounded-md transition-colors", !isProspect ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-muted")}
+              >
+                Existing Customer
+              </button>
+              <button
+                onClick={() => setIsProspect(true)}
+                className={cn("px-3 py-1.5 text-xs font-medium rounded-md transition-colors", isProspect ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-muted")}
+              >
+                New Prospect
+              </button>
             </div>
+
+            {!isProspect ? (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label>Customer</Label>
+                  <Select value={customerId} onValueChange={setCustomerId}>
+                    <SelectTrigger><SelectValue placeholder="Select customer" /></SelectTrigger>
+                    <SelectContent>
+                      {customers.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Valid for (days)</Label>
+                  <Input type="number" value={validDays} onChange={(e) => setValidDays(e.target.value)} />
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label>Name *</Label>
+                    <Input value={prospectName} onChange={(e) => setProspectName(e.target.value)} placeholder="Full name" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>Valid for (days)</Label>
+                    <Input type="number" value={validDays} onChange={(e) => setValidDays(e.target.value)} />
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Address</Label>
+                  <Input value={prospectAddress} onChange={(e) => setProspectAddress(e.target.value)} placeholder="Full address" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label>Phone</Label>
+                    <Input value={prospectPhone} onChange={(e) => setProspectPhone(e.target.value)} placeholder="07700 000000" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>Email</Label>
+                    <Input value={prospectEmail} onChange={(e) => setProspectEmail(e.target.value)} placeholder="email@example.com" />
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Line items */}
             <div className="space-y-3">
