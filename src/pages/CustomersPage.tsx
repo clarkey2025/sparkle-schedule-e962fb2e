@@ -817,7 +817,7 @@ export default function CustomersPage() {
               {/* Tabs */}
               <Tabs defaultValue="overview" className="flex flex-col flex-1 overflow-hidden">
                 <TabsList className="w-full rounded-none border-b border-border bg-transparent h-10 px-6 gap-1 justify-start shrink-0">
-                  {["overview", "jobs", "payments", "services"].map((tab) => (
+                  {["overview", "jobs", "payments", "ledger", "services"].map((tab) => (
                     <TabsTrigger
                       key={tab}
                       value={tab}
@@ -996,6 +996,119 @@ export default function CustomersPage() {
                       ))}
                     </div>
                   )}
+                </TabsContent>
+
+                {/* ── Ledger tab ── */}
+                <TabsContent value="ledger" className="flex-1 overflow-y-auto p-5 mt-0">
+                  {(() => {
+                    // Build chronological ledger entries from completed jobs and payments
+                    const entries: { date: string; type: "charge" | "payment"; description: string; amount: number; id: string }[] = [];
+                    
+                    // Add completed jobs as charges
+                    selJobs
+                      .filter((j) => j.status === "completed")
+                      .forEach((j) => {
+                        entries.push({
+                          date: j.date,
+                          type: "charge",
+                          description: `Window clean${j.notes ? ` · ${j.notes}` : ""}`,
+                          amount: j.price,
+                          id: `job-${j.id}`,
+                        });
+                      });
+                    
+                    // Add payments
+                    selPayments.forEach((p) => {
+                      entries.push({
+                        date: p.date,
+                        type: "payment",
+                        description: `${p.method.replace("-", " ")}${p.notes ? ` · ${p.notes}` : ""}`,
+                        amount: p.amount,
+                        id: `pay-${p.id}`,
+                      });
+                    });
+                    
+                    // Sort oldest first to compute running balance
+                    entries.sort((a, b) => a.date.localeCompare(b.date) || a.type.localeCompare(b.type));
+                    
+                    // Compute running balance starting from imported balance
+                    const importedBal = sel.customer.importedBalance || 0;
+                    let running = importedBal;
+                    const withBalance = entries.map((e) => {
+                      if (e.type === "charge") running += e.amount;
+                      else running -= e.amount;
+                      return { ...e, balance: running };
+                    });
+                    
+                    // Display newest first
+                    const display = [...withBalance].reverse();
+
+                    return (
+                      <>
+                        <div className="flex items-center justify-between mb-3">
+                          <div>
+                            <p className="label-caps">Account Ledger</p>
+                            <p className="text-[11px] text-muted-foreground font-mono mt-0.5">{entries.length} entries</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="label-caps">Balance</p>
+                            <p className={cn(
+                              "font-mono text-[14px] font-semibold",
+                              running > 0 ? "text-warning" : running === 0 ? "text-success" : "text-success"
+                            )}>
+                              {formatCurrency(Math.abs(running))}
+                              {running > 0 ? " owed" : running < 0 ? " credit" : ""}
+                            </p>
+                          </div>
+                        </div>
+
+                        {importedBal > 0 && (
+                          <div className="flex items-center justify-between rounded-md bg-warning/5 border border-warning/20 px-3 py-2 mb-2">
+                            <p className="text-[11px] text-muted-foreground">Imported opening balance</p>
+                            <p className="font-mono text-[12px] text-warning">{formatCurrency(importedBal)}</p>
+                          </div>
+                        )}
+
+                        {display.length === 0 ? (
+                          <div className="py-8 text-center">
+                            <p className="text-[12px] text-muted-foreground">No transactions yet.</p>
+                            <p className="text-[10px] text-muted-foreground/50 mt-1">Completed jobs and payments will appear here.</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-1">
+                            {display.map((e) => (
+                              <div key={e.id} className="flex items-center justify-between rounded-md bg-muted/30 border border-border/50 px-3 py-2.5">
+                                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                                  <span className={cn(
+                                    "h-2 w-2 rounded-full shrink-0",
+                                    e.type === "charge" ? "bg-warning" : "bg-success"
+                                  )} />
+                                  <div className="min-w-0">
+                                    <p className="text-[12px] font-medium text-foreground truncate">{formatDate(e.date)}</p>
+                                    <p className="text-[10px] text-muted-foreground capitalize truncate">{e.description}</p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-3 shrink-0">
+                                  <p className={cn(
+                                    "font-mono text-[12px] font-medium w-[70px] text-right",
+                                    e.type === "charge" ? "text-warning" : "text-success"
+                                  )}>
+                                    {e.type === "charge" ? "+" : "−"}{formatCurrency(e.amount)}
+                                  </p>
+                                  <p className={cn(
+                                    "font-mono text-[11px] w-[70px] text-right",
+                                    e.balance > 0 ? "text-warning/70" : "text-success/70"
+                                  )}>
+                                    {formatCurrency(Math.abs(e.balance))}
+                                  </p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
                 </TabsContent>
 
                 {/* ── Services tab ── */}
