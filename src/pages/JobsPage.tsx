@@ -10,8 +10,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Pagination, PaginationContent, PaginationItem,
+  PaginationNext, PaginationPrevious,
+} from "@/components/ui/pagination";
 import { Plus, Check, X, Trash2 } from "lucide-react";
 import type { Job } from "@/lib/store";
+
+const PAGE_SIZE = 15;
 
 export default function JobsPage() {
   const { customers, jobs, addJob, updateJob, deleteJob } = useApp();
