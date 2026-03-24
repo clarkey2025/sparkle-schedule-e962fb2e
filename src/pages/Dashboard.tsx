@@ -37,12 +37,14 @@ function wmoShort(code: number) {
   if (code >= 95) return "Storm";
   return "—";
 }
-function wmoVerdict(code: number): { label: string; good: boolean } {
+function wmoVerdict(code: number, rainChance?: number, windMax?: number): { label: string; good: boolean } {
+  if (windMax && windMax > 50) return { label: "Too windy", good: false };
+  if (rainChance && rainChance > 70) return { label: "Rain likely — avoid", good: false };
   if (code <= 1) return { label: "Perfect day to clean", good: true };
   if (code === 2) return { label: "Should be fine", good: true };
-  if (code === 3) return { label: "Manageable", good: false };
+  if (code === 3) return { label: "Manageable", good: rainChance ? rainChance < 40 : false };
   if (code <= 57) return { label: "Drizzle — risky", good: false };
-  if (code <= 82) return { label: "Rain — avoid if possible", good: false };
+  if (code <= 82) return { label: "Rain — avoid", good: false };
   return { label: "Don't bother", good: false };
 }
 function WeatherIcon({ code, className }: { code: number; className?: string }) {
