@@ -36,7 +36,12 @@ export default function QuotesPage() {
   const printRef = useRef<HTMLDivElement>(null);
 
   // Form state
+  const [isProspect, setIsProspect] = useState(false);
   const [customerId, setCustomerId] = useState("");
+  const [prospectName, setProspectName] = useState("");
+  const [prospectAddress, setProspectAddress] = useState("");
+  const [prospectPhone, setProspectPhone] = useState("");
+  const [prospectEmail, setProspectEmail] = useState("");
   const [notes, setNotes] = useState("");
   const [validDays, setValidDays] = useState("30");
   const [lineItems, setLineItems] = useState<QuoteLineItem[]>([]);
@@ -53,7 +58,12 @@ export default function QuotesPage() {
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   function resetForm() {
+    setIsProspect(false);
     setCustomerId("");
+    setProspectName("");
+    setProspectAddress("");
+    setProspectPhone("");
+    setProspectEmail("");
     setNotes("");
     setValidDays("30");
     setLineItems([]);
@@ -83,11 +93,18 @@ export default function QuotesPage() {
   }
 
   function handleSubmit() {
-    if (!customerId || lineItems.length === 0) return;
+    const hasCustomer = isProspect ? prospectName.trim() : customerId;
+    if (!hasCustomer || lineItems.length === 0) return;
     const validUntil = new Date();
     validUntil.setDate(validUntil.getDate() + parseInt(validDays || "30"));
     addQuote({
-      customerId,
+      customerId: isProspect ? "" : customerId,
+      ...(isProspect && {
+        prospectName: prospectName.trim(),
+        prospectAddress: prospectAddress.trim(),
+        prospectPhone: prospectPhone.trim(),
+        prospectEmail: prospectEmail.trim(),
+      }),
       items: lineItems,
       notes,
       status: "draft",
@@ -101,14 +118,27 @@ export default function QuotesPage() {
     return q.items.reduce((sum, item) => sum + item.price, 0);
   }
 
+  function getQuoteCustomerName(q: Quote) {
+    if (q.prospectName) return q.prospectName;
+    return customerMap.get(q.customerId)?.name || "—";
+  }
+
+  function getQuoteCustomerDetails(q: Quote) {
+    if (q.prospectName) {
+      return { name: q.prospectName, address: q.prospectAddress || "" };
+    }
+    const c = customerMap.get(q.customerId);
+    return { name: c?.name || "—", address: c?.address || "" };
+  }
+
   function handlePrintPDF(quote: Quote) {
-    const customer = customerMap.get(quote.customerId);
+    const details = getQuoteCustomerDetails(quote);
     const total = getQuoteTotal(quote);
     const win = window.open("", "_blank");
     if (!win) return;
     win.document.write(`
       <!DOCTYPE html>
-      <html><head><title>Quote - ${customer?.name || "Customer"}</title>
+      <html><head><title>Quote - ${details.name}</title>
       <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; color: #222; padding: 40px; max-width: 800px; margin: 0 auto; }
@@ -149,7 +179,7 @@ export default function QuotesPage() {
           </div>
         </div>
         <div class="meta">
-          <div><strong>Customer</strong>${customer?.name || "—"}<br/>${customer?.address || ""}</div>
+          <div><strong>Customer</strong>${details.name}<br/>${details.address}</div>
           <div style="text-align:right"><strong>Date</strong>${formatDate(quote.createdAt)}<br/><strong>Valid Until</strong>${formatDate(quote.validUntil)}</div>
         </div>
         <table>
@@ -220,11 +250,13 @@ export default function QuotesPage() {
               </TableRow>
             ) : (
               paginated.map((q) => {
-                const cust = customerMap.get(q.customerId);
                 return (
                   <TableRow key={q.id} className="group border-border">
                     <TableCell className="mono text-xs">{q.id.slice(0, 8).toUpperCase()}</TableCell>
-                    <TableCell className="font-medium">{cust?.name || "—"}</TableCell>
+                    <TableCell className="font-medium">
+                      {getQuoteCustomerName(q)}
+                      {q.prospectName && <Badge variant="secondary" className="ml-2 text-[9px] bg-warning/15 text-warning">PROSPECT</Badge>}
+                    </TableCell>
                     <TableCell className="text-muted-foreground">{q.items.length} service{q.items.length !== 1 && "s"}</TableCell>
                     <TableCell className="text-right mono">{formatCurrency(getQuoteTotal(q))}</TableCell>
                     <TableCell>
@@ -299,23 +331,68 @@ export default function QuotesPage() {
             <DialogTitle>New Quote</DialogTitle>
           </DialogHeader>
           <div className="space-y-5 pt-2">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label>Customer</Label>
-                <Select value={customerId} onValueChange={setCustomerId}>
-                  <SelectTrigger><SelectValue placeholder="Select customer" /></SelectTrigger>
-                  <SelectContent>
-                    {customers.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5">
-                <Label>Valid for (days)</Label>
-                <Input type="number" value={validDays} onChange={(e) => setValidDays(e.target.value)} />
-              </div>
+            {/* Customer toggle */}
+            <div className="flex items-center gap-3 pb-1">
+              <button
+                onClick={() => setIsProspect(false)}
+                className={cn("px-3 py-1.5 text-xs font-medium rounded-md transition-colors", !isProspect ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-muted")}
+              >
+                Existing Customer
+              </button>
+              <button
+                onClick={() => setIsProspect(true)}
+                className={cn("px-3 py-1.5 text-xs font-medium rounded-md transition-colors", isProspect ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-muted")}
+              >
+                New Prospect
+              </button>
             </div>
+
+            {!isProspect ? (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label>Customer</Label>
+                  <Select value={customerId} onValueChange={setCustomerId}>
+                    <SelectTrigger><SelectValue placeholder="Select customer" /></SelectTrigger>
+                    <SelectContent>
+                      {customers.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Valid for (days)</Label>
+                  <Input type="number" value={validDays} onChange={(e) => setValidDays(e.target.value)} />
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label>Name *</Label>
+                    <Input value={prospectName} onChange={(e) => setProspectName(e.target.value)} placeholder="Full name" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>Valid for (days)</Label>
+                    <Input type="number" value={validDays} onChange={(e) => setValidDays(e.target.value)} />
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Address</Label>
+                  <Input value={prospectAddress} onChange={(e) => setProspectAddress(e.target.value)} placeholder="Full address" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label>Phone</Label>
+                    <Input value={prospectPhone} onChange={(e) => setProspectPhone(e.target.value)} placeholder="07700 000000" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>Email</Label>
+                    <Input value={prospectEmail} onChange={(e) => setProspectEmail(e.target.value)} placeholder="email@example.com" />
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Line items */}
             <div className="space-y-3">
@@ -393,7 +470,7 @@ export default function QuotesPage() {
 
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-              <Button onClick={handleSubmit} disabled={!customerId || lineItems.length === 0}>
+              <Button onClick={handleSubmit} disabled={(isProspect ? !prospectName.trim() : !customerId) || lineItems.length === 0}>
                 <FileText className="mr-1.5 h-4 w-4" /> Create Quote
               </Button>
             </div>
@@ -408,14 +485,14 @@ export default function QuotesPage() {
             <DialogTitle>Quote Preview</DialogTitle>
           </DialogHeader>
           {previewQuote && (() => {
-            const cust = customerMap.get(previewQuote.customerId);
+            const details = getQuoteCustomerDetails(previewQuote);
             const total = getQuoteTotal(previewQuote);
             return (
               <div className="space-y-4 pt-2" ref={printRef}>
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="font-semibold">{cust?.name}</p>
-                    <p className="text-sm text-muted-foreground">{cust?.address}</p>
+                    <p className="font-semibold">{details.name}</p>
+                    <p className="text-sm text-muted-foreground">{details.address}</p>
                   </div>
                   <div className="text-right text-sm text-muted-foreground">
                     <p>Ref: {previewQuote.id.slice(0, 8).toUpperCase()}</p>
