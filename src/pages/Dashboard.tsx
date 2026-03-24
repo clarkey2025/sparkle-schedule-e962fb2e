@@ -23,7 +23,7 @@ function loadSnoozes(): Record<string, string> {
 function saveSnoozes(s: Record<string, string>) { localStorage.setItem(SNOOZE_KEY, JSON.stringify(s)); }
 
 // ─── Weather helpers ──────────────────────────────────────────────────────
-type WeatherDay = { date: string; code: number; max: number; min: number };
+type WeatherDay = { date: string; code: number; max: number; min: number; rainChance: number; windMax: number };
 function wmoShort(code: number) {
   if (code === 0 || code === 1) return "Clear";
   if (code === 2) return "Pt. Cloudy";
