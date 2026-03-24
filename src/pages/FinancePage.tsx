@@ -8,17 +8,18 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
 import {
   PoundSterling, TrendingUp, AlertTriangle,
   Users, ArrowUpRight, ArrowDownRight, Receipt,
-  Plus, Trash2, Minus, Check, Fuel, ShoppingBag,
+  Plus, Trash2, Minus, Check, RefreshCw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip,
   ResponsiveContainer, CartesianGrid,
 } from "recharts";
-import type { Expense, ExpenseCategory } from "@/lib/store";
+import type { Expense, ExpenseCategory, RecurringExpense } from "@/lib/store";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 
@@ -53,10 +54,17 @@ const emptyExpenseForm = {
 };
 
 export default function FinancePage() {
-  const { customers, jobs, payments, expenses, addExpense, deleteExpense } = useApp();
+  const {
+    customers, jobs, payments, expenses, addExpense, deleteExpense,
+    recurringExpenses, addRecurringExpense, updateRecurringExpense, deleteRecurringExpense,
+  } = useApp();
   const { toast } = useToast();
   const [expenseDialogOpen, setExpenseDialogOpen] = useState(false);
+  const [recurringDialogOpen, setRecurringDialogOpen] = useState(false);
   const [expenseForm, setExpenseForm] = useState(emptyExpenseForm);
+  const [recurringForm, setRecurringForm] = useState({
+    amount: 0, category: "insurance" as ExpenseCategory, description: "", dayOfMonth: 1,
+  });
 
   // ─── Computed metrics ──────────────────────────────────────────────────
   const metrics = useMemo(() => {
@@ -175,6 +183,20 @@ export default function FinancePage() {
     toast({ title: "Expense logged", description: `${formatCurrency(expenseForm.amount)} — ${expenseForm.description}` });
     setExpenseForm(emptyExpenseForm);
     setExpenseDialogOpen(false);
+  };
+
+  const handleAddRecurring = () => {
+    if (recurringForm.amount <= 0 || !recurringForm.description.trim()) return;
+    addRecurringExpense({
+      amount: recurringForm.amount,
+      category: recurringForm.category,
+      description: recurringForm.description.trim(),
+      dayOfMonth: recurringForm.dayOfMonth,
+      active: true,
+    });
+    toast({ title: "Recurring expense added", description: `${formatCurrency(recurringForm.amount)}/month — ${recurringForm.description}` });
+    setRecurringForm({ amount: 0, category: "insurance", description: "", dayOfMonth: 1 });
+    setRecurringDialogOpen(false);
   };
 
   return (
@@ -302,7 +324,7 @@ export default function FinancePage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div className="bg-card border border-border rounded-md p-4">
                 <p className="text-[13px] font-semibold text-foreground mb-4 flex items-center gap-2">
-                  <ShoppingBag className="h-4 w-4 text-destructive" /> Expenses by Category
+                  <Minus className="h-4 w-4 text-destructive" /> Expenses by Category
                 </p>
                 {categoryBreakdown.length === 0 ? (
                   <p className="text-[12px] text-muted-foreground py-8 text-center">No expenses logged yet.</p>
@@ -406,6 +428,69 @@ export default function FinancePage() {
                 ))}
               </div>
             )}
+
+            {/* Recurring Expenses */}
+            <div className="mt-6">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <p className="text-[13px] font-semibold text-foreground flex items-center gap-2">
+                    <RefreshCw className="h-4 w-4 text-primary" /> Recurring Expenses
+                  </p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    {recurringExpenses.filter((r) => r.active).length} active · {formatCurrency(recurringExpenses.filter((r) => r.active).reduce((s, r) => s + r.amount, 0))}/month
+                  </p>
+                </div>
+                <Button size="sm" variant="outline" onClick={() => {
+                  setRecurringForm({ amount: 0, category: "insurance", description: "", dayOfMonth: 1 });
+                  setRecurringDialogOpen(true);
+                }}>
+                  <Plus className="h-3.5 w-3.5" /> Add Recurring
+                </Button>
+              </div>
+
+              {recurringExpenses.length === 0 ? (
+                <div className="bg-card border border-border rounded-md py-8 text-center">
+                  <p className="text-[12px] text-muted-foreground">No recurring expenses set up.</p>
+                  <p className="text-[10px] text-muted-foreground/50 mt-1">Add monthly bills like insurance, software subscriptions, van finance.</p>
+                </div>
+              ) : (
+                <div className="bg-card border border-border rounded-md divide-y divide-border">
+                  {recurringExpenses.map((re) => (
+                    <div key={re.id} className="flex items-center justify-between px-4 py-3 group">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span
+                          className="h-2.5 w-2.5 rounded-full shrink-0"
+                          style={{ backgroundColor: CATEGORY_COLOURS[re.category] }}
+                        />
+                        <div className="min-w-0">
+                          <p className={cn("text-[12px] font-medium truncate", re.active ? "text-foreground" : "text-muted-foreground line-through")}>{re.description}</p>
+                          <p className="text-[10px] text-muted-foreground capitalize">
+                            {EXPENSE_CATEGORIES.find((c) => c.value === re.category)?.label} · Day {re.dayOfMonth} of each month
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <p className={cn("font-mono text-[13px] font-medium", re.active ? "text-destructive" : "text-muted-foreground")}>
+                          {formatCurrency(re.amount)}/mo
+                        </p>
+                        <Switch
+                          checked={re.active}
+                          onCheckedChange={(checked) => updateRecurringExpense(re.id, { active: checked })}
+                          className="scale-75"
+                        />
+                        <Button
+                          variant="ghost" size="icon"
+                          className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-destructive/60 hover:text-destructive"
+                          onClick={() => { deleteRecurringExpense(re.id); toast({ title: "Recurring expense removed" }); }}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </TabsContent>
 
           {/* ── Revenue Tab ── */}
@@ -589,6 +674,61 @@ export default function FinancePage() {
             <div className="flex gap-2 pt-2">
               <Button variant="outline" className="flex-1" onClick={() => setExpenseDialogOpen(false)}>Cancel</Button>
               <Button className="flex-1" onClick={handleAddExpense} disabled={expenseForm.amount <= 0 || !expenseForm.description.trim()}>
+                <Check className="h-3.5 w-3.5" /> Save
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Add Recurring Expense Dialog ── */}
+      <Dialog open={recurringDialogOpen} onOpenChange={setRecurringDialogOpen}>
+        <DialogContent className="sm:max-w-md bg-card border border-border">
+          <DialogHeader>
+            <DialogTitle className="text-[15px]">Add Recurring Expense</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label className="label-caps mb-1.5 block">Description *</Label>
+              <Input
+                value={recurringForm.description}
+                onChange={(e) => setRecurringForm({ ...recurringForm, description: e.target.value })}
+                placeholder="e.g. Van insurance"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="label-caps mb-1.5 block">Amount (£/month) *</Label>
+                <Input
+                  type="number" min={0} step={0.01}
+                  value={recurringForm.amount || ""}
+                  onChange={(e) => setRecurringForm({ ...recurringForm, amount: parseFloat(e.target.value) || 0 })}
+                  placeholder="0.00"
+                />
+              </div>
+              <div>
+                <Label className="label-caps mb-1.5 block">Day of Month</Label>
+                <Input
+                  type="number" min={1} max={28}
+                  value={recurringForm.dayOfMonth}
+                  onChange={(e) => setRecurringForm({ ...recurringForm, dayOfMonth: Math.min(28, Math.max(1, parseInt(e.target.value) || 1)) })}
+                />
+              </div>
+            </div>
+            <div>
+              <Label className="label-caps mb-1.5 block">Category</Label>
+              <Select value={recurringForm.category} onValueChange={(v) => setRecurringForm({ ...recurringForm, category: v as ExpenseCategory })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {EXPENSE_CATEGORIES.map((c) => (
+                    <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Button variant="outline" className="flex-1" onClick={() => setRecurringDialogOpen(false)}>Cancel</Button>
+              <Button className="flex-1" onClick={handleAddRecurring} disabled={recurringForm.amount <= 0 || !recurringForm.description.trim()}>
                 <Check className="h-3.5 w-3.5" /> Save
               </Button>
             </div>

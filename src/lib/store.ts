@@ -77,6 +77,17 @@ export interface Expense {
   category: ExpenseCategory;
   description: string;
   notes: string;
+  recurringExpenseId?: string;
+}
+
+export interface RecurringExpense {
+  id: string;
+  amount: number;
+  category: ExpenseCategory;
+  description: string;
+  dayOfMonth: number;
+  active: boolean;
+  createdAt: string;
 }
 
 const STORAGE_KEY = "pane-pro-data";
@@ -89,6 +100,7 @@ interface AppData {
   customerServices: CustomerService[];
   rounds: Round[];
   expenses: Expense[];
+  recurringExpenses: RecurringExpense[];
 }
 
 const MOCK_VERSION = "v12-empty";
@@ -129,6 +141,42 @@ function autoScheduleJobs(data: AppData): AppData {
   return { ...data, jobs: newJobs };
 }
 
+function autoLogRecurringExpenses(data: AppData): AppData {
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const thisMonth = todayStr.slice(0, 7);
+  const REC_KEY = `pane-pro-recurring-exp-${thisMonth}`;
+  if (localStorage.getItem(REC_KEY)) return data;
+
+  const newExpenses = [...data.expenses];
+  for (const re of (data.recurringExpenses || [])) {
+    if (!re.active) continue;
+    // Check if already logged this month for this recurring expense
+    const alreadyLogged = newExpenses.some(
+      (e) => e.recurringExpenseId === re.id && e.date.startsWith(thisMonth)
+    );
+    if (alreadyLogged) continue;
+    // Log on the recurring day or today if that day has passed
+    const today = new Date();
+    const logDay = Math.min(re.dayOfMonth, new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate());
+    const logDate = new Date(today.getFullYear(), today.getMonth(), logDay);
+    if (logDate <= today) {
+      newExpenses.push({
+        id: crypto.randomUUID(),
+        amount: re.amount,
+        date: logDate.toISOString().slice(0, 10),
+        category: re.category,
+        description: re.description,
+        notes: "Auto-logged (recurring)",
+        recurringExpenseId: re.id,
+      });
+    }
+  }
+
+  localStorage.setItem(REC_KEY, "1");
+  if (newExpenses.length === data.expenses.length) return data;
+  return { ...data, expenses: newExpenses };
+}
+
 function loadData(): AppData {
   let data: AppData;
   try {
@@ -141,7 +189,7 @@ function loadData(): AppData {
       mock.jobs = [];
       mock.payments = [];
       mock.customerServices = [];
-      data = { ...mock, rounds: [], expenses: [] };
+      data = { ...mock, rounds: [], expenses: [], recurringExpenses: [] };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       localStorage.setItem(MOCK_VERSION_KEY, MOCK_VERSION);
       data = autoScheduleJobs(data);
@@ -156,6 +204,7 @@ function loadData(): AppData {
         if (!parsed.customerServices) parsed.customerServices = generateMockData().customerServices;
         if (!parsed.rounds) parsed.rounds = [];
         if (!parsed.expenses) parsed.expenses = [];
+        if (!parsed.recurringExpenses) parsed.recurringExpenses = [];
 
         const MIGRATE_KEY = "pane-pro-migrate-due-tomorrow-v3";
         if (!localStorage.getItem(MIGRATE_KEY)) {
@@ -172,14 +221,14 @@ function loadData(): AppData {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
         }
 
-        data = autoScheduleJobs(parsed);
+        data = autoLogRecurringExpenses(autoScheduleJobs(parsed));
         saveData(data);
         return data;
       }
     }
   } catch {}
   const mock = generateMockData();
-  data = { ...mock, rounds: [], expenses: [] };
+  data = { ...mock, rounds: [], expenses: [], recurringExpenses: [] };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   localStorage.setItem(MOCK_VERSION_KEY, MOCK_VERSION);
   data = autoScheduleJobs(data);
@@ -304,9 +353,23 @@ export function useAppData() {
     update((d) => ({ ...d, expenses: d.expenses.filter((x) => x.id !== id) }));
   }, [update]);
 
+  // Recurring Expenses CRUD
+  const addRecurringExpense = useCallback((re: Omit<RecurringExpense, "id" | "createdAt">) => {
+    update((d) => ({ ...d, recurringExpenses: [...d.recurringExpenses, { ...re, id: crypto.randomUUID(), createdAt: new Date().toISOString() }] }));
+  }, [update]);
+
+  const updateRecurringExpense = useCallback((id: string, re: Partial<RecurringExpense>) => {
+    update((d) => ({ ...d, recurringExpenses: d.recurringExpenses.map((x) => (x.id === id ? { ...x, ...re } : x)) }));
+  }, [update]);
+
+  const deleteRecurringExpense = useCallback((id: string) => {
+    update((d) => ({ ...d, recurringExpenses: d.recurringExpenses.filter((x) => x.id !== id) }));
+  }, [update]);
+
   const loadMockData = useCallback(() => {
     const mock = generateMockData();
     const todayStr = new Date().toISOString().slice(0, 10);
+    const thisMonth = todayStr.slice(0, 7);
     const offsets = [-7, -3, -1, 0, 0, 1, 2, 5, -5, -2, 0, -4, 1, 0, -1, 3];
     mock.customers = mock.customers.map((c, i) => {
       const d = new Date();
@@ -314,7 +377,10 @@ export function useAppData() {
       return { ...c, nextDueDate: d.toISOString().slice(0, 10) };
     });
     localStorage.removeItem(`pane-pro-auto-sched-${todayStr}`);
-    const scheduled = autoScheduleJobs({ ...mock, expenses: generateMockExpenses() });
+    localStorage.removeItem(`pane-pro-recurring-exp-${thisMonth}`);
+    const mockRecurring = generateMockRecurringExpenses();
+    const withData: AppData = { ...mock, expenses: generateMockExpenses(), recurringExpenses: mockRecurring };
+    const scheduled = autoLogRecurringExpenses(autoScheduleJobs(withData));
     saveData(scheduled);
     localStorage.setItem(DEMO_FLAG_KEY, "1");
     setData(scheduled);
@@ -325,7 +391,7 @@ export function useAppData() {
     const empty: AppData = {
       customers: [], jobs: [], payments: [],
       services: generateMockData().services,
-      customerServices: [], rounds: [], expenses: [],
+      customerServices: [], rounds: [], expenses: [], recurringExpenses: [],
     };
     saveData(empty);
     localStorage.removeItem(DEMO_FLAG_KEY);
@@ -343,6 +409,7 @@ export function useAppData() {
     addCustomerService, deleteCustomerService,
     addRound, updateRound, deleteRound,
     addExpense, updateExpense, deleteExpense,
+    addRecurringExpense, updateRecurringExpense, deleteRecurringExpense,
     loadMockData,
     clearMockData,
   };
@@ -377,4 +444,14 @@ function generateMockExpenses(): Expense[] {
     });
   }
   return expenses.sort((a, b) => b.date.localeCompare(a.date));
+}
+
+function generateMockRecurringExpenses(): RecurringExpense[] {
+  return [
+    { id: crypto.randomUUID(), amount: 45, category: "insurance", description: "Public liability insurance", dayOfMonth: 1, active: true, createdAt: "2025-01-01T00:00:00.000Z" },
+    { id: crypto.randomUUID(), amount: 85, category: "insurance", description: "Van insurance", dayOfMonth: 15, active: true, createdAt: "2025-01-01T00:00:00.000Z" },
+    { id: crypto.randomUUID(), amount: 12.99, category: "software", description: "CRM subscription", dayOfMonth: 1, active: true, createdAt: "2025-03-01T00:00:00.000Z" },
+    { id: crypto.randomUUID(), amount: 9.99, category: "software", description: "Accounting software", dayOfMonth: 5, active: true, createdAt: "2025-06-01T00:00:00.000Z" },
+    { id: crypto.randomUUID(), amount: 35, category: "vehicle", description: "Van finance payment", dayOfMonth: 28, active: true, createdAt: "2024-06-01T00:00:00.000Z" },
+  ];
 }
