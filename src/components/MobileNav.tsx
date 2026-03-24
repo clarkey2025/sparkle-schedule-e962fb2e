@@ -18,6 +18,7 @@ const moreLinks = [
   { to: "/rounds", label: "Rounds", icon: CircleDot },
   { to: "/services", label: "Services", icon: Wrench },
   { to: "/payments", label: "Payments", icon: CreditCard },
+  { to: "/finances", label: "Finances", icon: BarChart3 },
 ];
 
 export default function MobileNav() {

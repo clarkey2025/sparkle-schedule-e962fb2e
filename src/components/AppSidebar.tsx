@@ -41,6 +41,7 @@ const sections = [
     label: "Finance",
     links: [
       { to: "/payments", label: "Payments", icon: CreditCard },
+      { to: "/finances", label: "Finances", icon: BarChart3 },
     ],
   },
 ];
