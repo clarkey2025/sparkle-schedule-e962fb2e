@@ -280,9 +280,13 @@ export function useAppData() {
 
   const loadMockData = useCallback(() => {
     const mock = generateMockData();
-    saveData(mock);
+    // Clear the auto-schedule key so it re-runs for the new data
+    const todayStr = new Date().toISOString().slice(0, 10);
+    localStorage.removeItem(`pane-pro-auto-sched-${todayStr}`);
+    const scheduled = autoScheduleJobs(mock);
+    saveData(scheduled);
     localStorage.setItem(DEMO_FLAG_KEY, "1");
-    setData(mock);
+    setData(scheduled);
     setIsDemoActive(true);
   }, []);
 
