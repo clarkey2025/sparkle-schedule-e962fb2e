@@ -100,6 +100,10 @@ export default function Dashboard() {
   const [weather, setWeather] = useState<WeatherDay[] | null>(null);
   const [locationName, setLocationName] = useState("");
   const [weatherError, setWeatherError] = useState(false);
+  const [editingLocation, setEditingLocation] = useState(false);
+  const [locationInput, setLocationInput] = useState("");
+
+  const LOCATION_KEY = "pane-pro-weather-location";
 
   const toggleGroup = (key: string) =>
     setCollapsed((prev) => {
@@ -108,30 +112,76 @@ export default function Dashboard() {
       return next;
     });
 
-  useEffect(() => {
-    async function fetchWeather(lat: number, lon: number) {
-      try {
-        const [wr, gr] = await Promise.all([
-          fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=7`),
-          fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`),
-        ]);
-        const wd = await wr.json();
-        const gd = await gr.json();
-        setLocationName(gd?.address?.town || gd?.address?.city || gd?.address?.village || "");
-        setWeather(wd.daily.time.map((t: string, i: number) => ({
-          date: t, code: wd.daily.weathercode[i],
-          max: Math.round(wd.daily.temperature_2m_max[i]),
-          min: Math.round(wd.daily.temperature_2m_min[i]),
-        })));
-      } catch { setWeatherError(true); }
+  const fetchWeather = useCallback(async (lat: number, lon: number) => {
+    try {
+      const [wr, gr] = await Promise.all([
+        fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max&timezone=auto&forecast_days=7`),
+        fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`),
+      ]);
+      const wd = await wr.json();
+      const gd = await gr.json();
+      const name = gd?.address?.town || gd?.address?.city || gd?.address?.village || gd?.address?.suburb || "";
+      setLocationName(name);
+      setWeather(wd.daily.time.map((t: string, i: number) => ({
+        date: t, code: wd.daily.weathercode[i],
+        max: Math.round(wd.daily.temperature_2m_max[i]),
+        min: Math.round(wd.daily.temperature_2m_min[i]),
+        rainChance: wd.daily.precipitation_probability_max?.[i] ?? 0,
+        windMax: Math.round(wd.daily.wind_speed_10m_max?.[i] ?? 0),
+      })));
+      setWeatherError(false);
+    } catch { setWeatherError(true); }
+  }, []);
+
+  const geocodeAndFetch = useCallback(async (query: string) => {
+    try {
+      const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1&countrycodes=gb`);
+      const results = await r.json();
+      if (results.length > 0) {
+        const { lat, lon } = results[0];
+        localStorage.setItem(LOCATION_KEY, query);
+        await fetchWeather(parseFloat(lat), parseFloat(lon));
+      } else {
+        toast({ title: "Location not found", description: "Try a different town or postcode.", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Geocoding failed", description: "Couldn't look up that location.", variant: "destructive" });
     }
+  }, [fetchWeather, toast]);
+
+  useEffect(() => {
+    const savedLocation = localStorage.getItem(LOCATION_KEY);
+    if (savedLocation) {
+      geocodeAndFetch(savedLocation);
+    } else if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (p) => fetchWeather(p.coords.latitude, p.coords.longitude),
+        () => fetchWeather(51.5, -0.12)
+      );
+    } else {
+      fetchWeather(51.5, -0.12);
+    }
+  }, []);
+
+  const handleLocationSubmit = () => {
+    const q = locationInput.trim();
+    if (!q) return;
+    geocodeAndFetch(q);
+    setEditingLocation(false);
+    setLocationInput("");
+  };
+
+  const clearSavedLocation = () => {
+    localStorage.removeItem(LOCATION_KEY);
+    setEditingLocation(false);
+    setLocationInput("");
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (p) => fetchWeather(p.coords.latitude, p.coords.longitude),
         () => fetchWeather(51.5, -0.12)
       );
     } else fetchWeather(51.5, -0.12);
-  }, []);
+  };
 
   const snooze = useCallback((customerId: string, days: number) => {
     const until = new Date(); until.setDate(until.getDate() + days);
