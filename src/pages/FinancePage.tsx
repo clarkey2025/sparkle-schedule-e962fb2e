@@ -879,6 +879,57 @@ export default function FinancePage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* ── Log Mileage Dialog ── */}
+      <Dialog open={mileageDialogOpen} onOpenChange={setMileageDialogOpen}>
+        <DialogContent className="sm:max-w-md bg-card border border-border">
+          <DialogHeader>
+            <DialogTitle className="text-[15px]">Log Mileage</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="label-caps mb-1.5 block">Miles *</Label>
+                <Input
+                  type="number" min={0} step={0.1}
+                  value={mileageForm.miles || ""}
+                  onChange={(e) => setMileageForm({ ...mileageForm, miles: parseFloat(e.target.value) || 0 })}
+                  placeholder="0.0"
+                />
+              </div>
+              <div>
+                <Label className="label-caps mb-1.5 block">Date</Label>
+                <Input
+                  type="date"
+                  value={mileageForm.date}
+                  onChange={(e) => setMileageForm({ ...mileageForm, date: e.target.value })}
+                />
+              </div>
+            </div>
+            {mileageForm.miles > 0 && (
+              <div className="bg-muted/30 border border-border rounded-md p-3 text-center">
+                <p className="text-[11px] text-muted-foreground">Estimated fuel cost</p>
+                <p className="font-mono text-lg font-semibold text-warning">{formatCurrency(calculateFuelCost(mileageForm.miles, fuelSettings))}</p>
+                <p className="text-[10px] text-muted-foreground">{fuelSettings.mpg} MPG · {formatCurrency(fuelSettings.pricePerLitre)}/litre</p>
+              </div>
+            )}
+            <div>
+              <Label className="label-caps mb-1.5 block">Notes</Label>
+              <Input
+                value={mileageForm.notes}
+                onChange={(e) => setMileageForm({ ...mileageForm, notes: e.target.value })}
+                placeholder="e.g. Round 1 — North area"
+              />
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Button variant="outline" className="flex-1" onClick={() => setMileageDialogOpen(false)}>Cancel</Button>
+              <Button className="flex-1" onClick={handleAddMileage} disabled={mileageForm.miles <= 0}>
+                <Check className="h-3.5 w-3.5" /> Save
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
