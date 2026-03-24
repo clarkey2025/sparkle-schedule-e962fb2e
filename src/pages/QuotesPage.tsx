@@ -150,11 +150,15 @@ export default function QuotesPage() {
 
   return (
     <div className="space-y-6 animate-fade-up">
-      <PageHeader title="Quotes" description="Create and manage quotes for your customers">
-        <Button size="sm" onClick={() => { resetForm(); setDialogOpen(true); }}>
-          <Plus className="mr-1.5 h-4 w-4" /> New Quote
-        </Button>
-      </PageHeader>
+      <PageHeader
+        title="Quotes"
+        description="Create and manage quotes for your customers"
+        action={
+          <Button size="sm" onClick={() => { resetForm(); setDialogOpen(true); }}>
+            <Plus className="mr-1.5 h-4 w-4" /> New Quote
+          </Button>
+        }
+      />
 
       {/* Filters */}
       <div className="flex items-center gap-3">
