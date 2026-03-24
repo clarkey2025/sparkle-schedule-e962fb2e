@@ -130,6 +130,16 @@ export default function QuotesPage() {
     const c = customerMap.get(q.customerId);
     return { name: c?.name || "—", address: c?.address || "" };
   }
+
+  function getExpiryStatus(q: Quote): "expired" | "expiring" | "ok" {
+    if (q.status === "accepted" || q.status === "declined") return "ok";
+    const now = new Date();
+    const valid = new Date(q.validUntil);
+    if (valid < now) return "expired";
+    const daysLeft = Math.ceil((valid.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    return daysLeft <= 7 ? "expiring" : "ok";
+  }
+
   function getRecipientEmail(q: Quote) {
     if (q.prospectEmail) return q.prospectEmail;
     const c = customerMap.get(q.customerId);
