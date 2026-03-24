@@ -128,7 +128,7 @@ export default function CustomersPage() {
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<FilterKey>("all");
-  const [sort, setSort] = useState<SortKey>("name");
+  const [sort, setSort] = useState<SortKey>("nextDue");
   const [roundFilter, setRoundFilter] = useState<string>("all");
   const [page, setPage] = useState(1);
 
