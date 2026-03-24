@@ -19,7 +19,8 @@ import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip,
   ResponsiveContainer, CartesianGrid,
 } from "recharts";
-import type { Expense, ExpenseCategory, RecurringExpense } from "@/lib/store";
+import type { Expense, ExpenseCategory, RecurringExpense, MileageEntry, FuelSettings } from "@/lib/store";
+import { calculateFuelCost } from "@/lib/store";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 
