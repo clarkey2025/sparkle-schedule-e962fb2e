@@ -93,11 +93,18 @@ export default function QuotesPage() {
   }
 
   function handleSubmit() {
-    if (!customerId || lineItems.length === 0) return;
+    const hasCustomer = isProspect ? prospectName.trim() : customerId;
+    if (!hasCustomer || lineItems.length === 0) return;
     const validUntil = new Date();
     validUntil.setDate(validUntil.getDate() + parseInt(validDays || "30"));
     addQuote({
-      customerId,
+      customerId: isProspect ? "" : customerId,
+      ...(isProspect && {
+        prospectName: prospectName.trim(),
+        prospectAddress: prospectAddress.trim(),
+        prospectPhone: prospectPhone.trim(),
+        prospectEmail: prospectEmail.trim(),
+      }),
       items: lineItems,
       notes,
       status: "draft",
@@ -109,6 +116,19 @@ export default function QuotesPage() {
 
   function getQuoteTotal(q: Quote) {
     return q.items.reduce((sum, item) => sum + item.price, 0);
+  }
+
+  function getQuoteCustomerName(q: Quote) {
+    if (q.prospectName) return q.prospectName;
+    return customerMap.get(q.customerId)?.name || "—";
+  }
+
+  function getQuoteCustomerDetails(q: Quote) {
+    if (q.prospectName) {
+      return { name: q.prospectName, address: q.prospectAddress || "" };
+    }
+    const c = customerMap.get(q.customerId);
+    return { name: c?.name || "—", address: c?.address || "" };
   }
 
   function handlePrintPDF(quote: Quote) {

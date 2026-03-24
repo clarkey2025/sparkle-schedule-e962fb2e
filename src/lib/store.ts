@@ -100,6 +100,11 @@ export interface QuoteLineItem {
 export interface Quote {
   id: string;
   customerId: string;
+  /** For prospects not yet in the customer list */
+  prospectName?: string;
+  prospectAddress?: string;
+  prospectPhone?: string;
+  prospectEmail?: string;
   items: QuoteLineItem[];
   notes: string;
   status: "draft" | "sent" | "accepted" | "declined";
