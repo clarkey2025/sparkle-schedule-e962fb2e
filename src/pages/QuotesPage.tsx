@@ -168,7 +168,7 @@ export default function QuotesPage() {
     window.open(`mailto:${encodeURIComponent(recipientEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
   }
 
-
+  function handlePrintPDF(quote: Quote) {
     const details = getQuoteCustomerDetails(quote);
     const total = getQuoteTotal(quote);
     const win = window.open("", "_blank");
