@@ -46,6 +46,12 @@ const sections = [
       { to: "/finances", label: "Finances", icon: BarChart3 },
     ],
   },
+  {
+    label: "System",
+    links: [
+      { to: "/settings", label: "Settings", icon: Settings },
+    ],
+  },
 ];
 
 export default function AppSidebar() {
