@@ -117,6 +117,15 @@ interface AppData {
   fuelSettings: FuelSettings;
 }
 
+const DEFAULT_FUEL_SETTINGS: FuelSettings = { pricePerLitre: 1.45, mpg: 35 };
+
+export function calculateFuelCost(miles: number, settings: FuelSettings): number {
+  // Convert MPG to miles per litre (1 gallon = 4.546 litres)
+  const milesPerLitre = settings.mpg / 4.546;
+  const litresUsed = miles / milesPerLitre;
+  return litresUsed * settings.pricePerLitre;
+}
+
 const MOCK_VERSION = "v12-empty";
 const MOCK_VERSION_KEY = "pane-pro-mock-version";
 const DEMO_FLAG_KEY = "pane-pro-demo-active";
