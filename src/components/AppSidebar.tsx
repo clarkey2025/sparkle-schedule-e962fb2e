@@ -9,6 +9,7 @@ import {
   Route,
   Wrench,
   CircleDot,
+  BarChart3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import bucketListIcon from "@/assets/bucket-list-icon.png";
