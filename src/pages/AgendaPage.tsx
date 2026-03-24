@@ -1,6 +1,6 @@
 import { useMemo, useEffect, useRef, useState, useCallback } from "react";
 import { useApp } from "@/lib/AppContext";
-import { formatCurrency } from "@/lib/helpers";
+import { formatCurrency, getNextDueDate } from "@/lib/helpers";
 import PageHeader from "@/components/PageHeader";
 import {
   CalendarCheck, CheckCircle2, PoundSterling, Circle,
@@ -213,7 +213,7 @@ function RouteMap({
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function AgendaPage() {
-  const { customers, jobs, addJob, updateJob } = useApp();
+  const { customers, jobs, addJob, updateJob, updateCustomer } = useApp();
   const todayStr = new Date().toISOString().slice(0, 10);
   const tomorrowStr = (() => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().slice(0, 10); })();
   const [viewDate, setViewDate] = useState<"today" | "tomorrow">("today");
@@ -233,9 +233,13 @@ export default function AgendaPage() {
 
     // Find customers due on this date who don't already have a job
     const customerIdsWithJobs = new Set(existingJobs.map((e) => e.job.customerId));
-    const dueCustomers = customers.filter((c) =>
-      c.nextDueDate === dateStr && !customerIdsWithJobs.has(c.id)
-    );
+    // For today: include overdue customers (nextDueDate <= today) so missed jobs roll forward
+    // For tomorrow: only exact date match
+    const dueCustomers = customers.filter((c) => {
+      if (!c.nextDueDate || customerIdsWithJobs.has(c.id)) return false;
+      if (viewDate === "today") return c.nextDueDate <= todayStr;
+      return c.nextDueDate === dateStr;
+    });
 
     // Create virtual job entries for due customers
     const virtualJobs = dueCustomers.map((c) => ({
@@ -303,11 +307,23 @@ export default function AgendaPage() {
       const c = customers.find((x) => x.id === customerId);
       if (c) {
         addJob({ customerId, date: dateStr, status: "completed", price: c.pricePerClean, notes: "" });
+        // Auto-advance nextDueDate based on frequency
+        const nextDue = getNextDueDate(todayStr, c.frequency);
+        updateCustomer(c.id, { lastCleanDate: todayStr, nextDueDate: nextDue.toISOString().slice(0, 10) });
       }
     } else {
       updateJob(jobId, { status: "completed" });
+      // Find customer and advance their nextDueDate
+      const job = jobs.find((j) => j.id === jobId);
+      if (job) {
+        const c = customers.find((x) => x.id === job.customerId);
+        if (c) {
+          const nextDue = getNextDueDate(todayStr, c.frequency);
+          updateCustomer(c.id, { lastCleanDate: todayStr, nextDueDate: nextDue.toISOString().slice(0, 10) });
+        }
+      }
     }
-  }, [updateJob, addJob, customers, dateStr]);
+  }, [updateJob, addJob, updateCustomer, customers, jobs, dateStr, todayStr]);
 
   const handleOptimise = useCallback(() => {
     if (stops.length < 2) return;
