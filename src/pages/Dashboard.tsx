@@ -1,11 +1,12 @@
 import { useMemo, useEffect, useState, useCallback } from "react";
 import { useApp } from "@/lib/AppContext";
-import { formatCurrency, getNextDueDate, FREQUENCY_LABELS } from "@/lib/helpers";
+import { formatCurrency, formatDate, getNextDueDate, FREQUENCY_LABELS } from "@/lib/helpers";
 import {
   Users, PoundSterling, AlertTriangle, CalendarCheck, CheckCircle2,
   Cloud, Sun, CloudRain, CloudSnow, CloudLightning, CloudDrizzle, Wind, MapPin,
   MoreHorizontal, Check, BellOff, CalendarX, ChevronDown, ChevronRight,
   TrendingUp, Banknote, FlaskConical, Droplets, Pencil, X as XIcon,
+  FileText, Clock,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -90,7 +91,7 @@ function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: 
 
 // ─── Dashboard ────────────────────────────────────────────────────────────
 export default function Dashboard() {
-  const { customers, jobs, payments, addJob, isDemoActive, loadMockData, clearMockData } = useApp();
+  const { customers, jobs, payments, quotes, addJob, isDemoActive, loadMockData, clearMockData } = useApp();
   const { toast } = useToast();
   const now = new Date();
   const todayStr = now.toISOString().slice(0, 10);
@@ -275,6 +276,25 @@ export default function Dashboard() {
     return { overdueCustomers, orderedGroups, thisMonthRevenue, snoozedCount: activeSnoozes.length, monthlyEarnings, outstandingCustomers, totalOutstanding };
   }, [customers, jobs, payments, snoozes]);
 
+  const quoteStats = useMemo(() => {
+    const now = new Date();
+    const expiring = quotes.filter((q) => {
+      if (q.status === "accepted" || q.status === "declined") return false;
+      const valid = new Date(q.validUntil);
+      if (valid < now) return false;
+      const daysLeft = Math.ceil((valid.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      return daysLeft <= 7;
+    });
+    const expired = quotes.filter((q) => {
+      if (q.status === "accepted" || q.status === "declined") return false;
+      return new Date(q.validUntil) < now;
+    });
+    const recent = [...quotes]
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .slice(0, 5);
+    return { expiring, expired, recent };
+  }, [quotes]);
+
   const today = weather?.[0];
   const verdict = today ? wmoVerdict(today.code, today.rainChance, today.windMax) : null;
 
@@ -457,6 +477,68 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+
+      {/* ── Quotes Widget ── */}
+      {quotes.length > 0 && (
+        <div className="animate-fade-up bg-card rounded-md overflow-hidden border border-border" style={{ animationDelay: "0.19s" }}>
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+            <div className="flex items-center gap-2">
+              <FileText className="h-3.5 w-3.5 text-primary" />
+              <span className="text-[13px] font-semibold text-foreground">Quotes</span>
+            </div>
+            <div className="flex items-center gap-3">
+              {quoteStats.expiring.length > 0 && (
+                <span className="flex items-center gap-1 text-[11px] font-medium text-warning">
+                  <Clock className="h-3 w-3" /> {quoteStats.expiring.length} expiring
+                </span>
+              )}
+              {quoteStats.expired.length > 0 && (
+                <span className="text-[11px] font-medium text-destructive">
+                  {quoteStats.expired.length} expired
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="overflow-y-auto max-h-60">
+            {quoteStats.recent.length === 0 ? (
+              <div className="py-8 text-center">
+                <p className="text-[12px] text-muted-foreground/40">No quotes yet.</p>
+              </div>
+            ) : (
+              quoteStats.recent.map((q) => {
+                const name = q.prospectName || customers.find((c) => c.id === q.customerId)?.name || "—";
+                const total = q.items.reduce((s, i) => s + i.price, 0);
+                const isExpired = q.status !== "accepted" && q.status !== "declined" && new Date(q.validUntil) < new Date();
+                const isExpiring = !isExpired && q.status !== "accepted" && q.status !== "declined" && Math.ceil((new Date(q.validUntil).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) <= 7;
+                return (
+                  <div key={q.id} className={cn("flex items-center justify-between px-4 py-2.5 border-b border-border last:border-b-0 text-[12px]", isExpired && "opacity-50")}>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="mono text-[10px] text-muted-foreground shrink-0">{q.quoteNumber || q.id.slice(0, 8).toUpperCase()}</span>
+                      <span className="font-medium truncate">{name}</span>
+                      {q.prospectName && <span className="text-[8px] font-bold uppercase text-warning bg-warning/15 rounded px-1 py-0.5 shrink-0">Prospect</span>}
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <span className="mono text-muted-foreground">{formatCurrency(total)}</span>
+                      {isExpired ? (
+                        <span className="text-[9px] font-bold uppercase text-destructive bg-destructive/15 rounded px-1.5 py-0.5">Expired</span>
+                      ) : isExpiring ? (
+                        <span className="text-[9px] font-bold uppercase text-warning bg-warning/15 rounded px-1.5 py-0.5 flex items-center gap-0.5"><Clock className="h-2.5 w-2.5" /> Expiring</span>
+                      ) : (
+                        <span className={cn("text-[9px] font-bold uppercase rounded px-1.5 py-0.5",
+                          q.status === "accepted" ? "text-success bg-success/15" :
+                          q.status === "declined" ? "text-destructive bg-destructive/15" :
+                          q.status === "sent" ? "text-primary bg-primary/15" :
+                          "text-muted-foreground bg-muted"
+                        )}>{q.status}</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ── Scheduled + Overdue + Outstanding ── */}
       <div className="grid gap-4 lg:grid-cols-2">
