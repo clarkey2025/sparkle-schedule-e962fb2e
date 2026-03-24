@@ -326,7 +326,7 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* ── Weather (compact) ── */}
+      {/* ── Weather ── */}
       <div className="animate-fade-up bg-card rounded-md overflow-hidden border border-border" style={{ animationDelay: "0.15s" }}>
         {weatherError ? (
           <div className="px-4 py-3 text-center"><p className="text-[12px] text-muted-foreground">Weather unavailable.</p></div>
@@ -343,12 +343,12 @@ export default function Dashboard() {
             {weather.map((day, i) => {
               const d = new Date(day.date + "T12:00:00");
               const dayName = i === 0 ? "Today" : d.toLocaleDateString("en-GB", { weekday: "short" });
-              const v = wmoVerdict(day.code);
+              const v = wmoVerdict(day.code, day.rainChance, day.windMax);
               const isToday = i === 0;
               return (
                 <div key={day.date} className={cn(
                   "flex flex-col items-center gap-1 border-r border-border last:border-r-0 transition-colors",
-                  isToday ? "min-w-[130px] px-4 py-3 bg-muted/30" : "flex-1 min-w-[60px] px-2 py-3",
+                  isToday ? "min-w-[140px] px-4 py-3 bg-muted/30" : "flex-1 min-w-[75px] px-2 py-3",
                   v.good && !isToday ? "bg-primary/[0.03]" : ""
                 )}>
                   <p className={cn("text-[10px] font-bold uppercase tracking-wide", isToday ? "text-primary" : "text-muted-foreground/50")}>{dayName}</p>
@@ -356,26 +356,70 @@ export default function Dashboard() {
                   {isToday ? (
                     <>
                       <p className="font-mono text-[18px] font-medium leading-none text-foreground">{day.max}°<span className="text-[12px] text-muted-foreground font-normal">C</span></p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="flex items-center gap-0.5 text-[9px] text-muted-foreground">
+                          <Droplets className="h-2.5 w-2.5" />{day.rainChance}%
+                        </span>
+                        <span className="flex items-center gap-0.5 text-[9px] text-muted-foreground">
+                          <Wind className="h-2.5 w-2.5" />{day.windMax}<span className="text-[8px]">km/h</span>
+                        </span>
+                      </div>
                       <p className={cn("text-[10px] font-medium mt-0.5", v.good ? "text-primary" : "text-muted-foreground/60")}>
                         {v.good ? "✓" : "✗"} {v.label}
                       </p>
                     </>
                   ) : (
                     <>
-                      <p className="text-[10px] text-muted-foreground/60 text-center leading-tight">{wmoShort(day.code)}</p>
                       <p className="font-mono text-[11px] text-foreground/60">{day.max}°</p>
-                      {v.good && <div className="h-1 w-1 rounded-full bg-primary" />}
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <span className="flex items-center gap-0.5 text-[8px] text-muted-foreground/50">
+                          <Droplets className="h-2 w-2" />{day.rainChance}%
+                        </span>
+                        <span className="flex items-center gap-0.5 text-[8px] text-muted-foreground/50">
+                          <Wind className="h-2 w-2" />{day.windMax}
+                        </span>
+                      </div>
+                      <span className={cn(
+                        "mt-0.5 rounded-full px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider",
+                        v.good ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground/50"
+                      )}>
+                        {v.good ? "Good" : "Avoid"}
+                      </span>
                     </>
                   )}
                 </div>
               );
             })}
-            {locationName && (
-              <div className="flex flex-col items-center justify-center px-3 border-l border-border bg-muted/10 min-w-[70px]">
-                <MapPin className="h-3 w-3 text-muted-foreground/30 mb-1" />
-                <p className="text-[9px] text-muted-foreground/40 text-center leading-tight">{locationName}</p>
-              </div>
-            )}
+            {/* Location panel */}
+            <div className="flex flex-col items-center justify-center px-3 border-l border-border bg-muted/10 min-w-[80px] gap-1">
+              {editingLocation ? (
+                <div className="flex flex-col items-center gap-1.5">
+                  <Input
+                    autoFocus
+                    value={locationInput}
+                    onChange={(e) => setLocationInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleLocationSubmit()}
+                    placeholder="Town or postcode"
+                    className="h-6 w-20 text-[10px] px-1.5"
+                  />
+                  <div className="flex gap-1">
+                    <button onClick={handleLocationSubmit} className="text-[9px] text-primary font-semibold hover:underline">Set</button>
+                    <button onClick={() => setEditingLocation(false)} className="text-[9px] text-muted-foreground hover:underline">Cancel</button>
+                  </div>
+                  {localStorage.getItem(LOCATION_KEY) && (
+                    <button onClick={clearSavedLocation} className="text-[8px] text-destructive hover:underline">Reset to auto</button>
+                  )}
+                </div>
+              ) : (
+                <button onClick={() => setEditingLocation(true)} className="group/loc flex flex-col items-center gap-1 cursor-pointer">
+                  <MapPin className="h-3 w-3 text-muted-foreground/30 group-hover/loc:text-primary transition-colors" />
+                  <p className="text-[9px] text-muted-foreground/40 text-center leading-tight group-hover/loc:text-foreground transition-colors">
+                    {locationName || "Set location"}
+                  </p>
+                  <Pencil className="h-2.5 w-2.5 text-muted-foreground/20 group-hover/loc:text-primary transition-colors" />
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>
