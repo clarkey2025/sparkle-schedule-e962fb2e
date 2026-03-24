@@ -58,13 +58,19 @@ export default function FinancePage() {
   const {
     customers, jobs, payments, expenses, addExpense, deleteExpense,
     recurringExpenses, addRecurringExpense, updateRecurringExpense, deleteRecurringExpense,
+    mileageEntries, fuelSettings, addMileageEntry, deleteMileageEntry, updateFuelSettings,
   } = useApp();
   const { toast } = useToast();
   const [expenseDialogOpen, setExpenseDialogOpen] = useState(false);
   const [recurringDialogOpen, setRecurringDialogOpen] = useState(false);
+  const [mileageDialogOpen, setMileageDialogOpen] = useState(false);
+  const [fuelSettingsOpen, setFuelSettingsOpen] = useState(false);
   const [expenseForm, setExpenseForm] = useState(emptyExpenseForm);
   const [recurringForm, setRecurringForm] = useState({
     amount: 0, category: "insurance" as ExpenseCategory, description: "", dayOfMonth: 1,
+  });
+  const [mileageForm, setMileageForm] = useState({
+    date: format(new Date(), "yyyy-MM-dd"), miles: 0, notes: "",
   });
 
   // ─── Computed metrics ──────────────────────────────────────────────────
