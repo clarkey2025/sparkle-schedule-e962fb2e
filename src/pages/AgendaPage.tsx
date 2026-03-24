@@ -213,7 +213,7 @@ function RouteMap({
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function AgendaPage() {
-  const { customers, jobs, addJob, updateJob } = useApp();
+  const { customers, jobs, addJob, updateJob, updateCustomer } = useApp();
   const todayStr = new Date().toISOString().slice(0, 10);
   const tomorrowStr = (() => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().slice(0, 10); })();
   const [viewDate, setViewDate] = useState<"today" | "tomorrow">("today");
