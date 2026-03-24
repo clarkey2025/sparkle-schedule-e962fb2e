@@ -446,6 +446,10 @@ export function useAppData() {
     update((d) => ({ ...d, fuelSettings: { ...d.fuelSettings, ...s } }));
   }, [update]);
 
+  const updateBusinessSettings = useCallback((s: Partial<BusinessSettings>) => {
+    update((d) => ({ ...d, businessSettings: { ...d.businessSettings, ...s } }));
+  }, [update]);
+
   // Quotes CRUD
   const addQuote = useCallback((q: Omit<Quote, "id" | "createdAt">) => {
     update((d) => ({ ...d, quotes: [...d.quotes, { ...q, id: crypto.randomUUID(), createdAt: new Date().toISOString() }] }));
