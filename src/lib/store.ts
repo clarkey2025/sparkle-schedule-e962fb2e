@@ -395,7 +395,7 @@ export function useAppData() {
     localStorage.removeItem(`pane-pro-auto-sched-${todayStr}`);
     localStorage.removeItem(`pane-pro-recurring-exp-${thisMonth}`);
     const mockRecurring = generateMockRecurringExpenses();
-    const withData: AppData = { ...mock, expenses: generateMockExpenses(), recurringExpenses: mockRecurring };
+    const withData: AppData = { ...mock, expenses: generateMockExpenses(), recurringExpenses: mockRecurring, mileageEntries: generateMockMileage(), fuelSettings: DEFAULT_FUEL_SETTINGS };
     const scheduled = autoLogRecurringExpenses(autoScheduleJobs(withData));
     saveData(scheduled);
     localStorage.setItem(DEMO_FLAG_KEY, "1");
