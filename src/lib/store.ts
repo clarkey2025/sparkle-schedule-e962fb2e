@@ -508,7 +508,7 @@ export function useAppData() {
     addRound, updateRound, deleteRound,
     addExpense, updateExpense, deleteExpense,
     addRecurringExpense, updateRecurringExpense, deleteRecurringExpense,
-    addMileageEntry, deleteMileageEntry, updateFuelSettings,
+    addMileageEntry, deleteMileageEntry, updateFuelSettings, updateBusinessSettings,
     addQuote, updateQuote, deleteQuote,
     loadMockData,
     clearMockData,
