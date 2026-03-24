@@ -68,6 +68,17 @@ export interface Round {
   createdAt: string;
 }
 
+export type ExpenseCategory = "fuel" | "equipment" | "supplies" | "insurance" | "vehicle" | "marketing" | "software" | "other";
+
+export interface Expense {
+  id: string;
+  amount: number;
+  date: string;
+  category: ExpenseCategory;
+  description: string;
+  notes: string;
+}
+
 const STORAGE_KEY = "pane-pro-data";
 
 interface AppData {
@@ -77,6 +88,7 @@ interface AppData {
   services: Service[];
   customerServices: CustomerService[];
   rounds: Round[];
+  expenses: Expense[];
 }
 
 const MOCK_VERSION = "v12-empty";
