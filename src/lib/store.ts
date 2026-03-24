@@ -291,9 +291,21 @@ export function useAppData() {
     }));
   }, [update]);
 
+  // Expenses CRUD
+  const addExpense = useCallback((e: Omit<Expense, "id">) => {
+    update((d) => ({ ...d, expenses: [...d.expenses, { ...e, id: crypto.randomUUID() }] }));
+  }, [update]);
+
+  const updateExpense = useCallback((id: string, e: Partial<Expense>) => {
+    update((d) => ({ ...d, expenses: d.expenses.map((x) => (x.id === id ? { ...x, ...e } : x)) }));
+  }, [update]);
+
+  const deleteExpense = useCallback((id: string) => {
+    update((d) => ({ ...d, expenses: d.expenses.filter((x) => x.id !== id) }));
+  }, [update]);
+
   const loadMockData = useCallback(() => {
     const mock = generateMockData();
-    // Assign nextDueDate to mock customers so auto-scheduling works
     const todayStr = new Date().toISOString().slice(0, 10);
     const offsets = [-7, -3, -1, 0, 0, 1, 2, 5, -5, -2, 0, -4, 1, 0, -1, 3];
     mock.customers = mock.customers.map((c, i) => {
@@ -301,9 +313,8 @@ export function useAppData() {
       d.setDate(d.getDate() + (offsets[i % offsets.length]));
       return { ...c, nextDueDate: d.toISOString().slice(0, 10) };
     });
-    // Clear the auto-schedule key so it re-runs for the new data
     localStorage.removeItem(`pane-pro-auto-sched-${todayStr}`);
-    const scheduled = autoScheduleJobs(mock);
+    const scheduled = autoScheduleJobs({ ...mock, expenses: generateMockExpenses() });
     saveData(scheduled);
     localStorage.setItem(DEMO_FLAG_KEY, "1");
     setData(scheduled);
@@ -314,16 +325,13 @@ export function useAppData() {
     const empty: AppData = {
       customers: [], jobs: [], payments: [],
       services: generateMockData().services,
-      customerServices: [], rounds: [],
+      customerServices: [], rounds: [], expenses: [],
     };
     saveData(empty);
     localStorage.removeItem(DEMO_FLAG_KEY);
     setData(empty);
     setIsDemoActive(false);
   }, []);
-
-
-  
 
   return {
     ...data,
@@ -334,7 +342,39 @@ export function useAppData() {
     addService, updateService, deleteService,
     addCustomerService, deleteCustomerService,
     addRound, updateRound, deleteRound,
+    addExpense, updateExpense, deleteExpense,
     loadMockData,
     clearMockData,
   };
+}
+
+function generateMockExpenses(): Expense[] {
+  const categories: ExpenseCategory[] = ["fuel", "supplies", "equipment", "insurance", "vehicle", "software"];
+  const descriptions: Record<ExpenseCategory, string[]> = {
+    fuel: ["Diesel top-up", "Fuel for van", "Petrol station"],
+    supplies: ["Squeegee replacement", "Cleaning solution", "Microfibre cloths", "Purified water"],
+    equipment: ["New extension pole", "Hose reel", "Water fed pole brush"],
+    insurance: ["Monthly van insurance", "Public liability insurance"],
+    vehicle: ["MOT & service", "New tyres", "Windscreen repair"],
+    software: ["CRM subscription", "Accounting software"],
+    marketing: ["Flyers printed", "Facebook ads"],
+    other: ["Miscellaneous"],
+  };
+  const expenses: Expense[] = [];
+  const now = new Date();
+  for (let i = 0; i < 20; i++) {
+    const cat = categories[i % categories.length];
+    const descs = descriptions[cat];
+    const d = new Date(now);
+    d.setDate(d.getDate() - Math.floor(Math.random() * 180));
+    expenses.push({
+      id: crypto.randomUUID(),
+      amount: parseFloat((5 + Math.random() * 80).toFixed(2)),
+      date: d.toISOString().slice(0, 10),
+      category: cat,
+      description: descs[Math.floor(Math.random() * descs.length)],
+      notes: "",
+    });
+  }
+  return expenses.sort((a, b) => b.date.localeCompare(a.date));
 }
