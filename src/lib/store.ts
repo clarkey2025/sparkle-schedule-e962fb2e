@@ -77,6 +77,17 @@ export interface Expense {
   category: ExpenseCategory;
   description: string;
   notes: string;
+  recurringExpenseId?: string;
+}
+
+export interface RecurringExpense {
+  id: string;
+  amount: number;
+  category: ExpenseCategory;
+  description: string;
+  dayOfMonth: number;
+  active: boolean;
+  createdAt: string;
 }
 
 const STORAGE_KEY = "pane-pro-data";
@@ -89,6 +100,7 @@ interface AppData {
   customerServices: CustomerService[];
   rounds: Round[];
   expenses: Expense[];
+  recurringExpenses: RecurringExpense[];
 }
 
 const MOCK_VERSION = "v12-empty";
