@@ -423,6 +423,19 @@ export function useAppData() {
     update((d) => ({ ...d, fuelSettings: { ...d.fuelSettings, ...s } }));
   }, [update]);
 
+  // Quotes CRUD
+  const addQuote = useCallback((q: Omit<Quote, "id" | "createdAt">) => {
+    update((d) => ({ ...d, quotes: [...d.quotes, { ...q, id: crypto.randomUUID(), createdAt: new Date().toISOString() }] }));
+  }, [update]);
+
+  const updateQuote = useCallback((id: string, q: Partial<Quote>) => {
+    update((d) => ({ ...d, quotes: d.quotes.map((x) => (x.id === id ? { ...x, ...q } : x)) }));
+  }, [update]);
+
+  const deleteQuote = useCallback((id: string) => {
+    update((d) => ({ ...d, quotes: d.quotes.filter((x) => x.id !== id) }));
+  }, [update]);
+
   const loadMockData = useCallback(() => {
     const mock = generateMockData();
     const todayStr = new Date().toISOString().slice(0, 10);
