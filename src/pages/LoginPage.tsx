@@ -31,46 +31,25 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-dvh bg-background flex">
-      {/* Left panel — branding strip */}
-      <div className="hidden lg:flex flex-col justify-between w-80 xl:w-96 border-r border-border p-10 shrink-0">
-        <div className="flex items-center gap-2.5">
-          <img src={bucketListIcon} alt="Paneless" className="h-7 w-7" />
-          <span className="text-[14px] font-semibold tracking-tight text-foreground">Paneless</span>
-        </div>
-        <div>
-          <p className="text-[13px] text-muted-foreground leading-relaxed">
-            "Paneless has completely transformed how I manage my round. Everything in one place."
-          </p>
-          <p className="text-[12px] text-muted-foreground/50 mt-3 font-medium">— James H., Window Cleaner</p>
-        </div>
-        <p className="text-[11px] text-muted-foreground/30 font-mono">
-          © {new Date().getFullYear()} Paneless
-        </p>
-      </div>
+    <div className="min-h-dvh bg-background flex flex-col items-center justify-center px-5 py-12">
+      <div className="w-full max-w-[340px] animate-fade-up">
 
-      {/* Right panel — form */}
-      <div className="flex flex-1 items-center justify-center p-6">
-        <div className="w-full max-w-[360px] animate-fade-up">
-
-          {/* Mobile logo */}
-          <div className="flex items-center gap-2 mb-10 lg:hidden">
-            <img src={bucketListIcon} alt="Paneless" className="h-6 w-6" />
-            <span className="text-[13px] font-semibold text-foreground">Paneless</span>
+        {/* Logo + name */}
+        <div className="flex flex-col items-center gap-3 mb-10">
+          <div className="flex items-center justify-center h-14 w-14 rounded-xl border border-border bg-card">
+            <img src={bucketListIcon} alt="Paneless" className="h-8 w-8" />
           </div>
-
-          {/* Heading */}
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold text-foreground tracking-tight">Welcome back</h1>
-            <p className="text-[13px] text-muted-foreground mt-1.5">Sign in to your Paneless account</p>
+          <div className="text-center">
+            <h1 className="text-[18px] font-bold text-foreground tracking-tight">Paneless</h1>
+            <p className="text-[12px] text-muted-foreground mt-0.5">Window cleaning management</p>
           </div>
+        </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-2">
-              <label className="label-caps" htmlFor="username">
-                Username
-              </label>
+        {/* Form card */}
+        <div className="bg-card border border-border rounded-lg p-6 space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="label-caps" htmlFor="username">Username</label>
               <input
                 id="username"
                 type="text"
@@ -79,14 +58,12 @@ export default function LoginPage() {
                 onChange={(e) => { setUsername(e.target.value); setError(""); }}
                 placeholder="your-username"
                 required
-                className="w-full rounded border border-border bg-card px-3 py-2.5 text-[13px] text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-colors"
+                className="w-full rounded border border-border bg-background px-3 py-2.5 text-[13px] text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-colors"
               />
             </div>
 
-            <div className="space-y-2">
-              <label className="label-caps" htmlFor="password">
-                Password
-              </label>
+            <div className="space-y-1.5">
+              <label className="label-caps" htmlFor="password">Password</label>
               <div className="relative">
                 <input
                   id="password"
@@ -96,7 +73,7 @@ export default function LoginPage() {
                   onChange={(e) => { setPassword(e.target.value); setError(""); }}
                   placeholder="••••••••"
                   required
-                  className="w-full rounded border border-border bg-card px-3 py-2.5 pr-10 text-[13px] text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-colors"
+                  className="w-full rounded border border-border bg-background px-3 py-2.5 pr-9 text-[13px] text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-colors"
                 />
                 <button
                   type="button"
@@ -112,7 +89,7 @@ export default function LoginPage() {
 
             {/* Error */}
             {error && (
-              <div className="flex items-center gap-2 rounded border border-destructive/25 bg-destructive/8 px-3 py-2.5">
+              <div className="flex items-center gap-2 rounded border border-destructive/25 bg-destructive/10 px-3 py-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-destructive shrink-0" />
                 <p className="text-[12px] text-destructive">{error}</p>
               </div>
@@ -127,6 +104,10 @@ export default function LoginPage() {
             </button>
           </form>
         </div>
+
+        <p className="text-center text-[11px] text-muted-foreground/40 font-mono mt-6">
+          © {new Date().getFullYear()} Paneless
+        </p>
       </div>
     </div>
   );
