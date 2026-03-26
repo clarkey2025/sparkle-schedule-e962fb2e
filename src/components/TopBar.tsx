@@ -72,8 +72,8 @@ export default function TopBar() {
 
         {/* Brand chip — hidden on small screens */}
         <div className="hidden lg:flex items-center gap-1.5 rounded bg-primary/10 px-2.5 py-1 mr-1">
-          <img src={bucketListIcon} alt="Bucket List" className="h-4 w-4" />
-          <span className="text-[12px] font-semibold text-primary tracking-tight">Bucket List</span>
+          <img src={bucketListIcon} alt="Paneless" className="h-4 w-4" />
+          <span className="text-[12px] font-semibold text-primary tracking-tight">Paneless</span>
         </div>
 
         {/* Notifications bell */}
