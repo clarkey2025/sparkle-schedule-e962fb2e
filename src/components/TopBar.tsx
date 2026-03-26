@@ -122,6 +122,14 @@ export default function TopBar() {
               <HelpCircle className="h-4 w-4 mr-2" />
               Help &amp; Support
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => { logout(); navigate("/login"); }}
+              className="cursor-pointer text-destructive focus:text-destructive"
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign out
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
