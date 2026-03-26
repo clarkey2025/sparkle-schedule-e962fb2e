@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Bell, Settings, ChevronDown, User, LogOut, HelpCircle, FileText } from "lucide-react";
+import { Bell, Settings, ChevronDown, LogOut, HelpCircle, FileText } from "lucide-react";
+import { useAuth } from "@/lib/AuthContext";
 import { useState } from "react";
 import { useApp } from "@/lib/AppContext";
 import { cn } from "@/lib/utils";
@@ -33,6 +34,7 @@ export default function TopBar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { businessSettings, quotes } = useApp();
+  const { logout } = useAuth();
   const meta = TITLES[location.pathname] ?? { label: "Paneless", desc: "" };
 
   // Compute expiring/expired quote notifications
@@ -119,6 +121,14 @@ export default function TopBar() {
             <DropdownMenuItem className="cursor-pointer text-muted-foreground">
               <HelpCircle className="h-4 w-4 mr-2" />
               Help &amp; Support
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => { logout(); navigate("/login"); }}
+              className="cursor-pointer text-destructive focus:text-destructive"
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
