@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Bell, Settings, ChevronDown, User, LogOut, HelpCircle, FileText } from "lucide-react";
+import { Bell, Settings, ChevronDown, LogOut, HelpCircle, FileText } from "lucide-react";
+import { useAuth } from "@/lib/AuthContext";
 import { useState } from "react";
 import { useApp } from "@/lib/AppContext";
 import { cn } from "@/lib/utils";
