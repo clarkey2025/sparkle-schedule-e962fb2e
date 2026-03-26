@@ -4,7 +4,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppProvider } from "@/lib/AppContext";
+import { AuthProvider } from "@/lib/AuthContext";
 import AppLayout from "@/components/AppLayout";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import LoginPage from "@/pages/LoginPage";
 import Dashboard from "@/pages/Dashboard";
 import CustomersPage from "@/pages/CustomersPage";
 import JobsPage from "@/pages/JobsPage";
@@ -25,26 +28,35 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <AppProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route element={<AppLayout />}>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/customers" element={<CustomersPage />} />
-              <Route path="/jobs" element={<JobsPage />} />
-              <Route path="/payments" element={<PaymentsPage />} />
-              <Route path="/agenda" element={<AgendaPage />} />
-              <Route path="/services" element={<ServicesPage />} />
-              <Route path="/rounds" element={<RoundsPage />} />
-              <Route path="/finances" element={<FinancePage />} />
-              <Route path="/quotes" element={<QuotesPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/route" element={<RoutePage />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </AppProvider>
+      <AuthProvider>
+        <AppProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route
+                element={
+                  <ProtectedRoute>
+                    <AppLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/customers" element={<CustomersPage />} />
+                <Route path="/jobs" element={<JobsPage />} />
+                <Route path="/payments" element={<PaymentsPage />} />
+                <Route path="/agenda" element={<AgendaPage />} />
+                <Route path="/services" element={<ServicesPage />} />
+                <Route path="/rounds" element={<RoundsPage />} />
+                <Route path="/finances" element={<FinancePage />} />
+                <Route path="/quotes" element={<QuotesPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/route" element={<RoutePage />} />
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </AppProvider>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
