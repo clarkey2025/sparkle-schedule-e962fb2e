@@ -33,7 +33,7 @@ export default function TopBar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { businessSettings, quotes } = useApp();
-  const meta = TITLES[location.pathname] ?? { label: "Bucket List", desc: "" };
+  const meta = TITLES[location.pathname] ?? { label: "Paneless", desc: "" };
 
   // Compute expiring/expired quote notifications
   const today = new Date();

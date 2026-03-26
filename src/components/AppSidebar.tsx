@@ -61,8 +61,8 @@ export default function AppSidebar() {
     <aside className="fixed inset-y-0 left-0 z-30 flex w-56 flex-col bg-sidebar animate-slide-in-left border-r border-sidebar-border">
       {/* Brand */}
       <div className="flex items-center gap-2.5 px-5 py-5 border-b border-sidebar-border">
-        <img src={bucketListIcon} alt="Bucket List" className="h-7 w-7 rounded" />
-        <span className="text-[13px] font-semibold tracking-tight text-white">Bucket List</span>
+        <img src={bucketListIcon} alt="Paneless" className="h-7 w-7 rounded" />
+        <span className="text-[13px] font-semibold tracking-tight text-white">Paneless</span>
       </div>
 
       {/* Nav */}
