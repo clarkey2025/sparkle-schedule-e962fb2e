@@ -34,6 +34,7 @@ export default function TopBar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { businessSettings, quotes } = useApp();
+  const { logout } = useAuth();
   const meta = TITLES[location.pathname] ?? { label: "Paneless", desc: "" };
 
   // Compute expiring/expired quote notifications
