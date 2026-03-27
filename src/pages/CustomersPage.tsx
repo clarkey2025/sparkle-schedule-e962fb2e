@@ -4,6 +4,7 @@ import { useApp } from "@/lib/AppContext";
 import { formatCurrency, formatDate, getNextDueDate, FREQUENCY_LABELS } from "@/lib/helpers";
 import { geocodeCustomers, type GeocodeResult } from "@/lib/geocode";
 import PageHeader from "@/components/PageHeader";
+import StatCard from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -551,21 +552,9 @@ export default function CustomersPage() {
 
       {/* Summary row */}
       <div className="grid grid-cols-3 gap-3 animate-fade-up stagger-1">
-        {[
-          { label: "Total Customers", value: String(customers.length), icon: CheckCircle2, colour: "text-foreground" },
-          { label: "Overdue Cleans", value: String(overdueCount), icon: AlertTriangle, colour: overdueCount > 0 ? "text-warning" : "text-success" },
-          { label: "Outstanding Debt", value: formatCurrency(totalOutstanding), icon: PoundSterling, colour: totalOutstanding > 0 ? "text-warning" : "text-success" },
-        ].map(({ label, value, icon: Icon, colour }) => (
-          <div key={label} className="bg-card border border-border rounded-md p-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="label-caps mb-2">{label}</p>
-                <p className={cn("font-mono text-[22px] font-medium leading-none", colour)}>{value}</p>
-              </div>
-              <Icon className="h-4 w-4 text-muted-foreground/30 mt-0.5" />
-            </div>
-          </div>
-        ))}
+        <StatCard label="Total Customers" value={String(customers.length)} icon={CheckCircle2} colour="text-foreground" />
+        <StatCard label="Overdue Cleans" value={String(overdueCount)} icon={AlertTriangle} colour={overdueCount > 0 ? "text-warning" : "text-success"} />
+        <StatCard label="Outstanding Debt" value={formatCurrency(totalOutstanding)} icon={PoundSterling} colour={totalOutstanding > 0 ? "text-warning" : "text-success"} />
       </div>
 
       {/* Controls */}
