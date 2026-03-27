@@ -509,6 +509,36 @@ export function useAppData() {
     update((d) => ({ ...d, quotes: d.quotes.filter((x) => x.id !== id) }));
   }, [update]);
 
+  // Team Members CRUD
+  const addTeamMember = useCallback((m: Omit<TeamMember, "id" | "createdAt">) => {
+    update((d) => ({ ...d, teamMembers: [...d.teamMembers, { ...m, id: crypto.randomUUID(), createdAt: new Date().toISOString() }] }));
+  }, [update]);
+
+  const updateTeamMember = useCallback((id: string, m: Partial<TeamMember>) => {
+    update((d) => ({ ...d, teamMembers: d.teamMembers.map((x) => (x.id === id ? { ...x, ...m } : x)) }));
+  }, [update]);
+
+  const deleteTeamMember = useCallback((id: string) => {
+    update((d) => ({
+      ...d,
+      teamMembers: d.teamMembers.filter((x) => x.id !== id),
+      jobs: d.jobs.map((j) => j.assignedTo === id ? { ...j, assignedTo: undefined } : j),
+    }));
+  }, [update]);
+
+  // Suppliers CRUD
+  const addSupplier = useCallback((s: Omit<Supplier, "id" | "createdAt">) => {
+    update((d) => ({ ...d, suppliers: [...d.suppliers, { ...s, id: crypto.randomUUID(), createdAt: new Date().toISOString() }] }));
+  }, [update]);
+
+  const updateSupplier = useCallback((id: string, s: Partial<Supplier>) => {
+    update((d) => ({ ...d, suppliers: d.suppliers.map((x) => (x.id === id ? { ...x, ...s } : x)) }));
+  }, [update]);
+
+  const deleteSupplier = useCallback((id: string) => {
+    update((d) => ({ ...d, suppliers: d.suppliers.filter((x) => x.id !== id) }));
+  }, [update]);
+
   const loadMockData = useCallback(() => {
     const mock = generateMockData();
     const todayStr = new Date().toISOString().slice(0, 10);
@@ -557,6 +587,8 @@ export function useAppData() {
     addRecurringExpense, updateRecurringExpense, deleteRecurringExpense,
     addMileageEntry, deleteMileageEntry, updateFuelSettings, updateBusinessSettings,
     addQuote, updateQuote, deleteQuote,
+    addTeamMember, updateTeamMember, deleteTeamMember,
+    addSupplier, updateSupplier, deleteSupplier,
     loadMockData,
     clearMockData,
   };
