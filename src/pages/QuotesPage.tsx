@@ -55,8 +55,15 @@ export default function QuotesPage() {
   const filtered = useMemo(() => {
     let list = [...quotes].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
     if (filterStatus !== "all") list = list.filter((q) => q.status === filterStatus);
+    if (search.trim()) {
+      const q2 = search.toLowerCase();
+      list = list.filter((q) => {
+        const name = getQuoteCustomerName(q);
+        return name.toLowerCase().includes(q2) || (q.quoteNumber || "").toLowerCase().includes(q2);
+      });
+    }
     return list;
-  }, [quotes, filterStatus]);
+  }, [quotes, filterStatus, search]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
