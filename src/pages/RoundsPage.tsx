@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useToast } from "@/hooks/use-toast";
 import { useApp } from "@/lib/AppContext";
 import { formatCurrency } from "@/lib/helpers";
 import PageHeader from "@/components/PageHeader";
@@ -28,6 +29,7 @@ const emptyForm = { name: "", day: "none", colour: "#3B82F6" };
 
 export default function RoundsPage() {
   const { rounds, customers, addRound, updateRound, deleteRound, updateCustomer } = useApp();
+  const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Round | null>(null);
   const [form, setForm] = useState(emptyForm);
@@ -57,10 +59,11 @@ export default function RoundsPage() {
     const saveData = { ...form, day: (form.day === "none" ? "" : form.day) as Round["day"] };
     editing ? updateRound(editing.id, saveData) : addRound(saveData);
     setDialogOpen(false);
+    toast({ title: editing ? "Round updated" : "Round created", description: form.name });
   };
 
   const confirmDelete = () => {
-    if (deleteTarget) { deleteRound(deleteTarget.id); setDeleteTarget(null); }
+    if (deleteTarget) { deleteRound(deleteTarget.id); toast({ title: "Round deleted", description: deleteTarget.name }); setDeleteTarget(null); }
   };
 
   return (
@@ -209,7 +212,7 @@ export default function RoundsPage() {
                                 {formatCurrency(c.pricePerClean)}
                               </span>
                               <button
-                                onClick={() => updateCustomer(c.id, { roundId: undefined })}
+                                onClick={() => { updateCustomer(c.id, { roundId: undefined }); toast({ title: "Customer removed from round", description: c.name }); }}
                                 className="text-[11px] text-muted-foreground/60 hover:text-destructive transition-colors"
                               >
                                 Remove
@@ -223,7 +226,7 @@ export default function RoundsPage() {
                     {/* Add unassigned customer to this round */}
                     {unassigned.length > 0 && (
                       <div className="px-4 py-3 border-t border-border bg-muted/5">
-                        <Select onValueChange={(id) => updateCustomer(id, { roundId: round.id })}>
+                        <Select onValueChange={(id) => { updateCustomer(id, { roundId: round.id }); toast({ title: "Customer added to round", description: round.name }); }}>
                           <SelectTrigger className="h-8 text-[12px]">
                             <SelectValue placeholder="Add customer to this round…" />
                           </SelectTrigger>
