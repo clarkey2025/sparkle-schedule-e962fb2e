@@ -85,7 +85,7 @@ function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: 
   return (
     <div className="rounded-md bg-card border border-border px-3 py-2 shadow-lg">
       <p className="text-[11px] text-muted-foreground">{label}</p>
-      <p className="text-[13px] font-semibold text-primary font-mono">{formatCurrency(payload[0].value)}</p>
+      <p className="text-[13px] font-medium text-primary font-mono">{formatCurrency(payload[0].value)}</p>
     </div>
   );
 }
@@ -318,7 +318,7 @@ export default function Dashboard() {
         </div>
         <button
           onClick={isDemoActive ? clearMockData : loadMockData}
-          className={`shrink-0 rounded px-3 py-1.5 text-[11px] font-semibold transition-all ${
+          className={`shrink-0 rounded px-3 py-1.5 text-[11px] font-medium transition-all ${
             isDemoActive
               ? "bg-destructive/15 text-destructive border border-destructive/30 hover:bg-destructive/25"
               : "bg-primary text-primary-foreground hover:bg-primary/85 shadow-glow-pink"
@@ -373,7 +373,7 @@ export default function Dashboard() {
                   isToday ? "min-w-[140px] px-4 py-3 bg-muted/30" : "flex-1 min-w-[75px] px-2 py-3",
                   v.good && !isToday ? "bg-primary/[0.03]" : ""
                 )}>
-                  <p className={cn("text-[10px] font-bold uppercase tracking-wide", isToday ? "text-primary" : "text-muted-foreground/50")}>{dayName}</p>
+                  <p className={cn("text-[10px] font-medium uppercase tracking-wide", isToday ? "text-primary" : "text-muted-foreground/50")}>{dayName}</p>
                   <WeatherIcon code={day.code} className={cn("my-0.5", isToday ? "h-5 w-5 text-primary" : cn("h-4 w-4", v.good ? "text-primary/70" : "text-muted-foreground/35"))} />
                   {isToday ? (
                     <>
@@ -402,7 +402,7 @@ export default function Dashboard() {
                         </span>
                       </div>
                       <span className={cn(
-                        "mt-0.5 rounded-full px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider",
+                        "mt-0.5 rounded-full px-1.5 py-0.5 text-[8px] font-medium uppercase tracking-wider",
                         v.good ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground/50"
                       )}>
                         {v.good ? "Good" : "Avoid"}
@@ -425,7 +425,7 @@ export default function Dashboard() {
                     className="h-6 w-20 text-[10px] px-1.5"
                   />
                   <div className="flex gap-1">
-                    <button onClick={handleLocationSubmit} className="text-[9px] text-primary font-semibold hover:underline">Set</button>
+                    <button onClick={handleLocationSubmit} className="text-[9px] text-primary font-medium hover:underline">Set</button>
                     <button onClick={() => setEditingLocation(false)} className="text-[9px] text-muted-foreground hover:underline">Cancel</button>
                   </div>
                   {localStorage.getItem(LOCATION_KEY) && (
@@ -451,7 +451,7 @@ export default function Dashboard() {
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
           <div className="flex items-center gap-2">
             <TrendingUp className="h-3.5 w-3.5 text-primary" />
-            <span className="text-[13px] font-semibold text-foreground">Earnings</span>
+            <span className="text-[13px] font-medium text-foreground">Earnings</span>
           </div>
           <span className="text-[11px] text-muted-foreground">Last 6 months</span>
         </div>
@@ -486,7 +486,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-between px-4 py-3 border-b border-border">
             <div className="flex items-center gap-2">
               <FileText className="h-3.5 w-3.5 text-primary" />
-              <span className="text-[13px] font-semibold text-foreground">Quotes</span>
+              <span className="text-[13px] font-medium text-foreground">Quotes</span>
             </div>
             <div className="flex items-center gap-3">
               {quoteStats.expiring.length > 0 && (
@@ -517,16 +517,16 @@ export default function Dashboard() {
                     <div className="flex items-center gap-3 min-w-0">
                       <span className="mono text-[10px] text-muted-foreground shrink-0">{q.quoteNumber || q.id.slice(0, 8).toUpperCase()}</span>
                       <span className="font-medium truncate">{name}</span>
-                      {q.prospectName && <span className="text-[8px] font-bold uppercase text-warning bg-warning/15 rounded px-1 py-0.5 shrink-0">Prospect</span>}
+                      {q.prospectName && <span className="text-[8px] font-medium uppercase text-warning bg-warning/15 rounded px-1 py-0.5 shrink-0">Prospect</span>}
                     </div>
                     <div className="flex items-center gap-3 shrink-0">
                       <span className="mono text-muted-foreground">{formatCurrency(total)}</span>
                       {isExpired ? (
-                        <span className="text-[9px] font-bold uppercase text-destructive bg-destructive/15 rounded px-1.5 py-0.5">Expired</span>
+                        <span className="text-[9px] font-medium uppercase text-destructive bg-destructive/15 rounded px-1.5 py-0.5">Expired</span>
                       ) : isExpiring ? (
-                        <span className="text-[9px] font-bold uppercase text-warning bg-warning/15 rounded px-1.5 py-0.5 flex items-center gap-0.5"><Clock className="h-2.5 w-2.5" /> Expiring</span>
+                        <span className="text-[9px] font-medium uppercase text-warning bg-warning/15 rounded px-1.5 py-0.5 flex items-center gap-0.5"><Clock className="h-2.5 w-2.5" /> Expiring</span>
                       ) : (
-                        <span className={cn("text-[9px] font-bold uppercase rounded px-1.5 py-0.5",
+                        <span className={cn("text-[9px] font-medium uppercase rounded px-1.5 py-0.5",
                           q.status === "accepted" ? "text-success bg-success/15" :
                           q.status === "declined" ? "text-destructive bg-destructive/15" :
                           q.status === "sent" ? "text-primary bg-primary/15" :
@@ -550,7 +550,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
             <div className="flex items-center gap-2">
               <CalendarCheck className="h-3.5 w-3.5 text-primary" />
-              <span className="text-[13px] font-semibold text-foreground">Next 7 Days</span>
+              <span className="text-[13px] font-medium text-foreground">Next 7 Days</span>
             </div>
             <span className="font-mono text-[11px] text-muted-foreground">
               {stats.orderedGroups.reduce((s, [, items]) => s + items.length, 0)} jobs
@@ -578,7 +578,7 @@ export default function Dashboard() {
                           ? <ChevronRight className="h-3 w-3 text-muted-foreground/50" />
                           : <ChevronDown className="h-3 w-3 text-muted-foreground/50" />}
                         <span className={cn(
-                          "text-[10px] font-bold uppercase tracking-widest",
+                          "text-[10px] font-medium uppercase tracking-widest",
                           groupKey === "today" ? "text-primary" : "text-muted-foreground"
                         )}>{getGroupLabel(groupKey)}</span>
                       </div>
@@ -605,7 +605,7 @@ export default function Dashboard() {
                             </div>
                           </div>
                           <div className="text-right shrink-0 ml-2">
-                            <p className={cn("text-[11px] font-semibold", isToday ? "text-primary" : "text-muted-foreground")}>{dayLabel}</p>
+                            <p className={cn("text-[11px] font-medium", isToday ? "text-primary" : "text-muted-foreground")}>{dayLabel}</p>
                             <p className="font-mono text-[11px] text-foreground">{formatCurrency(job.price)}</p>
                           </div>
                         </div>
@@ -623,10 +623,10 @@ export default function Dashboard() {
           <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-3.5 w-3.5 text-warning" />
-              <span className="text-[13px] font-semibold text-foreground">Overdue Cleans</span>
+              <span className="text-[13px] font-medium text-foreground">Overdue Cleans</span>
             </div>
             {stats.overdueCustomers.length > 0
-              ? <span className="rounded bg-warning/15 border border-warning/25 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-warning">{stats.overdueCustomers.length} overdue</span>
+              ? <span className="rounded bg-warning/15 border border-warning/25 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-warning">{stats.overdueCustomers.length} overdue</span>
               : <CheckCircle2 className="h-4 w-4 text-success/50" />}
           </div>
 
@@ -649,7 +649,7 @@ export default function Dashboard() {
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <span className={cn(
-                        "font-mono text-[11px] font-semibold rounded px-1.5 py-0.5",
+                        "font-mono text-[11px] font-medium rounded px-1.5 py-0.5",
                         daysOverdue > 30 ? "bg-destructive/15 text-destructive" : "bg-warning/15 text-warning"
                       )}>{daysOverdue}d</span>
                       <span className="text-[10px] text-muted-foreground hidden sm:block">{FREQUENCY_LABELS[c.frequency]}</span>
@@ -686,10 +686,10 @@ export default function Dashboard() {
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
           <div className="flex items-center gap-2">
             <Banknote className="h-3.5 w-3.5 text-warning" />
-            <span className="text-[13px] font-semibold text-foreground">Outstanding Balances</span>
+            <span className="text-[13px] font-medium text-foreground">Outstanding Balances</span>
           </div>
           {stats.totalOutstanding > 0 ? (
-            <span className="rounded bg-warning/15 border border-warning/25 px-2 py-0.5 text-[10px] font-semibold text-warning font-mono">
+            <span className="rounded bg-warning/15 border border-warning/25 px-2 py-0.5 text-[10px] font-medium text-warning font-mono">
               {formatCurrency(stats.totalOutstanding)} owed
             </span>
           ) : (
@@ -711,7 +711,7 @@ export default function Dashboard() {
                     <p className="text-[11px] text-muted-foreground truncate">{c.address}</p>
                   </div>
                   <span className={cn(
-                    "font-mono text-[12px] font-semibold shrink-0 ml-3",
+                    "font-mono text-[12px] font-medium shrink-0 ml-3",
                     outstanding > 50 ? "text-destructive" : "text-warning"
                   )}>
                     {formatCurrency(outstanding)}

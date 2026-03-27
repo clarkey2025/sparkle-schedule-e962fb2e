@@ -48,7 +48,7 @@ export default function LoginPage() {
               <img src={bucketListIcon} alt="Paneless" className="h-7 w-7 rounded" />
             </div>
             <div className="text-center">
-              <h1 className="text-xl font-bold text-foreground tracking-tight">Paneless</h1>
+              <h1 className="text-xl font-medium text-foreground tracking-tight">Paneless</h1>
               <p className="text-[12px] text-muted-foreground mt-0.5">Sign in to your account</p>
             </div>
           </div>
@@ -107,7 +107,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-lg bg-primary px-4 py-2.5 text-[13px] font-semibold text-primary-foreground hover:bg-primary/90 active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed mt-2"
+              className="w-full rounded-lg bg-primary px-4 py-2.5 text-[13px] font-medium text-primary-foreground hover:bg-primary/90 active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed mt-2"
             >
               {loading ? "Signing in…" : "Sign in"}
             </button>

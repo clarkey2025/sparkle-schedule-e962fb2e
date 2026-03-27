@@ -147,7 +147,7 @@ export default function RoundsPage() {
                       style={{ backgroundColor: round.colour }}
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="text-[13px] font-semibold text-foreground leading-tight">{round.name}</p>
+                      <p className="text-[13px] font-medium text-foreground leading-tight">{round.name}</p>
                       <div className="flex items-center gap-2 mt-0.5">
                         {round.day && (
                           <Badge variant="secondary" className="text-[10px] h-4 px-1.5 font-mono uppercase tracking-wide">
@@ -250,7 +250,7 @@ export default function RoundsPage() {
         <div className="surface rounded-md overflow-hidden animate-fade-up">
           <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
             <Users className="h-3.5 w-3.5 text-muted-foreground/50" />
-            <span className="text-[13px] font-semibold text-foreground">Unassigned</span>
+            <span className="text-[13px] font-medium text-foreground">Unassigned</span>
             <Badge variant="secondary" className="ml-auto text-[10px] font-mono">
               {unassigned.length}
             </Badge>

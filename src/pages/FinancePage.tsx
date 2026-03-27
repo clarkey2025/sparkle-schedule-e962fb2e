@@ -275,7 +275,7 @@ export default function FinancePage() {
                 <p className="label-caps">{label}</p>
                 <Icon className={cn("h-4 w-4", colour)} />
               </div>
-              <p className={cn("font-mono text-xl font-semibold", colour)}>{value}</p>
+              <p className={cn("font-mono text-xl font-medium", colour)}>{value}</p>
               <p className="text-[11px] text-muted-foreground mt-1">{sub}</p>
             </div>
           ))}
@@ -295,7 +295,7 @@ export default function FinancePage() {
             {/* Monthly P&L chart */}
             <div className="bg-card border border-border rounded-md p-4">
               <div className="flex items-center justify-between mb-4">
-                <p className="text-[13px] font-semibold text-foreground flex items-center gap-2">
+                <p className="text-[13px] font-medium text-foreground flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-primary" /> Monthly Profit & Loss
                 </p>
                 <p className="text-[11px] text-muted-foreground">Last 12 months</p>
@@ -328,7 +328,7 @@ export default function FinancePage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
               <div className="bg-card border border-border rounded-md p-4">
                 <p className="label-caps mb-1">This Month Revenue</p>
-                <p className="font-mono text-xl font-semibold text-success">{formatCurrency(monthComparison.thisRev)}</p>
+                <p className="font-mono text-xl font-medium text-success">{formatCurrency(monthComparison.thisRev)}</p>
                 {monthComparison.change !== 0 && (
                   <p className={cn("text-[11px] mt-1", monthComparison.change > 0 ? "text-success" : "text-warning")}>
                     {monthComparison.change > 0 ? "+" : ""}{monthComparison.change.toFixed(0)}% vs last month
@@ -337,11 +337,11 @@ export default function FinancePage() {
               </div>
               <div className="bg-card border border-border rounded-md p-4">
                 <p className="label-caps mb-1">This Month Expenses</p>
-                <p className="font-mono text-xl font-semibold text-destructive">{formatCurrency(monthComparison.thisExp)}</p>
+                <p className="font-mono text-xl font-medium text-destructive">{formatCurrency(monthComparison.thisExp)}</p>
               </div>
               <div className="bg-card border border-border rounded-md p-4">
                 <p className="label-caps mb-1">This Month Profit</p>
-                <p className={cn("font-mono text-xl font-semibold", monthComparison.thisProfit >= 0 ? "text-success" : "text-destructive")}>
+                <p className={cn("font-mono text-xl font-medium", monthComparison.thisProfit >= 0 ? "text-success" : "text-destructive")}>
                   {formatCurrency(Math.abs(monthComparison.thisProfit))}
                 </p>
                 {metrics.totalRevenue > 0 && (
@@ -355,7 +355,7 @@ export default function FinancePage() {
             {/* Expense by category + debtors */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div className="bg-card border border-border rounded-md p-4">
-                <p className="text-[13px] font-semibold text-foreground mb-4 flex items-center gap-2">
+                <p className="text-[13px] font-medium text-foreground mb-4 flex items-center gap-2">
                   <Minus className="h-4 w-4 text-destructive" /> Expenses by Category
                 </p>
                 {categoryBreakdown.length === 0 ? (
@@ -385,7 +385,7 @@ export default function FinancePage() {
 
               <div className="bg-card border border-border rounded-md p-4">
                 <div className="flex items-center justify-between mb-4">
-                  <p className="text-[13px] font-semibold text-foreground flex items-center gap-2">
+                  <p className="text-[13px] font-medium text-foreground flex items-center gap-2">
                     <Users className="h-4 w-4 text-warning" /> Outstanding Balances
                   </p>
                   <p className="text-[11px] text-muted-foreground">{metrics.customerDebts.length} customer{metrics.customerDebts.length !== 1 ? "s" : ""}</p>
@@ -400,7 +400,7 @@ export default function FinancePage() {
                           <p className="text-[12px] font-medium text-foreground truncate">{customer.name}</p>
                           <p className="text-[10px] text-muted-foreground truncate">{customer.address}</p>
                         </div>
-                        <p className="font-mono text-[13px] font-semibold text-warning shrink-0 ml-3">{formatCurrency(owed)}</p>
+                        <p className="font-mono text-[13px] font-medium text-warning shrink-0 ml-3">{formatCurrency(owed)}</p>
                       </div>
                     ))}
                   </div>
@@ -413,7 +413,7 @@ export default function FinancePage() {
           <TabsContent value="expenses" className="space-y-4 mt-0">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-[13px] font-semibold text-foreground">Expense Log</p>
+                <p className="text-[13px] font-medium text-foreground">Expense Log</p>
                 <p className="text-[11px] text-muted-foreground">{expenses.length} expenses · {formatCurrency(metrics.totalExpenses)} total</p>
               </div>
               <Button size="sm" onClick={() => { setExpenseForm(emptyExpenseForm); setExpenseDialogOpen(true); }}>
@@ -465,7 +465,7 @@ export default function FinancePage() {
             <div className="mt-6">
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  <p className="text-[13px] font-semibold text-foreground flex items-center gap-2">
+                  <p className="text-[13px] font-medium text-foreground flex items-center gap-2">
                     <RefreshCw className="h-4 w-4 text-primary" /> Recurring Expenses
                   </p>
                   <p className="text-[11px] text-muted-foreground mt-0.5">
@@ -531,7 +531,7 @@ export default function FinancePage() {
               {/* Monthly Revenue vs Payments */}
               <div className="bg-card border border-border rounded-md p-4">
                 <div className="flex items-center justify-between mb-4">
-                  <p className="text-[13px] font-semibold text-foreground flex items-center gap-2">
+                  <p className="text-[13px] font-medium text-foreground flex items-center gap-2">
                     <TrendingUp className="h-4 w-4 text-primary" /> Revenue & Collections
                   </p>
                   <p className="text-[11px] text-muted-foreground">Last 12 months</p>
@@ -565,7 +565,7 @@ export default function FinancePage() {
               {/* Weekly jobs */}
               <div className="bg-card border border-border rounded-md p-4">
                 <div className="flex items-center justify-between mb-4">
-                  <p className="text-[13px] font-semibold text-foreground flex items-center gap-2">
+                  <p className="text-[13px] font-medium text-foreground flex items-center gap-2">
                     <Receipt className="h-4 w-4 text-primary" /> Weekly Jobs
                   </p>
                   <p className="text-[11px] text-muted-foreground">Last 8 weeks</p>
@@ -594,7 +594,7 @@ export default function FinancePage() {
             {/* Payment methods + summary */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div className="bg-card border border-border rounded-md p-4">
-                <p className="text-[13px] font-semibold text-foreground mb-4 flex items-center gap-2">
+                <p className="text-[13px] font-medium text-foreground mb-4 flex items-center gap-2">
                   <PoundSterling className="h-4 w-4 text-primary" /> Payment Methods
                 </p>
                 {methodBreakdown.length === 0 ? (
@@ -623,12 +623,12 @@ export default function FinancePage() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <p className="label-caps">Average Job Value</p>
-                    <p className="font-mono text-lg font-semibold text-foreground">{formatCurrency(metrics.avgJobValue)}</p>
+                    <p className="font-mono text-lg font-medium text-foreground">{formatCurrency(metrics.avgJobValue)}</p>
                   </div>
                   <div className="flex items-center justify-between">
                     <p className="label-caps">Collection Rate</p>
                     <p className={cn(
-                      "font-mono text-lg font-semibold",
+                      "font-mono text-lg font-medium",
                       metrics.totalRevenue > 0 && (metrics.totalPaid / metrics.totalRevenue) >= 0.9 ? "text-success" : "text-warning"
                     )}>
                       {metrics.totalRevenue > 0 ? ((metrics.totalPaid / metrics.totalRevenue) * 100).toFixed(0) : "0"}%
@@ -637,7 +637,7 @@ export default function FinancePage() {
                   <div className="flex items-center justify-between">
                     <p className="label-caps">Profit Margin</p>
                     <p className={cn(
-                      "font-mono text-lg font-semibold",
+                      "font-mono text-lg font-medium",
                       metrics.netProfit >= 0 ? "text-success" : "text-destructive"
                     )}>
                       {metrics.totalRevenue > 0 ? ((metrics.netProfit / metrics.totalRevenue) * 100).toFixed(0) : "0"}%
@@ -663,7 +663,7 @@ export default function FinancePage() {
                     <p className="label-caps">{label}</p>
                     <Icon className={cn("h-4 w-4", colour)} />
                   </div>
-                  <p className={cn("font-mono text-xl font-semibold", colour)}>{value}</p>
+                  <p className={cn("font-mono text-xl font-medium", colour)}>{value}</p>
                 </div>
               ))}
             </div>
@@ -671,7 +671,7 @@ export default function FinancePage() {
             {/* Fuel settings */}
             <div className="bg-card border border-border rounded-md p-4">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-[13px] font-semibold text-foreground flex items-center gap-2">
+                <p className="text-[13px] font-medium text-foreground flex items-center gap-2">
                   <Settings className="h-4 w-4 text-muted-foreground" /> Fuel Cost Settings
                 </p>
                 <p className="text-[11px] text-muted-foreground">
@@ -712,7 +712,7 @@ export default function FinancePage() {
             {/* Mileage log */}
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-[13px] font-semibold text-foreground">Mileage Log</p>
+                <p className="text-[13px] font-medium text-foreground">Mileage Log</p>
                 <p className="text-[11px] text-muted-foreground">{mileageEntries.length} entries · {mileageMetrics.totalMiles.toFixed(0)} total miles</p>
               </div>
               <Button size="sm" onClick={() => { setMileageForm({ date: format(new Date(), "yyyy-MM-dd"), miles: 0, notes: "" }); setMileageDialogOpen(true); }}>
@@ -909,7 +909,7 @@ export default function FinancePage() {
             {mileageForm.miles > 0 && (
               <div className="bg-muted/30 border border-border rounded-md p-3 text-center">
                 <p className="text-[11px] text-muted-foreground">Estimated fuel cost</p>
-                <p className="font-mono text-lg font-semibold text-warning">{formatCurrency(calculateFuelCost(mileageForm.miles, fuelSettings))}</p>
+                <p className="font-mono text-lg font-medium text-warning">{formatCurrency(calculateFuelCost(mileageForm.miles, fuelSettings))}</p>
                 <p className="text-[10px] text-muted-foreground">{fuelSettings.mpg} MPG · {formatCurrency(fuelSettings.pricePerLitre)}/litre</p>
               </div>
             )}

@@ -9,7 +9,7 @@ export default function PageHeader({ title, description, action, compact }: Page
   return (
     <div className="flex items-start justify-between gap-4 animate-fade-up shrink-0">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">{title}</h1>
+        <h1 className="text-xl font-medium tracking-tight text-foreground">{title}</h1>
         {description && (
           <p className="mt-0.5 text-[12px] text-muted-foreground">{description}</p>
         )}

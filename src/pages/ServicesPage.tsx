@@ -104,7 +104,7 @@ export default function ServicesPage() {
                 <div className={cn("flex h-6 w-6 items-center justify-center rounded-sm border", meta.badgeClass)}>
                   <Icon className="h-3.5 w-3.5" />
                 </div>
-                <span className="text-sm font-semibold text-foreground">{meta.label}</span>
+                <span className="text-sm font-medium text-foreground">{meta.label}</span>
                 <span className="text-[11px] text-muted-foreground font-mono">{items.length}</span>
               </div>
 
@@ -140,7 +140,7 @@ export default function ServicesPage() {
 
                       <div className="flex items-center gap-1 shrink-0">
                         {s.defaultPrice > 0 && (
-                          <span className="font-mono text-sm font-semibold text-foreground mr-1">
+                          <span className="font-mono text-sm font-medium text-foreground mr-1">
                             {formatCurrency(s.defaultPrice)}
                           </span>
                         )}

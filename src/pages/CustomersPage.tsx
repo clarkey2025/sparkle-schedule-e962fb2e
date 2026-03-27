@@ -53,7 +53,7 @@ function InitialsAvatar({ name, size = "sm" }: { name: string; size?: "sm" | "lg
   const dim = size === "lg" ? "h-11 w-11 text-[13px]" : "h-8 w-8 text-[11px]";
   return (
     <div
-      className={cn("flex shrink-0 items-center justify-center rounded-full font-bold", dim)}
+      className={cn("flex shrink-0 items-center justify-center rounded-full font-medium", dim)}
       style={{ backgroundColor: `hsl(${hue} 30% 18%)`, color: `hsl(${hue} 60% 65%)` }}
     >
       {initials || "?"}
@@ -65,7 +65,7 @@ function DueBadge({ daysOverdue, daysUntil }: { daysOverdue?: number; daysUntil?
   if (daysOverdue !== undefined && daysOverdue > 0) {
     return (
       <span className={cn(
-        "inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+        "inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide",
         daysOverdue > 14 ? "bg-destructive/15 text-destructive" : "bg-warning/15 text-warning"
       )}>
         <AlertTriangle className="h-2.5 w-2.5" />
@@ -74,9 +74,9 @@ function DueBadge({ daysOverdue, daysUntil }: { daysOverdue?: number; daysUntil?
     );
   }
   if (daysUntil !== undefined) {
-    if (daysUntil === 0) return <span className="inline-flex items-center gap-1 rounded bg-primary/15 text-primary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"><Clock className="h-2.5 w-2.5" />Today</span>;
-    if (daysUntil <= 7) return <span className="inline-flex items-center gap-1 rounded bg-primary/10 text-primary/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"><Clock className="h-2.5 w-2.5" />In {daysUntil}d</span>;
-    return <span className="inline-flex items-center gap-1 rounded bg-muted text-muted-foreground px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"><CheckCircle2 className="h-2.5 w-2.5" />In {daysUntil}d</span>;
+    if (daysUntil === 0) return <span className="inline-flex items-center gap-1 rounded bg-primary/15 text-primary px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide"><Clock className="h-2.5 w-2.5" />Today</span>;
+    if (daysUntil <= 7) return <span className="inline-flex items-center gap-1 rounded bg-primary/10 text-primary/80 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide"><Clock className="h-2.5 w-2.5" />In {daysUntil}d</span>;
+    return <span className="inline-flex items-center gap-1 rounded bg-muted text-muted-foreground px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide"><CheckCircle2 className="h-2.5 w-2.5" />In {daysUntil}d</span>;
   }
   return null;
 }
@@ -99,14 +99,14 @@ function WizardSteps({ current }: { current: number }) {
           <div key={step.label} className="flex items-center flex-1 last:flex-none">
             <div className="flex flex-col items-center gap-1">
               <div className={cn(
-                "h-8 w-8 rounded-full flex items-center justify-center transition-all text-[11px] font-bold border",
+                "h-8 w-8 rounded-full flex items-center justify-center transition-all text-[11px] font-medium border",
                 done ? "bg-primary border-primary text-primary-foreground"
                   : active ? "bg-primary/15 border-primary text-primary"
                   : "bg-muted/30 border-border text-muted-foreground"
               )}>
                 {done ? <Check className="h-3.5 w-3.5" /> : <Icon className="h-3.5 w-3.5" />}
               </div>
-              <span className={cn("text-[9px] uppercase tracking-wide font-semibold", active ? "text-primary" : "text-muted-foreground/50")}>
+              <span className={cn("text-[9px] uppercase tracking-wide font-medium", active ? "text-primary" : "text-muted-foreground/50")}>
                 {step.label}
               </span>
             </div>
@@ -702,7 +702,7 @@ export default function CustomersPage() {
                     <div className="flex items-center gap-3 min-w-0" onClick={() => setSelectedCustomer(c)}>
                       <InitialsAvatar name={c.name} />
                       <div className="min-w-0">
-                        <p className="text-[13px] font-semibold text-foreground truncate">{c.name}</p>
+                        <p className="text-[13px] font-medium text-foreground truncate">{c.name}</p>
                         <p className="text-[11px] text-muted-foreground truncate flex items-center gap-1">
                           <MapPin className="h-2.5 w-2.5 shrink-0" />{c.address}
                         </p>
@@ -775,7 +775,7 @@ export default function CustomersPage() {
                     <div className="flex items-center gap-3">
                       <InitialsAvatar name={sel.customer.name} size="lg" />
                       <div>
-                        <SheetTitle className="text-[15px] font-semibold text-foreground leading-tight">{sel.customer.name}</SheetTitle>
+                        <SheetTitle className="text-[15px] font-medium text-foreground leading-tight">{sel.customer.name}</SheetTitle>
                         <p className="text-[11px] text-muted-foreground mt-0.5 flex items-center gap-1">
                           <MapPin className="h-3 w-3 shrink-0" />{sel.customer.address}
                         </p>
@@ -864,7 +864,7 @@ export default function CustomersPage() {
                   {sel.outstanding > 0 && (
                     <div className="rounded-md border border-primary/20 bg-primary/5 p-4 flex items-center justify-between gap-3">
                       <div>
-                        <p className="text-[12px] font-semibold text-foreground">Outstanding: {formatCurrency(sel.outstanding)}</p>
+                        <p className="text-[12px] font-medium text-foreground">Outstanding: {formatCurrency(sel.outstanding)}</p>
                         <p className="text-[11px] text-muted-foreground mt-0.5">Send invoice via SumUp</p>
                       </div>
                       <Button size="sm" onClick={() => sendInvoice(sel.customer)} className="shrink-0">
@@ -926,7 +926,7 @@ export default function CustomersPage() {
                   {/* Inline payment form */}
                   {paymentFormOpen && (
                     <div className="rounded-md border border-primary/20 bg-primary/5 p-4 mb-4 space-y-3">
-                      <p className="text-[12px] font-semibold text-foreground">Record Payment</p>
+                      <p className="text-[12px] font-medium text-foreground">Record Payment</p>
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <Label className="label-caps mb-1 block">Amount (£)</Label>
@@ -1060,7 +1060,7 @@ export default function CustomersPage() {
                           <div className="text-right">
                             <p className="label-caps">Balance</p>
                             <p className={cn(
-                              "font-mono text-[14px] font-semibold",
+                              "font-mono text-[14px] font-medium",
                               running > 0 ? "text-warning" : running === 0 ? "text-success" : "text-success"
                             )}>
                               {formatCurrency(Math.abs(running))}
@@ -1132,7 +1132,7 @@ export default function CustomersPage() {
 
                   {addServiceOpen && (
                     <div className="rounded-md border border-primary/20 bg-primary/5 p-4 mb-4 space-y-3">
-                      <p className="text-[12px] font-semibold text-foreground">Attach Service</p>
+                      <p className="text-[12px] font-medium text-foreground">Attach Service</p>
                       <div>
                         <Label className="label-caps mb-1 block">Service</Label>
                         <Select value={serviceForm.serviceId} onValueChange={(v) => {
@@ -1461,7 +1461,7 @@ export default function CustomersPage() {
           {/* Preview */}
           {csvRows.length > 0 && csvMapping.name && (
             <div className="rounded-md border border-border bg-muted/20 p-2 max-h-[140px] overflow-auto">
-              <p className="text-[10px] text-muted-foreground mb-1 font-semibold uppercase tracking-wide">Preview (first 3)</p>
+              <p className="text-[10px] text-muted-foreground mb-1 font-medium uppercase tracking-wide">Preview (first 3)</p>
               {csvRows.slice(0, 3).map((row, i) => {
                 const nameIdx = csvHeaders.indexOf(csvMapping.name);
                 const addrIdx = csvMapping.address ? csvHeaders.indexOf(csvMapping.address) : -1;
