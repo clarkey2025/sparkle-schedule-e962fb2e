@@ -30,11 +30,13 @@ const STATUS_STYLES: Record<Quote["status"], string> = {
 };
 
 export default function QuotesPage() {
-  const { customers, services, quotes, businessSettings, addQuote, updateQuote, deleteQuote } = useApp();
+  const { customers, services, quotes, businessSettings, addQuote, updateQuote, deleteQuote, deleteQuotes } = useApp();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [previewQuote, setPreviewQuote] = useState<Quote | null>(null);
   const [page, setPage] = useState(1);
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [search, setSearch] = useState("");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const printRef = useRef<HTMLDivElement>(null);
 
   // Form state
