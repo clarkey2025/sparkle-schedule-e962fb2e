@@ -321,6 +321,7 @@ function loadData(): AppData {
         if (!parsed.businessSettings) parsed.businessSettings = DEFAULT_BUSINESS_SETTINGS;
         if (!parsed.teamMembers) parsed.teamMembers = [];
         if (!parsed.suppliers) parsed.suppliers = [];
+        if (!parsed.serviceCategories) parsed.serviceCategories = [];
 
         const MIGRATE_KEY = "pane-pro-migrate-due-tomorrow-v3";
         if (!localStorage.getItem(MIGRATE_KEY)) {
@@ -442,6 +443,23 @@ export function useAppData() {
       ...d,
       services: d.services.filter((x) => x.id !== id),
       customerServices: d.customerServices.filter((cs) => cs.serviceId !== id),
+    }));
+  }, [update]);
+
+  // Service categories CRUD
+  const addServiceCategory = useCallback((c: Omit<ServiceCategory, "id">) => {
+    update((d) => ({ ...d, serviceCategories: [...d.serviceCategories, { ...c, id: crypto.randomUUID() }] }));
+  }, [update]);
+
+  const updateServiceCategory = useCallback((id: string, c: Partial<ServiceCategory>) => {
+    update((d) => ({ ...d, serviceCategories: d.serviceCategories.map((x) => (x.id === id ? { ...x, ...c } : x)) }));
+  }, [update]);
+
+  const deleteServiceCategory = useCallback((id: string) => {
+    update((d) => ({
+      ...d,
+      serviceCategories: d.serviceCategories.filter((x) => x.id !== id),
+      services: d.services.map((s) => s.category === id ? { ...s, category: "custom" } : s),
     }));
   }, [update]);
 
@@ -611,6 +629,7 @@ export function useAppData() {
     addJob, updateJob, deleteJob, deleteJobs, updateJobs,
     addPayment, deletePayment, deletePayments,
     addService, updateService, deleteService,
+    addServiceCategory, updateServiceCategory, deleteServiceCategory,
     addCustomerService, deleteCustomerService,
     addRound, updateRound, deleteRound,
     addExpense, updateExpense, deleteExpense,
