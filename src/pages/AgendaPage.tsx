@@ -1,5 +1,6 @@
 import { useMemo, useEffect, useRef, useState, useCallback } from "react";
 import { useApp } from "@/lib/AppContext";
+import { useToast } from "@/hooks/use-toast";
 import { formatCurrency, getNextDueDate } from "@/lib/helpers";
 import PageHeader from "@/components/PageHeader";
 import {
@@ -214,6 +215,7 @@ function RouteMap({
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function AgendaPage() {
   const { customers, jobs, addJob, updateJob, updateCustomer } = useApp();
+  const { toast } = useToast();
   const todayStr = new Date().toISOString().slice(0, 10);
   const tomorrowStr = (() => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().slice(0, 10); })();
   const [viewDate, setViewDate] = useState<"today" | "tomorrow">("today");
