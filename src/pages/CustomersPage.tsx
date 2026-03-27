@@ -47,19 +47,8 @@ const emptyPaymentForm = {
 type SortKey = "name" | "lastClean" | "outstanding" | "nextDue";
 type FilterKey = "all" | "overdue" | "upcoming" | "clear";
 
-function InitialsAvatar({ name, size = "sm" }: { name: string; size?: "sm" | "lg" }) {
-  const initials = name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
-  const hue = name.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0) % 360;
-  const dim = size === "lg" ? "h-11 w-11 text-[13px]" : "h-8 w-8 text-[11px]";
-  return (
-    <div
-      className={cn("flex shrink-0 items-center justify-center rounded-full font-medium", dim)}
-      style={{ backgroundColor: `hsl(${hue} 30% 18%)`, color: `hsl(${hue} 60% 65%)` }}
-    >
-      {initials || "?"}
-    </div>
-  );
-}
+// InitialsAvatar extracted to shared component
+import InitialsAvatar from "@/components/InitialsAvatar";
 
 function DueBadge({ daysOverdue, daysUntil }: { daysOverdue?: number; daysUntil?: number }) {
   if (daysOverdue !== undefined && daysOverdue > 0) {
