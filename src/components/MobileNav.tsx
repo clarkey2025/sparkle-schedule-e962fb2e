@@ -1,8 +1,8 @@
 import { NavLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Users, CalendarCheck, CreditCard,
-  ClipboardList, Route, Wrench, MoreHorizontal, CircleDot, BarChart3, FileText,
-  UsersRound, Package,
+  ClipboardList, Wrench, MoreHorizontal, CircleDot, BarChart3, FileText,
+  UsersRound, Package, Minus, Car,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -15,11 +15,12 @@ const primaryLinks = [
 ];
 
 const moreLinks = [
-  { to: "/route", label: "Route", icon: Route },
   { to: "/rounds", label: "Rounds", icon: CircleDot },
   { to: "/services", label: "Services", icon: Wrench },
   { to: "/payments", label: "Payments", icon: CreditCard },
   { to: "/finances", label: "Finances", icon: BarChart3 },
+  { to: "/expenses", label: "Expenses", icon: Minus },
+  { to: "/mileage", label: "Mileage", icon: Car },
   { to: "/quotes", label: "Quotes", icon: FileText },
   { to: "/team", label: "Team", icon: UsersRound },
   { to: "/suppliers", label: "Suppliers", icon: Package },
