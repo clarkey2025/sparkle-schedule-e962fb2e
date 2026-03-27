@@ -106,9 +106,7 @@ export default function MileagePage() {
 
       {/* Mileage log */}
       {paginated.length === 0 ? (
-        <div className="surface rounded-md p-10 text-center animate-fade-up">
-          <Car className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground">No mileage entries yet.</p>
+        <EmptyState icon={Car} message="No mileage entries yet." className="animate-fade-up" />
           <p className="text-[11px] text-muted-foreground/50 mt-1">Track daily miles to auto-calculate fuel costs.</p>
         </div>
       ) : (

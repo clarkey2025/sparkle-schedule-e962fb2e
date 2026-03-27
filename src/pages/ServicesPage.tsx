@@ -170,9 +170,7 @@ export default function ServicesPage() {
         })}
 
         {services.length === 0 && (
-          <div className="surface rounded-md p-10 text-center">
-            <Wrench className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
-            <p className="text-[13px] text-muted-foreground">No services yet — add one to get started.</p>
+          <EmptyState icon={Wrench} message="No services yet — add one to get started." />
           </div>
         )}
       </div>

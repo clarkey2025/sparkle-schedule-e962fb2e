@@ -205,10 +205,7 @@ export default function ExpensesPage() {
           </div>
 
           {paginated.length === 0 ? (
-            <div className="surface rounded-md p-10 text-center">
-              <Receipt className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
-              <p className="text-sm text-muted-foreground">{expenses.length === 0 ? "No expenses logged yet — add one to get started." : "No matching expenses."}</p>
-            </div>
+            <EmptyState icon={Receipt} message={expenses.length === 0 ? "No expenses logged yet — add one to get started." : "No matching expenses."} />
           ) : (
             <>
               <div className="bg-card border border-border rounded-md divide-y divide-border overflow-hidden">
@@ -331,9 +328,7 @@ export default function ExpensesPage() {
         {/* ── Category Breakdown Tab ── */}
         <TabsContent value="breakdown" className="mt-4 space-y-3">
           {categoryBreakdown.length === 0 ? (
-            <div className="surface rounded-md p-10 text-center">
-              <p className="text-sm text-muted-foreground">No expenses to break down yet.</p>
-            </div>
+            <EmptyState message="No expenses to break down yet." />
           ) : (
             <div className="bg-card border border-border rounded-md p-5 space-y-4">
               {categoryBreakdown.map(({ category, amount, meta }) => {

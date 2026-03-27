@@ -125,9 +125,7 @@ export default function RoundsPage() {
       )}
 
       {rounds.length === 0 ? (
-        <div className="surface rounded-md p-10 text-center animate-fade-up">
-          <Map className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
-          <p className="text-[13px] text-muted-foreground">No rounds yet — create one to group your customers.</p>
+        <EmptyState icon={Map} message="No rounds yet — create one to group your customers." className="animate-fade-up" />
         </div>
       ) : (
         <div className="space-y-2 animate-fade-up">

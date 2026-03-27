@@ -171,11 +171,7 @@ export default function PaymentsPage() {
       />
 
       {filtered.length === 0 ? (
-        <div className="surface rounded-md p-8 text-center animate-fade-up stagger-1">
-          <p className="text-muted-foreground text-sm">
-            {hasFilter ? "No payments in this date range." : "No payments recorded yet."}
-          </p>
-        </div>
+        <EmptyState message={hasFilter ? "No payments in this date range." : "No payments recorded yet."} className="animate-fade-up stagger-1" />
       ) : (
         <div className="space-y-3 animate-fade-up stagger-1">
           <div className="surface rounded-md overflow-hidden">
