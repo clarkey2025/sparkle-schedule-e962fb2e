@@ -63,7 +63,7 @@ export default function TopBar() {
     <header className="sticky top-0 z-20 flex h-12 md:h-14 items-center justify-between border-b border-border bg-background/95 backdrop-blur-sm px-3 md:px-6 gap-2">
       {/* Page title */}
       <div className="min-w-0 flex-1">
-        <h2 className="text-[13px] md:text-sm font-semibold leading-none text-foreground truncate">{meta.label}</h2>
+        <h2 className="text-[13px] md:text-sm font-medium leading-none text-foreground truncate">{meta.label}</h2>
         {meta.desc && (
           <p className="mt-0.5 text-[11px] text-muted-foreground hidden sm:block">{meta.desc}</p>
         )}
@@ -75,7 +75,7 @@ export default function TopBar() {
         {/* Brand chip — hidden on small screens */}
         <div className="hidden lg:flex items-center gap-1.5 rounded bg-primary/10 px-2.5 py-1 mr-1">
           <img src={bucketListIcon} alt="Paneless" className="h-4 w-4" />
-          <span className="text-[12px] font-semibold text-primary tracking-tight">Paneless</span>
+          <span className="text-[12px] font-medium text-primary tracking-tight">Paneless</span>
         </div>
 
         {/* Notifications bell */}
@@ -91,7 +91,7 @@ export default function TopBar() {
             <button className="flex items-center gap-1 rounded-lg px-1 py-1 hover:bg-muted transition-colors focus:outline-none">
               <Avatar className="h-6 w-6 md:h-7 md:w-7">
                 {businessSettings.logoUrl && <AvatarImage src={businessSettings.logoUrl} alt={businessSettings.name} />}
-                <AvatarFallback className="text-[9px] md:text-[10px] font-bold bg-primary/15 text-primary">
+                <AvatarFallback className="text-[9px] md:text-[10px] font-medium bg-primary/15 text-primary">
                   {initials}
                 </AvatarFallback>
               </Avatar>
@@ -103,7 +103,7 @@ export default function TopBar() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-52">
             <DropdownMenuLabel className="font-normal pb-1">
-              <p className="text-[13px] font-semibold text-foreground truncate">{businessSettings.name}</p>
+              <p className="text-[13px] font-medium text-foreground truncate">{businessSettings.name}</p>
               {businessSettings.email && (
                 <p className="text-[11px] text-muted-foreground truncate">{businessSettings.email}</p>
               )}
@@ -156,7 +156,7 @@ function NotificationsDropdown({
         <button className="relative flex h-8 w-8 md:h-8 md:w-8 items-center justify-center rounded-lg hover:bg-muted transition-colors focus:outline-none">
           <Bell className="h-4 w-4 md:h-4.5 md:w-4.5 text-muted-foreground" />
           {count > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground">
+            <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[9px] font-medium text-destructive-foreground">
               {count > 9 ? "9+" : count}
             </span>
           )}
@@ -194,7 +194,7 @@ function NotificationsDropdown({
                     {q.quoteNumber} — {q.prospectName || "Customer"}
                   </span>
                   <span className={cn(
-                    "ml-auto text-[10px] font-semibold px-1.5 py-0.5 rounded",
+                    "ml-auto text-[10px] font-medium px-1.5 py-0.5 rounded",
                     isExpired
                       ? "bg-destructive/15 text-destructive"
                       : "bg-warning/15 text-warning"

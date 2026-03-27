@@ -174,7 +174,7 @@ export default function PaymentsPage() {
                       <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate hidden md:table-cell">
                         {p.notes || "—"}
                       </TableCell>
-                      <TableCell className="mono text-sm text-right font-bold text-success whitespace-nowrap">
+                      <TableCell className="mono text-sm text-right font-medium text-success whitespace-nowrap">
                         {formatCurrency(p.amount)}
                       </TableCell>
                       <TableCell className="text-right">

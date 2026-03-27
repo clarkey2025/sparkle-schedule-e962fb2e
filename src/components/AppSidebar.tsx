@@ -62,7 +62,7 @@ export default function AppSidebar() {
       {/* Brand */}
       <div className="flex items-center gap-2.5 px-5 py-5 border-b border-sidebar-border">
         <img src={bucketListIcon} alt="Paneless" className="h-7 w-7 rounded" />
-        <span className="text-[13px] font-semibold tracking-tight text-white">Paneless</span>
+        <span className="text-[13px] font-medium tracking-tight text-white">Paneless</span>
       </div>
 
       {/* Nav */}

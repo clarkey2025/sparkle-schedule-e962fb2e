@@ -360,9 +360,9 @@ export default function AgendaPage() {
    <div className="bg-card border border-border rounded-md overflow-hidden flex flex-col h-full min-h-0">
       <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border shrink-0">
         <CalendarCheck className="h-3.5 w-3.5 text-primary" />
-        <span className="text-[13px] font-semibold text-foreground">Stops</span>
+        <span className="text-[13px] font-medium text-foreground">Stops</span>
         {optimised && (
-          <span className="flex items-center gap-1 text-[10px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+          <span className="flex items-center gap-1 text-[10px] font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
             <Sparkles className="h-2.5 w-2.5" /> Optimised
           </span>
         )}
@@ -405,7 +405,7 @@ export default function AgendaPage() {
                     )}
                   >
                     <span className={cn(
-                      "h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-bold font-mono shrink-0 transition-colors",
+                      "h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-medium font-mono shrink-0 transition-colors",
                       done ? "bg-success/20 text-success" : isActive ? "bg-primary text-white" : "bg-muted text-muted-foreground"
                     )}>
                       {i + 1}
@@ -429,13 +429,13 @@ export default function AgendaPage() {
                         {formatCurrency(job.price)}
                       </span>
                       {done ? (
-                        <span className="flex items-center gap-1 text-[10px] text-success font-semibold">
+                        <span className="flex items-center gap-1 text-[10px] text-success font-medium">
                           <CheckCircle2 className="h-3 w-3" /> Done
                         </span>
                       ) : (
                         <button
                           onClick={(e) => { e.stopPropagation(); markDone(job.id); }}
-                          className="text-[10px] text-primary font-semibold hover:underline flex items-center gap-0.5"
+                          className="text-[10px] text-primary font-medium hover:underline flex items-center gap-0.5"
                         >
                           Mark done <ChevronRight className="h-3 w-3" />
                         </button>
@@ -463,7 +463,7 @@ export default function AgendaPage() {
           {optimised ? (
             <button
               onClick={handleReset}
-              className="flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
               <RotateCcw className="h-3 w-3" /> Reset order
             </button>
@@ -472,7 +472,7 @@ export default function AgendaPage() {
               onClick={handleOptimise}
               disabled={stops.length < 2}
               className={cn(
-                "flex items-center gap-1.5 text-[11px] font-semibold transition-colors",
+                "flex items-center gap-1.5 text-[11px] font-medium transition-colors",
                 stops.length < 2
                   ? "text-muted-foreground/30 cursor-not-allowed"
                   : "text-primary hover:text-primary/80"
@@ -492,7 +492,7 @@ export default function AgendaPage() {
       <div className="fixed inset-0 z-50 bg-background flex flex-col">
         <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border shrink-0 bg-card flex-wrap">
           <Navigation className="h-3.5 w-3.5 text-primary" />
-          <span className="text-[13px] font-semibold text-foreground">Route Map</span>
+          <span className="text-[13px] font-medium text-foreground">Route Map</span>
           {routeLoading && (
             <span className="text-[11px] text-muted-foreground/50 ml-1 animate-pulse">Calculating route…</span>
           )}
@@ -509,12 +509,12 @@ export default function AgendaPage() {
           <div className="ml-auto flex items-center gap-2">
             {optimised ? (
               <>
-                <span className="flex items-center gap-1 text-[10px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                <span className="flex items-center gap-1 text-[10px] font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
                   <Sparkles className="h-2.5 w-2.5" /> Optimised
                 </span>
                 <button
                   onClick={handleReset}
-                  className="flex items-center gap-1 text-[11px] font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                  className="flex items-center gap-1 text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <RotateCcw className="h-3 w-3" /> Reset
                 </button>
@@ -524,7 +524,7 @@ export default function AgendaPage() {
                 onClick={handleOptimise}
                 disabled={stops.length < 2}
                 className={cn(
-                  "flex items-center gap-1 text-[11px] font-semibold transition-colors",
+                  "flex items-center gap-1 text-[11px] font-medium transition-colors",
                   stops.length < 2
                     ? "text-muted-foreground/30 cursor-not-allowed"
                     : "text-primary hover:text-primary/80"
@@ -617,7 +617,7 @@ export default function AgendaPage() {
         <div className="bg-card border border-border rounded-md overflow-hidden flex flex-col h-full min-h-0">
           <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border shrink-0 flex-wrap">
             <Navigation className="h-3.5 w-3.5 text-primary" />
-            <span className="text-[13px] font-semibold text-foreground">Route Map</span>
+            <span className="text-[13px] font-medium text-foreground">Route Map</span>
             {routeLoading && (
               <span className="text-[11px] text-muted-foreground/50 ml-1 animate-pulse">Calculating route…</span>
             )}
@@ -634,12 +634,12 @@ export default function AgendaPage() {
             <div className="ml-auto flex items-center gap-2">
               {optimised ? (
                 <>
-                  <span className="flex items-center gap-1 text-[10px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                  <span className="flex items-center gap-1 text-[10px] font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
                     <Sparkles className="h-2.5 w-2.5" /> Optimised
                   </span>
                   <button
                     onClick={handleReset}
-                    className="flex items-center gap-1 text-[11px] font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                    className="flex items-center gap-1 text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors"
                   >
                     <RotateCcw className="h-3 w-3" /> Reset
                   </button>
@@ -649,7 +649,7 @@ export default function AgendaPage() {
                   onClick={handleOptimise}
                   disabled={stops.length < 2}
                   className={cn(
-                    "flex items-center gap-1 text-[11px] font-semibold transition-colors",
+                    "flex items-center gap-1 text-[11px] font-medium transition-colors",
                     stops.length < 2
                       ? "text-muted-foreground/30 cursor-not-allowed"
                       : "text-primary hover:text-primary/80"

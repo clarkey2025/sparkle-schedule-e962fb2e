@@ -137,12 +137,12 @@ export default function SettingsPage() {
               {form.logoUrl ? (
                 <img src={form.logoUrl} alt="Logo" className="h-10 w-10 rounded object-contain" />
               ) : (
-                <div className="h-10 w-10 rounded bg-[#e10098] flex items-center justify-center text-white font-bold text-sm">
+                <div className="h-10 w-10 rounded bg-[#e10098] flex items-center justify-center text-white font-medium text-sm">
                   {form.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase() || "BL"}
                 </div>
               )}
               <div>
-                <p className="font-bold text-sm">{form.name || "Your Business Name"}</p>
+                <p className="font-medium text-sm">{form.name || "Your Business Name"}</p>
                 <p className="text-[11px] text-gray-500">
                   {form.phone} · {form.email}
                   <br />

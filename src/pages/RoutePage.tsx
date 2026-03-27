@@ -42,7 +42,7 @@ export default function RoutePage() {
       <div className="bg-card border border-border rounded-md overflow-hidden animate-fade-up stagger-2">
         <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
           <Navigation className="h-3.5 w-3.5 text-primary" />
-          <span className="text-[13px] font-semibold text-foreground">Route Map</span>
+          <span className="text-[13px] font-medium text-foreground">Route Map</span>
           <span className="ml-auto label-caps text-muted-foreground/50">Coming soon</span>
         </div>
         <div className="relative flex flex-col items-center justify-center h-64 bg-muted/20 overflow-hidden">
@@ -59,7 +59,7 @@ export default function RoutePage() {
             <div key={i} className="absolute flex items-center justify-center"
               style={{ top: pos.top, left: pos.left }}>
               <div className="h-3 w-3 rounded-full bg-primary/40 ring-4 ring-primary/10" />
-              <span className="absolute text-[9px] font-mono font-bold text-primary">{i + 1}</span>
+              <span className="absolute text-[9px] font-mono font-medium text-primary">{i + 1}</span>
             </div>
           ))}
           <div className="relative flex flex-col items-center gap-2 text-center z-10">
@@ -83,7 +83,7 @@ export default function RoutePage() {
               {scheduledJobs.map(({ job, customer }, i) => (
                 <div key={job.id} className="flex items-center gap-4 px-4 py-3 hover:bg-muted/20 transition-colors">
                   <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 border border-primary/20">
-                    <span className="font-mono text-[10px] font-bold text-primary">{i + 1}</span>
+                    <span className="font-mono text-[10px] font-medium text-primary">{i + 1}</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[13px] font-medium text-foreground">{customer?.name ?? "Unknown"}</p>

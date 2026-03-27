@@ -554,7 +554,7 @@ export default function QuotesPage() {
               <div className="space-y-4 pt-2" ref={printRef}>
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="font-semibold">{details.name}</p>
+                    <p className="font-medium">{details.name}</p>
                     <p className="text-sm text-muted-foreground">{details.address}</p>
                   </div>
                   <div className="text-right text-sm text-muted-foreground">
@@ -580,8 +580,8 @@ export default function QuotesPage() {
                       </TableRow>
                     ))}
                     <TableRow className="border-t-2 border-foreground/20">
-                      <TableCell colSpan={2} className="font-semibold">Total</TableCell>
-                      <TableCell className="text-right mono font-semibold">{formatCurrency(total)}</TableCell>
+                      <TableCell colSpan={2} className="font-medium">Total</TableCell>
+                      <TableCell className="text-right mono font-medium">{formatCurrency(total)}</TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
