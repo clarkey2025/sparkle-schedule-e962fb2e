@@ -18,6 +18,35 @@ export interface Customer {
   nextDueDate?: string;
   importedBalance?: number;
   roundId?: string;
+  discount?: number;       // default discount for this customer
+  discountType?: "percent" | "fixed";
+}
+
+export type TeamRole = "owner" | "manager" | "cleaner";
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  role: TeamRole;
+  skills: string[];        // service category IDs they can do
+  colour: string;
+  active: boolean;
+  createdAt: string;
+  hourlyRate?: number;
+}
+
+export interface Supplier {
+  id: string;
+  name: string;
+  contactName: string;
+  phone: string;
+  email: string;
+  website: string;
+  category: string;
+  notes: string;
+  createdAt: string;
 }
 
 export interface Job {
@@ -27,6 +56,11 @@ export interface Job {
   status: "scheduled" | "completed" | "cancelled";
   price: number;
   notes: string;
+  assignedTo?: string; // TeamMember ID
+  startTime?: string;  // HH:mm
+  endTime?: string;    // HH:mm
+  discount?: number;   // percentage or fixed amount
+  discountType?: "percent" | "fixed";
 }
 
 export interface Payment {
