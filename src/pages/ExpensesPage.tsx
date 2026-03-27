@@ -48,14 +48,14 @@ const CATEGORY_COLOURS: Record<ExpenseCategory, string> = {
 };
 
 const CATEGORY_BG: Record<ExpenseCategory, string> = {
-  fuel: "bg-[hsl(25_95%_53%/0.18)] text-[hsl(25_95%_58%)] border-[hsl(25_95%_53%/0.3)]",
-  supplies: "bg-[hsl(172_66%_50%/0.18)] text-[hsl(172_66%_55%)] border-[hsl(172_66%_50%/0.3)]",
-  equipment: "bg-[hsl(45_93%_47%/0.18)] text-[hsl(45_93%_55%)] border-[hsl(45_93%_47%/0.3)]",
-  vehicle: "bg-[hsl(210_90%_56%/0.18)] text-[hsl(210_90%_64%)] border-[hsl(210_90%_56%/0.3)]",
-  insurance: "bg-[hsl(280_70%_55%/0.18)] text-[hsl(280_70%_65%)] border-[hsl(280_70%_55%/0.3)]",
-  marketing: "bg-primary/18 text-primary border-primary/30",
-  software: "bg-[hsl(200_80%_50%/0.18)] text-[hsl(200_80%_60%)] border-[hsl(200_80%_50%/0.3)]",
-  other: "bg-[hsl(0_0%_45%/0.18)] text-[hsl(0_0%_60%)] border-[hsl(0_0%_45%/0.3)]",
+  fuel: "bg-[hsl(25_80%_50%/0.15)] text-[hsl(25_80%_55%)] border-[hsl(25_80%_50%/0.25)]",
+  supplies: "bg-[hsl(172_50%_45%/0.15)] text-[hsl(172_50%_52%)] border-[hsl(172_50%_45%/0.25)]",
+  equipment: "bg-[hsl(45_70%_48%/0.15)] text-[hsl(45_70%_55%)] border-[hsl(45_70%_48%/0.25)]",
+  vehicle: "bg-[hsl(210_70%_55%/0.15)] text-[hsl(210_70%_60%)] border-[hsl(210_70%_55%/0.25)]",
+  insurance: "bg-[hsl(280_50%_55%/0.15)] text-[hsl(280_50%_60%)] border-[hsl(280_50%_55%/0.25)]",
+  marketing: "bg-primary/15 text-primary border-primary/25",
+  software: "bg-[hsl(200_60%_50%/0.15)] text-[hsl(200_60%_56%)] border-[hsl(200_60%_50%/0.25)]",
+  other: "bg-[hsl(0_0%_42%/0.15)] text-[hsl(0_0%_52%)] border-[hsl(0_0%_42%/0.25)]",
 };
 
 const emptyExpenseForm = {
