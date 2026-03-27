@@ -83,7 +83,7 @@ function getGroupLabel(key: string): string {
 function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-md bg-card border border-border px-3 py-2 shadow-lg">
+    <div className="rounded-md px-3 py-2 shadow-lg" style={{ background: "hsl(0 0% 8%)", border: "1px solid hsl(0 0% 14%)" }}>
       <p className="text-[11px] text-muted-foreground">{label}</p>
       <p className="text-[13px] font-medium text-primary font-mono">{formatCurrency(payload[0].value)}</p>
     </div>
@@ -465,14 +465,14 @@ export default function Dashboard() {
               <AreaChart data={stats.monthlyEarnings} margin={{ top: 5, right: 10, left: 10, bottom: 0 }}>
                 <defs>
                   <linearGradient id="primaryGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.2} />
                     <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="month" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => `£${v}`} width={45} />
-                <Tooltip content={<ChartTooltip />} />
+                <CartesianGrid stroke="hsl(0 0% 12%)" strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="month" tick={{ fontSize: 10, fill: "hsl(0 0% 40%)" }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 10, fill: "hsl(0 0% 40%)" }} axisLine={false} tickLine={false} tickFormatter={(v) => `£${v}`} width={45} />
+                <Tooltip cursor={{ stroke: "hsl(0 0% 100% / 0.08)", strokeWidth: 1 }} content={<ChartTooltip />} />
                 <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#primaryGrad)" />
               </AreaChart>
             </ResponsiveContainer>
