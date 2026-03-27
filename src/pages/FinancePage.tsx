@@ -144,7 +144,7 @@ export default function FinancePage() {
                 <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} vertical={false} />
                 <XAxis dataKey="label" tick={CHART_TICK} axisLine={false} tickLine={false} />
                 <YAxis tick={CHART_TICK} axisLine={false} tickLine={false} tickFormatter={(v) => `£${v}`} />
-                <Tooltip cursor={false} contentStyle={TOOLTIP_STYLE} formatter={(value: number, name: string) => [formatCurrency(value), name === "revenue" ? "Revenue" : name === "expenses" ? "Expenses" : "Profit"]} />
+                <Tooltip cursor={{ fill: "hsl(0 0% 100% / 0.04)" }} contentStyle={TOOLTIP_STYLE} formatter={(value: number, name: string) => [formatCurrency(value), name === "revenue" ? "Revenue" : name === "expenses" ? "Expenses" : "Profit"]} />
                 <Bar dataKey="revenue" fill="hsl(var(--success))" radius={[3, 3, 0, 0]} name="revenue" />
                 <Bar dataKey="expenses" fill="hsl(var(--destructive))" radius={[3, 3, 0, 0]} name="expenses" />
               </BarChart>
@@ -229,7 +229,7 @@ export default function FinancePage() {
                   <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} vertical={false} />
                   <XAxis dataKey="label" tick={CHART_TICK} axisLine={false} tickLine={false} />
                   <YAxis tick={CHART_TICK} axisLine={false} tickLine={false} tickFormatter={(v) => `£${v}`} />
-                  <Tooltip cursor={false} contentStyle={TOOLTIP_STYLE} formatter={(value: number) => [formatCurrency(value)]} />
+                  <Tooltip cursor={{ stroke: "hsl(0 0% 100% / 0.08)", strokeWidth: 1 }} contentStyle={TOOLTIP_STYLE} formatter={(value: number) => [formatCurrency(value)]} />
                   <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" fill="url(#revGrad)" strokeWidth={2} name="Revenue" />
                 </AreaChart>
               </ResponsiveContainer>
@@ -253,7 +253,7 @@ export default function FinancePage() {
                   <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} vertical={false} />
                   <XAxis dataKey="label" tick={CHART_TICK} axisLine={false} tickLine={false} />
                   <YAxis tick={CHART_TICK} axisLine={false} tickLine={false} />
-                  <Tooltip cursor={false} contentStyle={TOOLTIP_STYLE} formatter={(value: number) => [`${value} jobs`]} />
+                  <Tooltip cursor={{ fill: "hsl(0 0% 100% / 0.04)" }} contentStyle={TOOLTIP_STYLE} formatter={(value: number) => [`${value} jobs`]} />
                   <Bar dataKey="jobs" fill="hsl(var(--primary))" radius={[3, 3, 0, 0]} name="Jobs" opacity={0.85} />
                 </BarChart>
               </ResponsiveContainer>
