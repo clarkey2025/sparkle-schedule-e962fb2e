@@ -395,12 +395,27 @@ export function useAppData() {
     update((d) => ({ ...d, jobs: d.jobs.filter((x) => x.id !== id) }));
   }, [update]);
 
+  const deleteJobs = useCallback((ids: string[]) => {
+    const set = new Set(ids);
+    update((d) => ({ ...d, jobs: d.jobs.filter((x) => !set.has(x.id)) }));
+  }, [update]);
+
+  const updateJobs = useCallback((ids: string[], changes: Partial<Job>) => {
+    const set = new Set(ids);
+    update((d) => ({ ...d, jobs: d.jobs.map((x) => set.has(x.id) ? { ...x, ...changes } : x) }));
+  }, [update]);
+
   const addPayment = useCallback((p: Omit<Payment, "id">) => {
     update((d) => ({ ...d, payments: [...d.payments, { ...p, id: crypto.randomUUID() }] }));
   }, [update]);
 
   const deletePayment = useCallback((id: string) => {
     update((d) => ({ ...d, payments: d.payments.filter((x) => x.id !== id) }));
+  }, [update]);
+
+  const deletePayments = useCallback((ids: string[]) => {
+    const set = new Set(ids);
+    update((d) => ({ ...d, payments: d.payments.filter((x) => !set.has(x.id)) }));
   }, [update]);
 
   // Services CRUD
@@ -509,6 +524,11 @@ export function useAppData() {
     update((d) => ({ ...d, quotes: d.quotes.filter((x) => x.id !== id) }));
   }, [update]);
 
+  const deleteQuotes = useCallback((ids: string[]) => {
+    const set = new Set(ids);
+    update((d) => ({ ...d, quotes: d.quotes.filter((x) => !set.has(x.id)) }));
+  }, [update]);
+
   // Team Members CRUD
   const addTeamMember = useCallback((m: Omit<TeamMember, "id" | "createdAt">) => {
     update((d) => ({ ...d, teamMembers: [...d.teamMembers, { ...m, id: crypto.randomUUID(), createdAt: new Date().toISOString() }] }));
@@ -578,15 +598,15 @@ export function useAppData() {
     ...data,
     isDemoActive,
     addCustomer, updateCustomer, deleteCustomer,
-    addJob, updateJob, deleteJob,
-    addPayment, deletePayment,
+    addJob, updateJob, deleteJob, deleteJobs, updateJobs,
+    addPayment, deletePayment, deletePayments,
     addService, updateService, deleteService,
     addCustomerService, deleteCustomerService,
     addRound, updateRound, deleteRound,
     addExpense, updateExpense, deleteExpense,
     addRecurringExpense, updateRecurringExpense, deleteRecurringExpense,
     addMileageEntry, deleteMileageEntry, updateFuelSettings, updateBusinessSettings,
-    addQuote, updateQuote, deleteQuote,
+    addQuote, updateQuote, deleteQuote, deleteQuotes,
     addTeamMember, updateTeamMember, deleteTeamMember,
     addSupplier, updateSupplier, deleteSupplier,
     loadMockData,
