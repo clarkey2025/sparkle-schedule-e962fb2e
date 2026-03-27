@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Pencil, Users, ChevronDown, Map } from "lucide-react";
+import { Plus, Trash2, Pencil, Users, ChevronDown, Map, PoundSterling } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Round } from "@/lib/store";
 
