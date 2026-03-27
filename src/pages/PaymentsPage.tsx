@@ -104,7 +104,7 @@ export default function PaymentsPage() {
   };
 
   return (
-    <div className="pb-20 md:pb-0">
+    <div className="pb-20 md:pb-0 space-y-5">
       <PageHeader
         title="Payments"
         description={`Total received: ${formatCurrency(filteredTotal)}${hasFilter ? ` (filtered)` : ""}`}
@@ -124,7 +124,7 @@ export default function PaymentsPage() {
 
       {/* Date range filter */}
       {payments.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2 mb-3 animate-fade-up">
+        <div className="flex flex-wrap items-center gap-2 animate-fade-up">
           <DatePicker label="From" date={dateFrom} onSelect={(d) => { setDateFrom(d); setPage(1); }} />
           <DatePicker label="To" date={dateTo} onSelect={(d) => { setDateTo(d); setPage(1); }} />
           {hasFilter && (

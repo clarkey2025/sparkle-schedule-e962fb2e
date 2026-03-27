@@ -64,7 +64,7 @@ export default function RoundsPage() {
   };
 
   return (
-    <div className="pb-24 md:pb-0 space-y-4">
+    <div className="pb-20 md:pb-0 space-y-5">
       <PageHeader
         title="Rounds"
         description="Organise customers into cleaning rounds"

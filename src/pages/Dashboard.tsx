@@ -301,7 +301,7 @@ export default function Dashboard() {
   const verdict = today ? wmoVerdict(today.code, today.rainChance, today.windMax) : null;
 
   return (
-    <div className="pb-24 md:pb-0 space-y-4">
+    <div className="pb-20 md:pb-0 space-y-5">
 
       {/* ── Demo data banner ── */}
       <div className={`flex items-center gap-3 rounded-md border px-4 py-3 text-[12px] transition-all ${
@@ -339,7 +339,7 @@ export default function Dashboard() {
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
                 <p className="label-caps mb-3">{label}</p>
-                <p className={cn("font-mono text-[26px] font-medium leading-none tracking-tight", colour)}>{value}</p>
+                <p className={cn("font-mono text-2xl font-medium leading-none tracking-tight", colour)}>{value}</p>
                 <p className="mt-2 text-[11px] text-muted-foreground">{sub}</p>
               </div>
               <Icon className="h-4 w-4 text-muted-foreground/25 shrink-0 mt-0.5" />

@@ -237,7 +237,7 @@ export default function FinancePage() {
         description="Profit & loss, expenses, and payment trends"
       />
 
-      <div className="space-y-6 pb-24">
+      <div className="space-y-5 pb-20">
         {/* ── Top stat cards ── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {[
