@@ -121,11 +121,11 @@ export default function FinancePage() {
         <div className="h-[260px]">
           {monthlyPL.some((m) => m.revenue > 0 || m.expenses > 0) ? (
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={monthlyPL}>
+              <BarChart data={monthlyPL} barCategoryGap="20%">
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="label" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => `£${v}`} />
-                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }} formatter={(value: number, name: string) => [formatCurrency(value), name === "revenue" ? "Revenue" : name === "expenses" ? "Expenses" : "Profit"]} />
+                <Tooltip cursor={false} contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }} formatter={(value: number, name: string) => [formatCurrency(value), name === "revenue" ? "Revenue" : name === "expenses" ? "Expenses" : "Profit"]} />
                 <Bar dataKey="revenue" fill="hsl(var(--success))" radius={[4, 4, 0, 0]} name="revenue" />
                 <Bar dataKey="expenses" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} name="expenses" />
               </BarChart>
