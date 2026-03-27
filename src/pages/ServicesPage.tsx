@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useApp } from "@/lib/AppContext";
 import { formatCurrency } from "@/lib/helpers";
 import PageHeader from "@/components/PageHeader";
+import EmptyState from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
