@@ -5,10 +5,15 @@ import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Trash2, Minus, Check, RefreshCw, Search } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  Plus, Trash2, Check, RefreshCw, Search, Receipt,
+  Fuel, ShoppingCart, Wrench, Car, Shield, Megaphone, Monitor, MoreHorizontal,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ExpenseCategory } from "@/lib/store";
 import { format } from "date-fns";
@@ -18,17 +23,17 @@ import {
   PaginationNext, PaginationPrevious,
 } from "@/components/ui/pagination";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 8;
 
-const EXPENSE_CATEGORIES: { value: ExpenseCategory; label: string }[] = [
-  { value: "fuel", label: "Fuel" },
-  { value: "supplies", label: "Supplies" },
-  { value: "equipment", label: "Equipment" },
-  { value: "vehicle", label: "Vehicle" },
-  { value: "insurance", label: "Insurance" },
-  { value: "marketing", label: "Marketing" },
-  { value: "software", label: "Software" },
-  { value: "other", label: "Other" },
+const EXPENSE_CATEGORIES: { value: ExpenseCategory; label: string; icon: typeof Fuel }[] = [
+  { value: "fuel", label: "Fuel", icon: Fuel },
+  { value: "supplies", label: "Supplies", icon: ShoppingCart },
+  { value: "equipment", label: "Equipment", icon: Wrench },
+  { value: "vehicle", label: "Vehicle", icon: Car },
+  { value: "insurance", label: "Insurance", icon: Shield },
+  { value: "marketing", label: "Marketing", icon: Megaphone },
+  { value: "software", label: "Software", icon: Monitor },
+  { value: "other", label: "Other", icon: MoreHorizontal },
 ];
 
 const CATEGORY_COLOURS: Record<ExpenseCategory, string> = {
@@ -42,6 +47,17 @@ const CATEGORY_COLOURS: Record<ExpenseCategory, string> = {
   other: "hsl(var(--muted-foreground))",
 };
 
+const CATEGORY_BG: Record<ExpenseCategory, string> = {
+  fuel: "bg-chart-1/10 text-chart-1 border-chart-1/20",
+  supplies: "bg-chart-2/10 text-chart-2 border-chart-2/20",
+  equipment: "bg-chart-3/10 text-chart-3 border-chart-3/20",
+  vehicle: "bg-chart-4/10 text-chart-4 border-chart-4/20",
+  insurance: "bg-chart-5/10 text-chart-5 border-chart-5/20",
+  marketing: "bg-primary/10 text-primary border-primary/20",
+  software: "bg-accent-foreground/10 text-accent-foreground border-accent-foreground/20",
+  other: "bg-muted-foreground/10 text-muted-foreground border-muted-foreground/20",
+};
+
 const emptyExpenseForm = {
   amount: 0,
   date: format(new Date(), "yyyy-MM-dd"),
@@ -49,6 +65,10 @@ const emptyExpenseForm = {
   description: "",
   notes: "",
 };
+
+function getCategoryMeta(cat: ExpenseCategory) {
+  return EXPENSE_CATEGORIES.find((c) => c.value === cat) ?? EXPENSE_CATEGORIES[7];
+}
 
 export default function ExpensesPage() {
   const {
@@ -67,13 +87,28 @@ export default function ExpensesPage() {
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [page, setPage] = useState(1);
 
+  // ── Computed ──
   const totalExpenses = useMemo(() => expenses.reduce((s, e) => s + e.amount, 0), [expenses]);
+
+  const thisMonthTotal = useMemo(() => {
+    const key = new Date().toISOString().slice(0, 7);
+    return expenses.filter((e) => e.date.startsWith(key)).reduce((s, e) => s + e.amount, 0);
+  }, [expenses]);
+
+  const recurringMonthly = useMemo(
+    () => recurringExpenses.filter((r) => r.active).reduce((s, r) => s + r.amount, 0),
+    [recurringExpenses],
+  );
 
   const categoryBreakdown = useMemo(() => {
     const cats: Record<string, number> = {};
     expenses.forEach((e) => { cats[e.category] = (cats[e.category] || 0) + e.amount; });
     return Object.entries(cats)
-      .map(([category, amount]) => ({ category, amount, label: EXPENSE_CATEGORIES.find((c) => c.value === category)?.label || category }))
+      .map(([category, amount]) => ({
+        category: category as ExpenseCategory,
+        amount,
+        meta: getCategoryMeta(category as ExpenseCategory),
+      }))
       .sort((a, b) => b.amount - a.amount);
   }, [expenses]);
 
@@ -118,7 +153,7 @@ export default function ExpensesPage() {
     <div className="pb-20 md:pb-0 space-y-5">
       <PageHeader
         title="Expenses"
-        description={`${expenses.length} expenses · ${formatCurrency(totalExpenses)} total`}
+        description="Track and manage business costs"
         action={
           <Button size="sm" onClick={() => { setExpenseForm(emptyExpenseForm); setExpenseDialogOpen(true); }}>
             <Plus className="h-3.5 w-3.5 mr-1" /> Log Expense
@@ -126,145 +161,228 @@ export default function ExpensesPage() {
         }
       />
 
-      {/* Category breakdown */}
-      {categoryBreakdown.length > 0 && (
-        <div className="bg-card border border-border rounded-md p-4 animate-fade-up">
-          <p className="text-[13px] font-medium text-foreground mb-3 flex items-center gap-2">
-            <Minus className="h-4 w-4 text-destructive" /> By Category
-          </p>
-          <div className="space-y-2.5">
-            {categoryBreakdown.map(({ category, amount, label }) => {
-              const pct = totalExpenses > 0 ? (amount / totalExpenses) * 100 : 0;
-              return (
-                <div key={category}>
-                  <div className="flex items-center justify-between mb-1">
-                    <p className="text-[12px] font-medium text-foreground capitalize">{label}</p>
-                    <p className="text-[11px] text-muted-foreground font-mono">{formatCurrency(amount)} ({pct.toFixed(0)}%)</p>
-                  </div>
-                  <div className="h-2 bg-muted/30 rounded-full overflow-hidden">
-                    <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: CATEGORY_COLOURS[category as ExpenseCategory] || "hsl(var(--muted-foreground))" }} />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+      {/* ── Summary cards ── */}
+      <div className="grid grid-cols-3 gap-3 animate-fade-up">
+        <div className="bg-card border border-border rounded-md p-4">
+          <p className="label-caps mb-2">Total Spent</p>
+          <p className="font-mono text-2xl font-medium text-destructive leading-none">{formatCurrency(totalExpenses)}</p>
+          <p className="text-[11px] text-muted-foreground mt-2">{expenses.length} expense{expenses.length !== 1 ? "s" : ""} logged</p>
         </div>
-      )}
-
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-2 animate-fade-up">
-        <div className="relative flex-1 max-w-xs">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-          <Input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} placeholder="Search expenses…" className="pl-8 h-8 text-xs" />
+        <div className="bg-card border border-border rounded-md p-4">
+          <p className="label-caps mb-2">This Month</p>
+          <p className="font-mono text-2xl font-medium text-foreground leading-none">{formatCurrency(thisMonthTotal)}</p>
+          <p className="text-[11px] text-muted-foreground mt-2">{new Date().toLocaleDateString("en-GB", { month: "long" })}</p>
         </div>
-        <div className="flex gap-2 flex-wrap">
-          <Button variant={categoryFilter === "all" ? "default" : "outline"} size="sm" onClick={() => { setCategoryFilter("all"); setPage(1); }} className="text-xs">All</Button>
-          {EXPENSE_CATEGORIES.map((c) => (
-            <Button key={c.value} variant={categoryFilter === c.value ? "default" : "outline"} size="sm" onClick={() => { setCategoryFilter(c.value); setPage(1); }} className="text-xs">{c.label}</Button>
-          ))}
+        <div className="bg-card border border-border rounded-md p-4">
+          <p className="label-caps mb-2">Recurring</p>
+          <p className="font-mono text-2xl font-medium text-warning leading-none">{formatCurrency(recurringMonthly)}</p>
+          <p className="text-[11px] text-muted-foreground mt-2">{recurringExpenses.filter((r) => r.active).length} active/month</p>
         </div>
       </div>
 
-      {/* Expense list */}
-      {paginated.length === 0 ? (
-        <div className="surface rounded-md p-10 text-center animate-fade-up">
-          <Minus className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground">{expenses.length === 0 ? "No expenses logged yet." : "No matching expenses."}</p>
-        </div>
-      ) : (
-        <div className="space-y-3 animate-fade-up">
-          <div className="bg-card border border-border rounded-md divide-y divide-border">
-            {paginated.map((e) => (
-              <div key={e.id} className="flex items-center justify-between px-4 py-3 group">
-                <div className="flex items-center gap-3 min-w-0">
-                  <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: CATEGORY_COLOURS[e.category] }} />
-                  <div className="min-w-0">
-                    <p className="text-[12px] font-medium text-foreground truncate">{e.description}</p>
-                    <p className="text-[10px] text-muted-foreground">
-                      {formatDate(e.date)} · <span className="capitalize">{EXPENSE_CATEGORIES.find((c) => c.value === e.category)?.label}</span>
-                      {e.notes ? ` · ${e.notes}` : ""}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <p className="font-mono text-[13px] font-medium text-destructive">−{formatCurrency(e.amount)}</p>
-                  <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-destructive/60 hover:text-destructive" onClick={() => { deleteExpense(e.id); toast({ title: "Expense deleted" }); }}>
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
-              </div>
-            ))}
+      {/* ── Tabs: Log / Recurring ── */}
+      <Tabs defaultValue="log" className="animate-fade-up">
+        <TabsList className="bg-card border border-border">
+          <TabsTrigger value="log" className="gap-1.5">
+            <Receipt className="h-3.5 w-3.5" /> Expense Log
+          </TabsTrigger>
+          <TabsTrigger value="recurring" className="gap-1.5">
+            <RefreshCw className="h-3.5 w-3.5" /> Recurring
+          </TabsTrigger>
+          <TabsTrigger value="breakdown" className="gap-1.5">
+            By Category
+          </TabsTrigger>
+        </TabsList>
+
+        {/* ── Expense Log Tab ── */}
+        <TabsContent value="log" className="mt-4 space-y-3">
+          {/* Filters */}
+          <div className="flex flex-col sm:flex-row gap-2">
+            <div className="relative flex-1 max-w-xs">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} placeholder="Search expenses…" className="pl-8 h-8 text-xs" />
+            </div>
+            <Select value={categoryFilter} onValueChange={(v) => { setCategoryFilter(v); setPage(1); }}>
+              <SelectTrigger className="h-8 w-[160px] text-xs">
+                <SelectValue placeholder="All categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {EXPENSE_CATEGORIES.map((c) => (
+                  <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between px-1">
-              <p className="text-[12px] text-muted-foreground">Showing {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)} of {filtered.length}</p>
-              <Pagination className="w-auto mx-0">
-                <PaginationContent>
-                  <PaginationItem><PaginationPrevious onClick={() => setPage((p) => Math.max(1, p - 1))} className={safePage === 1 ? "pointer-events-none opacity-40" : "cursor-pointer"} /></PaginationItem>
-                  <PaginationItem><span className="text-[12px] text-muted-foreground px-3 py-2 tabular-nums">{safePage} / {totalPages}</span></PaginationItem>
-                  <PaginationItem><PaginationNext onClick={() => setPage((p) => Math.min(totalPages, p + 1))} className={safePage === totalPages ? "pointer-events-none opacity-40" : "cursor-pointer"} /></PaginationItem>
-                </PaginationContent>
-              </Pagination>
+          {paginated.length === 0 ? (
+            <div className="surface rounded-md p-10 text-center">
+              <Receipt className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground">{expenses.length === 0 ? "No expenses logged yet — add one to get started." : "No matching expenses."}</p>
+            </div>
+          ) : (
+            <>
+              <div className="bg-card border border-border rounded-md divide-y divide-border overflow-hidden">
+                {paginated.map((e) => {
+                  const meta = getCategoryMeta(e.category);
+                  const Icon = meta.icon;
+                  return (
+                    <div key={e.id} className="flex items-center gap-3 px-4 py-3 group hover:bg-muted/20 transition-colors">
+                      <div className={cn(
+                        "flex h-8 w-8 items-center justify-center rounded-md border shrink-0",
+                        CATEGORY_BG[e.category] || "bg-muted text-muted-foreground border-border"
+                      )}>
+                        <Icon className="h-3.5 w-3.5" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-medium text-foreground truncate">{e.description}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-[11px] text-muted-foreground">{formatDate(e.date)}</span>
+                          <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 uppercase tracking-wider">
+                            {meta.label}
+                          </Badge>
+                          {e.notes && <span className="text-[11px] text-muted-foreground/60 truncate max-w-[200px]">{e.notes}</span>}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <p className="font-mono text-sm font-semibold text-destructive">−{formatCurrency(e.amount)}</p>
+                        <Button
+                          variant="ghost" size="icon"
+                          className="h-7 w-7 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                          onClick={() => { deleteExpense(e.id); toast({ title: "Expense deleted" }); }}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between px-1">
+                  <p className="text-[12px] text-muted-foreground">
+                    {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)} of {filtered.length}
+                  </p>
+                  <Pagination className="w-auto mx-0">
+                    <PaginationContent>
+                      <PaginationItem><PaginationPrevious onClick={() => setPage((p) => Math.max(1, p - 1))} className={safePage === 1 ? "pointer-events-none opacity-40" : "cursor-pointer"} /></PaginationItem>
+                      <PaginationItem><span className="text-[12px] text-muted-foreground px-3 py-2 tabular-nums">{safePage} / {totalPages}</span></PaginationItem>
+                      <PaginationItem><PaginationNext onClick={() => setPage((p) => Math.min(totalPages, p + 1))} className={safePage === totalPages ? "pointer-events-none opacity-40" : "cursor-pointer"} /></PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              )}
+            </>
+          )}
+        </TabsContent>
+
+        {/* ── Recurring Tab ── */}
+        <TabsContent value="recurring" className="mt-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <p className="text-[13px] font-medium text-foreground">
+              {recurringExpenses.filter((r) => r.active).length} active · {formatCurrency(recurringMonthly)}/month
+            </p>
+            <Button size="sm" variant="outline" onClick={() => {
+              setRecurringForm({ amount: 0, category: "insurance", description: "", dayOfMonth: 1 });
+              setRecurringDialogOpen(true);
+            }}>
+              <Plus className="h-3.5 w-3.5 mr-1" /> Add Recurring
+            </Button>
+          </div>
+
+          {recurringExpenses.length === 0 ? (
+            <div className="surface rounded-md p-10 text-center">
+              <RefreshCw className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground">No recurring expenses set up yet.</p>
+              <p className="text-[11px] text-muted-foreground/60 mt-1">Add monthly bills like insurance, software, van finance.</p>
+            </div>
+          ) : (
+            <div className="bg-card border border-border rounded-md divide-y divide-border overflow-hidden">
+              {recurringExpenses.map((re) => {
+                const meta = getCategoryMeta(re.category);
+                const Icon = meta.icon;
+                return (
+                  <div key={re.id} className="flex items-center gap-3 px-4 py-3 group hover:bg-muted/20 transition-colors">
+                    <div className={cn(
+                      "flex h-8 w-8 items-center justify-center rounded-md border shrink-0",
+                      re.active
+                        ? (CATEGORY_BG[re.category] || "bg-muted text-muted-foreground border-border")
+                        : "bg-muted/30 text-muted-foreground/40 border-border/50"
+                    )}>
+                      <Icon className="h-3.5 w-3.5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={cn("text-[13px] font-medium truncate", re.active ? "text-foreground" : "text-muted-foreground line-through")}>{re.description}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 uppercase tracking-wider">{meta.label}</Badge>
+                        <span className="text-[11px] text-muted-foreground">Day {re.dayOfMonth} each month</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <p className={cn("font-mono text-sm font-semibold", re.active ? "text-destructive" : "text-muted-foreground")}>
+                        {formatCurrency(re.amount)}<span className="text-[10px] font-normal text-muted-foreground">/mo</span>
+                      </p>
+                      <Switch checked={re.active} onCheckedChange={(checked) => updateRecurringExpense(re.id, { active: checked })} />
+                      <Button
+                        variant="ghost" size="icon"
+                        className="h-7 w-7 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                        onClick={() => { deleteRecurringExpense(re.id); toast({ title: "Recurring expense removed" }); }}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
-        </div>
-      )}
+        </TabsContent>
 
-      {/* Recurring Expenses */}
-      <div className="animate-fade-up">
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <p className="text-[13px] font-medium text-foreground flex items-center gap-2">
-              <RefreshCw className="h-4 w-4 text-primary" /> Recurring Expenses
-            </p>
-            <p className="text-[11px] text-muted-foreground mt-0.5">
-              {recurringExpenses.filter((r) => r.active).length} active · {formatCurrency(recurringExpenses.filter((r) => r.active).reduce((s, r) => s + r.amount, 0))}/month
-            </p>
-          </div>
-          <Button size="sm" variant="outline" onClick={() => {
-            setRecurringForm({ amount: 0, category: "insurance", description: "", dayOfMonth: 1 });
-            setRecurringDialogOpen(true);
-          }}>
-            <Plus className="h-3.5 w-3.5 mr-1" /> Add Recurring
-          </Button>
-        </div>
-
-        {recurringExpenses.length === 0 ? (
-          <div className="bg-card border border-border rounded-md py-8 text-center">
-            <p className="text-[12px] text-muted-foreground">No recurring expenses set up.</p>
-          </div>
-        ) : (
-          <div className="bg-card border border-border rounded-md divide-y divide-border">
-            {recurringExpenses.map((re) => (
-              <div key={re.id} className="flex items-center justify-between px-4 py-3 group">
-                <div className="flex items-center gap-3 min-w-0">
-                  <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: CATEGORY_COLOURS[re.category] }} />
-                  <div className="min-w-0">
-                    <p className={cn("text-[12px] font-medium truncate", re.active ? "text-foreground" : "text-muted-foreground line-through")}>{re.description}</p>
-                    <p className="text-[10px] text-muted-foreground capitalize">
-                      {EXPENSE_CATEGORIES.find((c) => c.value === re.category)?.label} · Day {re.dayOfMonth} of each month
-                    </p>
+        {/* ── Category Breakdown Tab ── */}
+        <TabsContent value="breakdown" className="mt-4 space-y-3">
+          {categoryBreakdown.length === 0 ? (
+            <div className="surface rounded-md p-10 text-center">
+              <p className="text-sm text-muted-foreground">No expenses to break down yet.</p>
+            </div>
+          ) : (
+            <div className="bg-card border border-border rounded-md p-5 space-y-4">
+              {categoryBreakdown.map(({ category, amount, meta }) => {
+                const pct = totalExpenses > 0 ? (amount / totalExpenses) * 100 : 0;
+                const Icon = meta.icon;
+                return (
+                  <div key={category} className="flex items-center gap-3">
+                    <div className={cn(
+                      "flex h-8 w-8 items-center justify-center rounded-md border shrink-0",
+                      CATEGORY_BG[category] || "bg-muted text-muted-foreground border-border"
+                    )}>
+                      <Icon className="h-3.5 w-3.5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="text-[13px] font-medium text-foreground">{meta.label}</p>
+                        <p className="text-[12px] text-muted-foreground font-mono">{formatCurrency(amount)} <span className="text-muted-foreground/50">({pct.toFixed(0)}%)</span></p>
+                      </div>
+                      <div className="h-2 bg-muted/30 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-700 ease-out"
+                          style={{ width: `${pct}%`, backgroundColor: CATEGORY_COLOURS[category] }}
+                        />
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-3 shrink-0">
-                  <p className={cn("font-mono text-[13px] font-medium", re.active ? "text-destructive" : "text-muted-foreground")}>{formatCurrency(re.amount)}/mo</p>
-                  <Switch checked={re.active} onCheckedChange={(checked) => updateRecurringExpense(re.id, { active: checked })} className="scale-75" />
-                  <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-destructive/60 hover:text-destructive" onClick={() => { deleteRecurringExpense(re.id); toast({ title: "Recurring expense removed" }); }}>
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+                );
+              })}
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
 
-      {/* Add Expense Dialog */}
+      {/* ── Add Expense Dialog ── */}
       <Dialog open={expenseDialogOpen} onOpenChange={setExpenseDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader><DialogTitle>Log Expense</DialogTitle></DialogHeader>
-          <div className="space-y-3">
+          <div className="space-y-4 pt-1">
             <div>
               <Label className="label-caps mb-1.5 block">Description *</Label>
               <Input value={expenseForm.description} onChange={(e) => setExpenseForm({ ...expenseForm, description: e.target.value })} placeholder="e.g. Diesel top-up" />
@@ -281,30 +399,48 @@ export default function ExpensesPage() {
             </div>
             <div>
               <Label className="label-caps mb-1.5 block">Category</Label>
-              <Select value={expenseForm.category} onValueChange={(v) => setExpenseForm({ ...expenseForm, category: v as ExpenseCategory })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>{EXPENSE_CATEGORIES.map((c) => (<SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>))}</SelectContent>
-              </Select>
+              <div className="grid grid-cols-4 gap-1.5">
+                {EXPENSE_CATEGORIES.map((c) => {
+                  const Icon = c.icon;
+                  const active = expenseForm.category === c.value;
+                  return (
+                    <button
+                      key={c.value}
+                      type="button"
+                      onClick={() => setExpenseForm({ ...expenseForm, category: c.value })}
+                      className={cn(
+                        "flex flex-col items-center gap-1 rounded-md border px-2 py-2.5 text-[10px] font-medium transition-all",
+                        active
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border bg-card text-muted-foreground hover:border-muted-foreground/30 hover:text-foreground"
+                      )}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {c.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
             <div>
               <Label className="label-caps mb-1.5 block">Notes</Label>
               <Input value={expenseForm.notes} onChange={(e) => setExpenseForm({ ...expenseForm, notes: e.target.value })} placeholder="Optional note…" />
             </div>
-            <div className="flex gap-2 pt-2">
+            <div className="flex gap-2 pt-1">
               <Button variant="outline" className="flex-1" onClick={() => setExpenseDialogOpen(false)}>Cancel</Button>
               <Button className="flex-1" onClick={handleAddExpense} disabled={expenseForm.amount <= 0 || !expenseForm.description.trim()}>
-                <Check className="h-3.5 w-3.5 mr-1" /> Save
+                <Check className="h-3.5 w-3.5 mr-1" /> Save Expense
               </Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Add Recurring Expense Dialog */}
+      {/* ── Add Recurring Dialog ── */}
       <Dialog open={recurringDialogOpen} onOpenChange={setRecurringDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader><DialogTitle>Add Recurring Expense</DialogTitle></DialogHeader>
-          <div className="space-y-3">
+          <div className="space-y-4 pt-1">
             <div>
               <Label className="label-caps mb-1.5 block">Description *</Label>
               <Input value={recurringForm.description} onChange={(e) => setRecurringForm({ ...recurringForm, description: e.target.value })} placeholder="e.g. Van insurance" />
@@ -321,12 +457,30 @@ export default function ExpensesPage() {
             </div>
             <div>
               <Label className="label-caps mb-1.5 block">Category</Label>
-              <Select value={recurringForm.category} onValueChange={(v) => setRecurringForm({ ...recurringForm, category: v as ExpenseCategory })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>{EXPENSE_CATEGORIES.map((c) => (<SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>))}</SelectContent>
-              </Select>
+              <div className="grid grid-cols-4 gap-1.5">
+                {EXPENSE_CATEGORIES.map((c) => {
+                  const Icon = c.icon;
+                  const active = recurringForm.category === c.value;
+                  return (
+                    <button
+                      key={c.value}
+                      type="button"
+                      onClick={() => setRecurringForm({ ...recurringForm, category: c.value })}
+                      className={cn(
+                        "flex flex-col items-center gap-1 rounded-md border px-2 py-2.5 text-[10px] font-medium transition-all",
+                        active
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border bg-card text-muted-foreground hover:border-muted-foreground/30 hover:text-foreground"
+                      )}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {c.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-            <div className="flex gap-2 pt-2">
+            <div className="flex gap-2 pt-1">
               <Button variant="outline" className="flex-1" onClick={() => setRecurringDialogOpen(false)}>Cancel</Button>
               <Button className="flex-1" onClick={handleAddRecurring} disabled={recurringForm.amount <= 0 || !recurringForm.description.trim()}>
                 <Check className="h-3.5 w-3.5 mr-1" /> Save
