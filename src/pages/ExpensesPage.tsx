@@ -245,7 +245,7 @@ export default function ExpensesPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <p className="font-mono text-sm font-semibold text-destructive">−{formatCurrency(e.amount)}</p>
+                        <p className="font-mono text-sm font-medium text-destructive">−{formatCurrency(e.amount)}</p>
                         <Button
                           variant="ghost" size="icon"
                           className="h-7 w-7 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
@@ -320,7 +320,7 @@ export default function ExpensesPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-3 shrink-0">
-                      <p className={cn("font-mono text-sm font-semibold", re.active ? "text-destructive" : "text-muted-foreground")}>
+                      <p className={cn("font-mono text-sm font-medium", re.active ? "text-destructive" : "text-muted-foreground")}>
                         {formatCurrency(re.amount)}<span className="text-[10px] font-normal text-muted-foreground">/mo</span>
                       </p>
                       <Switch checked={re.active} onCheckedChange={(checked) => updateRecurringExpense(re.id, { active: checked })} />
