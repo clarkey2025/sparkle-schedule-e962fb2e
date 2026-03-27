@@ -272,46 +272,84 @@ export default function QuotesPage() {
       />
 
       {/* Filters */}
-      <div className="flex gap-2 flex-wrap">
-        {(["all", "draft", "sent", "accepted", "declined"] as const).map((s) => (
-          <Button key={s} variant={filterStatus === s ? "default" : "outline"} size="sm" onClick={() => { setFilterStatus(s); setPage(1); }} className="capitalize text-xs">
-            {s === "all" ? "All" : s}
-          </Button>
-        ))}
+      <div className="flex flex-col sm:flex-row gap-2">
+        <div className="relative max-w-xs">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            placeholder="Search quotes…"
+            className="pl-8 h-8 text-xs w-[180px]"
+          />
+        </div>
+        <div className="flex gap-2 flex-wrap">
+          {(["all", "draft", "sent", "accepted", "declined"] as const).map((s) => (
+            <Button key={s} variant={filterStatus === s ? "default" : "outline"} size="sm" onClick={() => { setFilterStatus(s); setPage(1); setSelectedIds(new Set()); }} className="capitalize text-xs">
+              {s === "all" ? "All" : s}
+            </Button>
+          ))}
+        </div>
       </div>
+
+      <BulkActionBar
+        count={selectedIds.size}
+        onClear={() => setSelectedIds(new Set())}
+        actions={[
+          { label: "Delete", icon: <Trash2 className="h-3 w-3 mr-1" />, variant: "destructive", onClick: () => { deleteQuotes(Array.from(selectedIds)); setSelectedIds(new Set()); } },
+        ]}
+      />
 
       {/* Quotes table */}
       <div className="surface rounded-md overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent border-border">
+              <TableHead className="w-[40px]">
+                <Checkbox
+                  checked={paginated.length > 0 && paginated.every((q) => selectedIds.has(q.id))}
+                  onCheckedChange={() => {
+                    const allSel = paginated.every((q) => selectedIds.has(q.id));
+                    setSelectedIds((prev) => {
+                      const next = new Set(prev);
+                      paginated.forEach((q) => allSel ? next.delete(q.id) : next.add(q.id));
+                      return next;
+                    });
+                  }}
+                />
+              </TableHead>
               <TableHead className="label-caps">Ref</TableHead>
               <TableHead className="label-caps">Customer</TableHead>
-              <TableHead className="label-caps">Items</TableHead>
+              <TableHead className="label-caps hidden md:table-cell">Items</TableHead>
               <TableHead className="label-caps text-right">Total</TableHead>
               <TableHead className="label-caps">Status</TableHead>
-              <TableHead className="label-caps">Date</TableHead>
+              <TableHead className="label-caps hidden md:table-cell">Date</TableHead>
               <TableHead className="label-caps text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {paginated.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
+                <TableCell colSpan={8} className="text-center py-12 text-muted-foreground">
                   No quotes yet — create one to get started.
                 </TableCell>
               </TableRow>
             ) : (
               paginated.map((q) => {
                 const expiry = getExpiryStatus(q);
+                const isSelected = selectedIds.has(q.id);
                 return (
-                  <TableRow key={q.id} className={cn("group border-border", expiry === "expired" && "opacity-60")}>
+                  <TableRow key={q.id} className={cn("group border-border", expiry === "expired" && "opacity-60", isSelected && "bg-primary/5")}>
+                    <TableCell>
+                      <Checkbox checked={isSelected} onCheckedChange={() => {
+                        setSelectedIds((prev) => { const next = new Set(prev); next.has(q.id) ? next.delete(q.id) : next.add(q.id); return next; });
+                      }} />
+                    </TableCell>
                     <TableCell className="mono text-xs">{q.quoteNumber || q.id.slice(0, 8).toUpperCase()}</TableCell>
                     <TableCell className="font-medium">
                       {getQuoteCustomerName(q)}
                       {q.prospectName && <Badge variant="secondary" className="ml-2 text-[9px] bg-warning/15 text-warning">PROSPECT</Badge>}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">{q.items.length} service{q.items.length !== 1 && "s"}</TableCell>
+                    <TableCell className="text-muted-foreground hidden md:table-cell">{q.items.length} service{q.items.length !== 1 && "s"}</TableCell>
                     <TableCell className="text-right mono">{formatCurrency(getQuoteTotal(q))}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1.5">
@@ -328,7 +366,7 @@ export default function QuotesPage() {
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="text-muted-foreground">{formatDate(q.createdAt)}</TableCell>
+                    <TableCell className="text-muted-foreground hidden md:table-cell">{formatDate(q.createdAt)}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Select
@@ -362,7 +400,7 @@ export default function QuotesPage() {
             )}
             {paginated.length > 0 && Array.from({ length: PAGE_SIZE - paginated.length }).map((_, i) => (
               <TableRow key={`filler-${i}`} className="border-border pointer-events-none select-none">
-                <TableCell colSpan={7} className="py-[18px]" />
+                <TableCell colSpan={8} className="py-[18px]" />
               </TableRow>
             ))}
           </TableBody>
