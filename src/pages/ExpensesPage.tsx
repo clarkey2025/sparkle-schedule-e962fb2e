@@ -37,14 +37,14 @@ const EXPENSE_CATEGORIES: { value: ExpenseCategory; label: string; icon: typeof 
 ];
 
 const CATEGORY_COLOURS: Record<ExpenseCategory, string> = {
-  fuel: "hsl(var(--chart-1))",
-  supplies: "hsl(var(--chart-2))",
-  equipment: "hsl(var(--chart-3))",
-  vehicle: "hsl(var(--chart-4))",
-  insurance: "hsl(var(--chart-5))",
-  marketing: "hsl(var(--primary))",
-  software: "hsl(var(--accent-foreground))",
-  other: "hsl(var(--muted-foreground))",
+  fuel: "hsl(25 95% 55%)",
+  supplies: "hsl(172 66% 50%)",
+  equipment: "hsl(45 93% 52%)",
+  vehicle: "hsl(210 90% 60%)",
+  insurance: "hsl(280 70% 62%)",
+  marketing: "hsl(316 100% 44%)",
+  software: "hsl(200 80% 56%)",
+  other: "hsl(0 0% 50%)",
 };
 
 const CATEGORY_BG: Record<ExpenseCategory, string> = {
