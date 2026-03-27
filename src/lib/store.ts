@@ -75,10 +75,19 @@ export interface Payment {
 
 export type CaravanTier = "full-external" | "roof-only" | "rinse-down";
 
+export type BuiltInCategory = "window-cleaning" | "gutter-cleaning" | "soffit-fascia" | "jet-washing" | "caravan-cleaning" | "custom";
+
+export interface ServiceCategory {
+  id: string;
+  label: string;
+  icon: string;       // lucide icon name
+  colour: string;     // tailwind-compatible colour token e.g. "violet"
+}
+
 export interface Service {
   id: string;
   name: string;
-  category: "gutter-cleaning" | "soffit-fascia" | "jet-washing" | "caravan-cleaning" | "window-cleaning" | "custom";
+  category: string;   // built-in key OR custom category id
   description: string;
   defaultPrice: number;
   caravanTier?: CaravanTier;
@@ -183,6 +192,7 @@ interface AppData {
   payments: Payment[];
   services: Service[];
   customerServices: CustomerService[];
+  serviceCategories: ServiceCategory[];
   rounds: Round[];
   expenses: Expense[];
   recurringExpenses: RecurringExpense[];
