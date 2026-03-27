@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef } from "react";
+import { useToast } from "@/hooks/use-toast";
 import { useApp } from "@/lib/AppContext";
 import { formatCurrency, formatDate } from "@/lib/helpers";
 import PageHeader from "@/components/PageHeader";
@@ -31,6 +32,7 @@ const STATUS_STYLES: Record<Quote["status"], string> = {
 
 export default function QuotesPage() {
   const { customers, services, quotes, businessSettings, addQuote, updateQuote, deleteQuote, deleteQuotes } = useApp();
+  const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [previewQuote, setPreviewQuote] = useState<Quote | null>(null);
   const [page, setPage] = useState(1);
@@ -123,6 +125,8 @@ export default function QuotesPage() {
     });
     setDialogOpen(false);
     resetForm();
+    const name = isProspect ? prospectName : customers.find(c => c.id === customerId)?.name ?? "Customer";
+    toast({ title: "Quote created", description: `Quote for ${name}` });
   }
 
   function getQuoteTotal(q: Quote) {
@@ -295,7 +299,7 @@ export default function QuotesPage() {
         count={selectedIds.size}
         onClear={() => setSelectedIds(new Set())}
         actions={[
-          { label: "Delete", icon: <Trash2 className="h-3 w-3 mr-1" />, variant: "destructive", onClick: () => { deleteQuotes(Array.from(selectedIds)); setSelectedIds(new Set()); } },
+          { label: "Delete", icon: <Trash2 className="h-3 w-3 mr-1" />, variant: "destructive", onClick: () => { const count = selectedIds.size; deleteQuotes(Array.from(selectedIds)); toast({ title: "Quotes deleted", description: `${count} quote${count > 1 ? "s" : ""} removed` }); setSelectedIds(new Set()); } },
         ]}
       />
 
@@ -371,7 +375,7 @@ export default function QuotesPage() {
                       <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Select
                           value={q.status}
-                          onValueChange={(val) => updateQuote(q.id, { status: val as Quote["status"] })}
+                          onValueChange={(val) => { updateQuote(q.id, { status: val as Quote["status"] }); toast({ title: "Quote updated", description: `Status changed to ${val}` }); }}
                         >
                           <SelectTrigger className="h-7 w-24 text-xs">
                             <SelectValue />
@@ -389,7 +393,7 @@ export default function QuotesPage() {
                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handlePrintPDF(q)}>
                           <Download className="h-3.5 w-3.5" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteQuote(q.id)}>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => { deleteQuote(q.id); toast({ title: "Quote deleted", description: getQuoteCustomerName(q) }); }}>
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
                       </div>

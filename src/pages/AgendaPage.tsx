@@ -1,5 +1,6 @@
 import { useMemo, useEffect, useRef, useState, useCallback } from "react";
 import { useApp } from "@/lib/AppContext";
+import { useToast } from "@/hooks/use-toast";
 import { formatCurrency, getNextDueDate } from "@/lib/helpers";
 import PageHeader from "@/components/PageHeader";
 import {
@@ -214,6 +215,7 @@ function RouteMap({
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function AgendaPage() {
   const { customers, jobs, addJob, updateJob, updateCustomer } = useApp();
+  const { toast } = useToast();
   const todayStr = new Date().toISOString().slice(0, 10);
   const tomorrowStr = (() => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().slice(0, 10); })();
   const [viewDate, setViewDate] = useState<"today" | "tomorrow">("today");
@@ -307,29 +309,30 @@ export default function AgendaPage() {
     : (() => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }); })();
 
   const markDone = useCallback((jobId: string) => {
-    // If it's a virtual job, create a real one first
+    let customerName = "";
     if (jobId.startsWith("virtual-")) {
       const customerId = jobId.replace("virtual-", "");
       const c = customers.find((x) => x.id === customerId);
       if (c) {
+        customerName = c.name;
         addJob({ customerId, date: dateStr, status: "completed", price: c.pricePerClean, notes: "" });
-        // Auto-advance nextDueDate based on frequency
         const nextDue = getNextDueDate(todayStr, c.frequency);
         updateCustomer(c.id, { lastCleanDate: todayStr, nextDueDate: nextDue.toISOString().slice(0, 10) });
       }
     } else {
       updateJob(jobId, { status: "completed" });
-      // Find customer and advance their nextDueDate
       const job = jobs.find((j) => j.id === jobId);
       if (job) {
         const c = customers.find((x) => x.id === job.customerId);
         if (c) {
+          customerName = c.name;
           const nextDue = getNextDueDate(todayStr, c.frequency);
           updateCustomer(c.id, { lastCleanDate: todayStr, nextDueDate: nextDue.toISOString().slice(0, 10) });
         }
       }
     }
-  }, [updateJob, addJob, updateCustomer, customers, jobs, dateStr, todayStr]);
+    toast({ title: "Job completed", description: customerName || "Job marked as done" });
+  }, [updateJob, addJob, updateCustomer, customers, jobs, dateStr, todayStr, toast]);
 
   const handleOptimise = useCallback(() => {
     if (stops.length < 2) return;
@@ -337,7 +340,8 @@ export default function AgendaPage() {
     setStopOrder(optimisedStops.map((s) => s.jobId));
     setOptimised(true);
     setActiveIdx(null);
-  }, [stops]);
+    toast({ title: "Route optimised", description: `${stops.length} stops reordered` });
+  }, [stops, toast]);
 
   const handleReset = useCallback(() => {
     setOptimised(false);

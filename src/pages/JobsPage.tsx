@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
 import { useSearchParams } from "react-router-dom";
 import { useApp } from "@/lib/AppContext";
 import { formatCurrency, formatDate } from "@/lib/helpers";
@@ -23,6 +24,7 @@ const PAGE_SIZE = 5;
 
 export default function JobsPage() {
   const { customers, jobs, addJob, updateJob, deleteJob, deleteJobs, updateJobs } = useApp();
+  const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [filter, setFilter] = useState<"all" | "scheduled" | "completed" | "cancelled">("all");
@@ -99,6 +101,7 @@ export default function JobsPage() {
       notes: form.notes,
     });
     setDialogOpen(false);
+    toast({ title: "Job added", description: `${customers.find(c => c.id === form.customerId)?.name ?? "Customer"} on ${form.date}` });
   };
 
   const statusBadge = (status: Job["status"]) => {
@@ -147,9 +150,9 @@ export default function JobsPage() {
         count={selectedIds.size}
         onClear={() => setSelectedIds(new Set())}
         actions={[
-          { label: "Complete", icon: <Check className="h-3 w-3 mr-1" />, onClick: () => { updateJobs(selectedArray, { status: "completed" }); setSelectedIds(new Set()); } },
-          { label: "Cancel", icon: <X className="h-3 w-3 mr-1" />, onClick: () => { updateJobs(selectedArray, { status: "cancelled" }); setSelectedIds(new Set()); } },
-          { label: "Delete", icon: <Trash2 className="h-3 w-3 mr-1" />, variant: "destructive", onClick: () => { deleteJobs(selectedArray); setSelectedIds(new Set()); } },
+          { label: "Complete", icon: <Check className="h-3 w-3 mr-1" />, onClick: () => { updateJobs(selectedArray, { status: "completed" }); toast({ title: "Jobs completed", description: `${selectedArray.length} job${selectedArray.length > 1 ? "s" : ""} marked complete` }); setSelectedIds(new Set()); } },
+          { label: "Cancel", icon: <X className="h-3 w-3 mr-1" />, onClick: () => { updateJobs(selectedArray, { status: "cancelled" }); toast({ title: "Jobs cancelled", description: `${selectedArray.length} job${selectedArray.length > 1 ? "s" : ""} cancelled` }); setSelectedIds(new Set()); } },
+          { label: "Delete", icon: <Trash2 className="h-3 w-3 mr-1" />, variant: "destructive", onClick: () => { deleteJobs(selectedArray); toast({ title: "Jobs deleted", description: `${selectedArray.length} job${selectedArray.length > 1 ? "s" : ""} removed` }); setSelectedIds(new Set()); } },
         ]}
       />
 
@@ -198,15 +201,15 @@ export default function JobsPage() {
                         <div className="flex justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                           {job.status === "scheduled" && (
                             <>
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-success" onClick={() => updateJob(job.id, { status: "completed" })}>
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-success" onClick={() => { updateJob(job.id, { status: "completed" }); toast({ title: "Job completed", description: customer?.name }); }}>
                                 <Check className="h-3.5 w-3.5" />
                               </Button>
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => updateJob(job.id, { status: "cancelled" })}>
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => { updateJob(job.id, { status: "cancelled" }); toast({ title: "Job cancelled", description: customer?.name }); }}>
                                 <X className="h-3.5 w-3.5" />
                               </Button>
                             </>
                           )}
-                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteJob(job.id)}>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => { deleteJob(job.id); toast({ title: "Job deleted", description: customer?.name }); }}>
                             <Trash2 className="h-3 w-3" />
                           </Button>
                         </div>

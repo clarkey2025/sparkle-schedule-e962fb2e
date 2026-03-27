@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { useApp } from "@/lib/AppContext";
 import { formatCurrency, formatDate } from "@/lib/helpers";
@@ -33,6 +34,7 @@ const METHOD_LABELS: Record<Payment["method"], string> = {
 
 export default function PaymentsPage() {
   const { customers, payments, addPayment, deletePayment, deletePayments } = useApp();
+  const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -114,6 +116,8 @@ export default function PaymentsPage() {
   const handleAdd = () => {
     if (!form.customerId || !form.amount) return;
     addPayment(form);
+    const customerName = customers.find(c => c.id === form.customerId)?.name ?? "Customer";
+    toast({ title: "Payment recorded", description: `${formatCurrency(form.amount)} from ${customerName}` });
     setDialogOpen(false);
     setPage(1);
   };
@@ -162,7 +166,7 @@ export default function PaymentsPage() {
         count={selectedIds.size}
         onClear={() => setSelectedIds(new Set())}
         actions={[
-          { label: "Delete", icon: <Trash2 className="h-3 w-3 mr-1" />, variant: "destructive", onClick: () => { deletePayments(Array.from(selectedIds)); setSelectedIds(new Set()); } },
+          { label: "Delete", icon: <Trash2 className="h-3 w-3 mr-1" />, variant: "destructive", onClick: () => { const count = selectedIds.size; deletePayments(Array.from(selectedIds)); toast({ title: "Payments deleted", description: `${count} payment${count > 1 ? "s" : ""} removed` }); setSelectedIds(new Set()); } },
         ]}
       />
 
@@ -206,7 +210,7 @@ export default function PaymentsPage() {
                       <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate hidden md:table-cell">{p.notes || "—"}</TableCell>
                       <TableCell className="mono text-sm text-right font-medium text-success whitespace-nowrap">{formatCurrency(p.amount)}</TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive opacity-0 transition-opacity group-hover:opacity-100" onClick={() => deletePayment(p.id)}>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive opacity-0 transition-opacity group-hover:opacity-100" onClick={() => { deletePayment(p.id); toast({ title: "Payment deleted", description: `${formatCurrency(p.amount)} from ${customer?.name}` }); }}>
                           <Trash2 className="h-3 w-3" />
                         </Button>
                       </TableCell>
