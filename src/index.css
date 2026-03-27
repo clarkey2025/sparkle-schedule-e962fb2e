@@ -97,7 +97,7 @@
   }
 
   .label-caps {
-    @apply text-[10px] font-semibold tracking-widest uppercase text-muted-foreground;
+    @apply text-[10px] font-medium tracking-widest uppercase text-muted-foreground;
   }
 }
 
