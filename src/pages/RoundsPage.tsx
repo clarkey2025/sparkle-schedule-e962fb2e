@@ -4,6 +4,7 @@ import { useApp } from "@/lib/AppContext";
 import { formatCurrency } from "@/lib/helpers";
 import PageHeader from "@/components/PageHeader";
 import EmptyState from "@/components/EmptyState";
+import StatCard from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -99,26 +100,10 @@ export default function RoundsPage() {
             const monthlyValue = weeklyValue * 4.33;
             return (
               <>
-                <div className="surface rounded-md p-4">
-                  <p className="label-caps mb-1">Assigned</p>
-                  <p className="font-mono text-xl font-medium text-foreground">{totalAssigned}</p>
-                  <p className="text-[11px] text-muted-foreground">of {totalCustomers} customers</p>
-                </div>
-                <div className="surface rounded-md p-4">
-                  <p className="label-caps mb-1">Unassigned</p>
-                  <p className="font-mono text-xl font-medium text-foreground">{unassigned.length}</p>
-                  <p className="text-[11px] text-muted-foreground">{totalCustomers > 0 ? `${Math.round((unassigned.length / totalCustomers) * 100)}%` : "—"}</p>
-                </div>
-                <div className="surface rounded-md p-4">
-                  <p className="label-caps mb-1">Weekly Value</p>
-                  <p className="font-mono text-xl font-medium text-foreground">{formatCurrency(weeklyValue)}</p>
-                  <p className="text-[11px] text-muted-foreground">{rounds.length} round{rounds.length !== 1 ? "s" : ""}</p>
-                </div>
-                <div className="surface rounded-md p-4">
-                  <p className="label-caps mb-1">Monthly Value</p>
-                  <p className="font-mono text-xl font-medium text-foreground">{formatCurrency(monthlyValue)}</p>
-                  <p className="text-[11px] text-muted-foreground">estimated</p>
-                </div>
+                <StatCard label="Assigned" value={String(totalAssigned)} icon={Users} sub={`of ${totalCustomers} customers`} />
+                <StatCard label="Unassigned" value={String(unassigned.length)} icon={Users} sub={totalCustomers > 0 ? `${Math.round((unassigned.length / totalCustomers) * 100)}%` : "—"} />
+                <StatCard label="Weekly Value" value={formatCurrency(weeklyValue)} icon={PoundSterling} sub={`${rounds.length} round${rounds.length !== 1 ? "s" : ""}`} />
+                <StatCard label="Monthly Value" value={formatCurrency(monthlyValue)} icon={PoundSterling} sub="estimated" />
               </>
             );
           })()}
