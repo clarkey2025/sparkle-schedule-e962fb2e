@@ -309,29 +309,30 @@ export default function AgendaPage() {
     : (() => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }); })();
 
   const markDone = useCallback((jobId: string) => {
-    // If it's a virtual job, create a real one first
+    let customerName = "";
     if (jobId.startsWith("virtual-")) {
       const customerId = jobId.replace("virtual-", "");
       const c = customers.find((x) => x.id === customerId);
       if (c) {
+        customerName = c.name;
         addJob({ customerId, date: dateStr, status: "completed", price: c.pricePerClean, notes: "" });
-        // Auto-advance nextDueDate based on frequency
         const nextDue = getNextDueDate(todayStr, c.frequency);
         updateCustomer(c.id, { lastCleanDate: todayStr, nextDueDate: nextDue.toISOString().slice(0, 10) });
       }
     } else {
       updateJob(jobId, { status: "completed" });
-      // Find customer and advance their nextDueDate
       const job = jobs.find((j) => j.id === jobId);
       if (job) {
         const c = customers.find((x) => x.id === job.customerId);
         if (c) {
+          customerName = c.name;
           const nextDue = getNextDueDate(todayStr, c.frequency);
           updateCustomer(c.id, { lastCleanDate: todayStr, nextDueDate: nextDue.toISOString().slice(0, 10) });
         }
       }
     }
-  }, [updateJob, addJob, updateCustomer, customers, jobs, dateStr, todayStr]);
+    toast({ title: "Job completed", description: customerName || "Job marked as done" });
+  }, [updateJob, addJob, updateCustomer, customers, jobs, dateStr, todayStr, toast]);
 
   const handleOptimise = useCallback(() => {
     if (stops.length < 2) return;
