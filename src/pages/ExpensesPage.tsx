@@ -3,6 +3,7 @@ import { useApp } from "@/lib/AppContext";
 import { formatCurrency, formatDate } from "@/lib/helpers";
 import PageHeader from "@/components/PageHeader";
 import StatCard from "@/components/StatCard";
+import EmptyState from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
