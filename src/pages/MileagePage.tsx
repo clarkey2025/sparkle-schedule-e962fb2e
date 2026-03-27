@@ -6,6 +6,7 @@ import StatCard from "@/components/StatCard";
 import EmptyState from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import DatePickerField from "@/components/DatePickerField";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
@@ -162,7 +163,7 @@ export default function MileagePage() {
               </div>
               <div>
                 <Label className="label-caps mb-1.5 block">Date</Label>
-                <Input type="date" value={mileageForm.date} onChange={(e) => setMileageForm({ ...mileageForm, date: e.target.value })} />
+                <DatePickerField value={mileageForm.date} onChange={(d) => setMileageForm({ ...mileageForm, date: d })} />
               </div>
             </div>
             {mileageForm.miles > 0 && (

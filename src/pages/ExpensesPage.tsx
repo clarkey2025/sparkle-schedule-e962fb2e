@@ -6,6 +6,7 @@ import StatCard from "@/components/StatCard";
 import EmptyState from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import DatePickerField from "@/components/DatePickerField";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -375,7 +376,7 @@ export default function ExpensesPage() {
               </div>
               <div>
                 <Label className="label-caps mb-1.5 block">Date</Label>
-                <Input type="date" value={expenseForm.date} onChange={(e) => setExpenseForm({ ...expenseForm, date: e.target.value })} />
+                <DatePickerField value={expenseForm.date} onChange={(d) => setExpenseForm({ ...expenseForm, date: d })} />
               </div>
             </div>
             <div>
