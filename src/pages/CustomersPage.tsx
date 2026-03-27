@@ -26,6 +26,7 @@ import { Wrench } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import DatePickerField from "@/components/DatePickerField";
 
 const PAGE_SIZE = 5;
 
@@ -918,12 +919,7 @@ export default function CustomersPage() {
                         </div>
                         <div>
                           <Label className="label-caps mb-1 block">Date</Label>
-                          <Input
-                            type="date"
-                            value={paymentForm.date}
-                            onChange={(e) => setPaymentForm({ ...paymentForm, date: e.target.value })}
-                            className="h-8 text-[12px]"
-                          />
+                          <DatePickerField value={paymentForm.date} onChange={(d) => setPaymentForm({ ...paymentForm, date: d })} />
                         </div>
                       </div>
                       <div>
@@ -1275,20 +1271,12 @@ export default function CustomersPage() {
               </div>
               <div>
                 <Label className="label-caps mb-1.5 block">Last Cleaned On</Label>
-                <Input
-                  type="date"
-                  value={form.lastCleanDate}
-                  onChange={(e) => setForm({ ...form, lastCleanDate: e.target.value })}
-                />
+                <DatePickerField value={form.lastCleanDate} onChange={(d) => setForm({ ...form, lastCleanDate: d })} placeholder="Select date" />
                 <p className="text-[10px] text-muted-foreground mt-1">When was their last clean? Leave blank if new customer.</p>
               </div>
               <div>
                 <Label className="label-caps mb-1.5 block">Next Clean Due</Label>
-                <Input
-                  type="date"
-                  value={form.nextDueDate}
-                  onChange={(e) => setForm({ ...form, nextDueDate: e.target.value })}
-                />
+                <DatePickerField value={form.nextDueDate} onChange={(d) => setForm({ ...form, nextDueDate: d })} placeholder="Auto-calculated" />
                 <p className="text-[10px] text-muted-foreground mt-1">Override the calculated due date, or leave blank to auto-calculate from frequency.</p>
               </div>
               <div>

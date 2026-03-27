@@ -18,9 +18,8 @@ import {
   Pagination, PaginationContent, PaginationItem,
   PaginationNext, PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { Plus, Trash2, Download, CalendarIcon, X, Search } from "lucide-react";
+import DatePickerField from "@/components/DatePickerField";
+import { Plus, Trash2, Download, X, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Payment } from "@/lib/store";
 
@@ -153,8 +152,8 @@ export default function PaymentsPage() {
               className="pl-8 h-8 text-xs w-[180px]"
             />
           </div>
-          <DatePicker label="From" date={dateFrom} onSelect={(d) => { setDateFrom(d); setPage(1); }} />
-          <DatePicker label="To" date={dateTo} onSelect={(d) => { setDateTo(d); setPage(1); }} />
+          <DatePickerField variant="filter" label="From" value={dateFrom ? format(dateFrom, "yyyy-MM-dd") : ""} onChange={(d) => { setDateFrom(d ? new Date(d + "T00:00:00") : undefined); setPage(1); }} />
+          <DatePickerField variant="filter" label="To" value={dateTo ? format(dateTo, "yyyy-MM-dd") : ""} onChange={(d) => { setDateTo(d ? new Date(d + "T00:00:00") : undefined); setPage(1); }} />
           {hasFilter && (
             <Button variant="ghost" size="sm" onClick={clearFilters} className="text-xs text-muted-foreground">
               <X className="h-3 w-3 mr-1" /> Clear
@@ -266,7 +265,7 @@ export default function PaymentsPage() {
               </div>
               <div>
                 <Label>Date</Label>
-                <Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
+                <DatePickerField value={form.date} onChange={(d) => setForm({ ...form, date: d })} />
               </div>
             </div>
             <div>
@@ -290,18 +289,3 @@ export default function PaymentsPage() {
   );
 }
 
-function DatePicker({ label, date, onSelect }: { label: string; date?: Date; onSelect: (d: Date | undefined) => void }) {
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className={cn("text-xs justify-start min-w-[140px]", !date && "text-muted-foreground")}>
-          <CalendarIcon className="h-3 w-3 mr-1.5" />
-          {date ? format(date, "d MMM yyyy") : label}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
-        <Calendar mode="single" selected={date} onSelect={onSelect} initialFocus className={cn("p-3 pointer-events-auto")} />
-      </PopoverContent>
-    </Popover>
-  );
-}

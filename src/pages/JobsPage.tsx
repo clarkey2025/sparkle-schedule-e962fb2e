@@ -8,6 +8,7 @@ import BulkActionBar from "@/components/BulkActionBar";
 import EmptyState from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import DatePickerField from "@/components/DatePickerField";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -274,7 +275,7 @@ export default function JobsPage() {
             </div>
             <div>
               <Label>Date *</Label>
-              <Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
+              <DatePickerField value={form.date} onChange={(d) => setForm({ ...form, date: d })} />
             </div>
             <div>
               <Label>Price (£)</Label>
