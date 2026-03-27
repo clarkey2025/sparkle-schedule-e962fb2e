@@ -171,7 +171,6 @@ export default function ServicesPage() {
 
         {services.length === 0 && (
           <EmptyState icon={Wrench} message="No services yet — add one to get started." />
-          </div>
         )}
       </div>
 

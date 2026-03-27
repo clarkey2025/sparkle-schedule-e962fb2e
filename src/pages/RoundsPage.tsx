@@ -126,7 +126,6 @@ export default function RoundsPage() {
 
       {rounds.length === 0 ? (
         <EmptyState icon={Map} message="No rounds yet — create one to group your customers." className="animate-fade-up" />
-        </div>
       ) : (
         <div className="space-y-2 animate-fade-up">
           {rounds.map((round) => {

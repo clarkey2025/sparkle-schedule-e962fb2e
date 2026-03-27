@@ -122,10 +122,7 @@ export default function TeamPage() {
       )}
 
       {paginated.length === 0 ? (
-        <EmptyState icon={Users} message="No team members yet — add your first one." className="animate-fade-up" />
-            {teamMembers.length === 0 ? "No team members yet — add your first one." : "No results found."}
-          </p>
-        </div>
+        <EmptyState icon={Users} message={teamMembers.length === 0 ? "No team members yet — add your first one." : "No results found."} className="animate-fade-up" />
       ) : (
         <div className="space-y-3 animate-fade-up">
           <div className="surface rounded-md overflow-hidden divide-y divide-border">
