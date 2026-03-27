@@ -164,21 +164,9 @@ export default function ExpensesPage() {
 
       {/* ── Summary cards ── */}
       <div className="grid grid-cols-3 gap-3 animate-fade-up">
-        <div className="bg-card border border-border rounded-md p-4">
-          <p className="label-caps mb-2">Total Spent</p>
-          <p className="font-mono text-2xl font-medium text-destructive leading-none">{formatCurrency(totalExpenses)}</p>
-          <p className="text-[11px] text-muted-foreground mt-2">{expenses.length} expense{expenses.length !== 1 ? "s" : ""} logged</p>
-        </div>
-        <div className="bg-card border border-border rounded-md p-4">
-          <p className="label-caps mb-2">This Month</p>
-          <p className="font-mono text-2xl font-medium text-foreground leading-none">{formatCurrency(thisMonthTotal)}</p>
-          <p className="text-[11px] text-muted-foreground mt-2">{new Date().toLocaleDateString("en-GB", { month: "long" })}</p>
-        </div>
-        <div className="bg-card border border-border rounded-md p-4">
-          <p className="label-caps mb-2">Recurring</p>
-          <p className="font-mono text-2xl font-medium text-warning leading-none">{formatCurrency(recurringMonthly)}</p>
-          <p className="text-[11px] text-muted-foreground mt-2">{recurringExpenses.filter((r) => r.active).length} active/month</p>
-        </div>
+        <StatCard label="Total Spent" value={formatCurrency(totalExpenses)} icon={Receipt} sub={`${expenses.length} expense${expenses.length !== 1 ? "s" : ""} logged`} colour="text-destructive" />
+        <StatCard label="This Month" value={formatCurrency(thisMonthTotal)} icon={Receipt} sub={new Date().toLocaleDateString("en-GB", { month: "long" })} colour="text-foreground" />
+        <StatCard label="Recurring" value={formatCurrency(recurringMonthly)} icon={RefreshCw} sub={`${recurringExpenses.filter((r) => r.active).length} active/month`} colour="text-warning" />
       </div>
 
       {/* ── Tabs: Log / Recurring ── */}
