@@ -289,7 +289,7 @@ function loadData(): AppData {
       mock.jobs = [];
       mock.payments = [];
       mock.customerServices = [];
-      data = { ...mock, rounds: [], expenses: [], recurringExpenses: [], mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [] };
+      data = { ...mock, rounds: [], expenses: [], recurringExpenses: [], mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [], teamMembers: [], suppliers: [] };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       localStorage.setItem(MOCK_VERSION_KEY, MOCK_VERSION);
       data = autoScheduleJobs(data);
@@ -332,7 +332,7 @@ function loadData(): AppData {
     }
   } catch {}
   const mock = generateMockData();
-  data = { ...mock, rounds: [], expenses: [], recurringExpenses: [], mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [] };
+  data = { ...mock, rounds: [], expenses: [], recurringExpenses: [], mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [], teamMembers: [], suppliers: [] };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   localStorage.setItem(MOCK_VERSION_KEY, MOCK_VERSION);
   data = autoScheduleJobs(data);
@@ -520,7 +520,7 @@ export function useAppData() {
     localStorage.removeItem(`pane-pro-auto-sched-${todayStr}`);
     localStorage.removeItem(`pane-pro-recurring-exp-${thisMonth}`);
     const mockRecurring = generateMockRecurringExpenses();
-    const withData: AppData = { ...mock, expenses: generateMockExpenses(), recurringExpenses: mockRecurring, mileageEntries: generateMockMileage(), fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [] };
+    const withData: AppData = { ...mock, expenses: generateMockExpenses(), recurringExpenses: mockRecurring, mileageEntries: generateMockMileage(), fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [], teamMembers: [], suppliers: [] };
     const scheduled = autoLogRecurringExpenses(autoScheduleJobs(withData));
     saveData(scheduled);
     localStorage.setItem(DEMO_FLAG_KEY, "1");
