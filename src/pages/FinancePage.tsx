@@ -12,6 +12,23 @@ import {
   ResponsiveContainer, CartesianGrid,
 } from "recharts";
 
+const CHART_GRID = "hsl(0 0% 12%)";
+const CHART_TICK = { fill: "hsl(0 0% 40%)", fontSize: 10 };
+const TOOLTIP_STYLE = {
+  background: "hsl(0 0% 8%)",
+  border: "1px solid hsl(0 0% 14%)",
+  borderRadius: 6,
+  fontSize: 12,
+  color: "hsl(0 0% 85%)",
+};
+
+const METHOD_COLOURS = [
+  "hsl(316 80% 44%)",
+  "hsl(200 60% 50%)",
+  "hsl(152 50% 48%)",
+  "hsl(45 70% 50%)",
+];
+
 export default function FinancePage() {
   const { customers, jobs, payments, expenses } = useApp();
 
@@ -85,34 +102,36 @@ export default function FinancePage() {
     return Object.entries(methods).map(([method, amount]) => ({ method, amount })).sort((a, b) => b.amount - a.amount);
   }, [payments]);
 
-  const methodColors = ["hsl(var(--primary))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))"];
+  const statCards = [
+    { label: "Total Revenue", value: formatCurrency(metrics.totalRevenue), icon: TrendingUp, sub: `${metrics.completedJobs} completed jobs`, colour: "text-success" },
+    { label: "Total Expenses", value: formatCurrency(metrics.totalExpenses), icon: Minus, sub: "across all categories", colour: "text-destructive" },
+    { label: "Net Profit", value: formatCurrency(Math.abs(metrics.netProfit)), icon: metrics.netProfit >= 0 ? ArrowUpRight : ArrowDownRight, sub: metrics.netProfit >= 0 ? "Profitable" : "Loss", colour: metrics.netProfit >= 0 ? "text-success" : "text-destructive" },
+    { label: "Outstanding", value: formatCurrency(metrics.totalOutstanding), icon: AlertTriangle, sub: `${metrics.customerDebts.length} customers owe`, colour: metrics.totalOutstanding > 0 ? "text-warning" : "text-success" },
+  ];
 
   return (
     <div className="pb-20 md:pb-0 space-y-5">
       <PageHeader title="Finances" description="Profit & loss overview and revenue trends" />
 
-      {/* Top stat cards */}
+      {/* KPI cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 animate-fade-up">
-        {[
-          { label: "Total Revenue", value: formatCurrency(metrics.totalRevenue), icon: TrendingUp, sub: `${metrics.completedJobs} completed jobs`, colour: "text-success" },
-          { label: "Total Expenses", value: formatCurrency(metrics.totalExpenses), icon: Minus, sub: `across all categories`, colour: "text-destructive" },
-          { label: "Net Profit", value: formatCurrency(Math.abs(metrics.netProfit)), icon: metrics.netProfit >= 0 ? ArrowUpRight : ArrowDownRight, sub: metrics.netProfit >= 0 ? "Profitable" : "Loss", colour: metrics.netProfit >= 0 ? "text-success" : "text-destructive" },
-          { label: "Outstanding Debt", value: formatCurrency(metrics.totalOutstanding), icon: AlertTriangle, sub: `${metrics.customerDebts.length} customers owe`, colour: metrics.totalOutstanding > 0 ? "text-warning" : "text-success" },
-        ].map(({ label, value, icon: Icon, sub, colour }) => (
+        {statCards.map(({ label, value, icon: Icon, sub, colour }) => (
           <div key={label} className="bg-card border border-border rounded-md p-4">
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between mb-3">
               <p className="label-caps">{label}</p>
-              <Icon className={cn("h-4 w-4", colour)} />
+              <div className={cn("h-7 w-7 rounded-md flex items-center justify-center bg-muted/40", colour)}>
+                <Icon className="h-3.5 w-3.5" />
+              </div>
             </div>
-            <p className={cn("font-mono text-xl font-medium", colour)}>{value}</p>
+            <p className={cn("font-mono text-xl", colour)}>{value}</p>
             <p className="text-[11px] text-muted-foreground mt-1">{sub}</p>
           </div>
         ))}
       </div>
 
-      {/* Monthly P&L chart */}
-      <div className="bg-card border border-border rounded-md p-4 animate-fade-up">
-        <div className="flex items-center justify-between mb-4">
+      {/* Monthly P&L */}
+      <div className="bg-card border border-border rounded-md p-5 animate-fade-up">
+        <div className="flex items-center justify-between mb-5">
           <p className="text-[13px] font-medium text-foreground flex items-center gap-2">
             <TrendingUp className="h-4 w-4 text-primary" /> Monthly Profit & Loss
           </p>
@@ -122,12 +141,12 @@ export default function FinancePage() {
           {monthlyPL.some((m) => m.revenue > 0 || m.expenses > 0) ? (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={monthlyPL} barCategoryGap="20%">
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="label" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => `£${v}`} />
-                <Tooltip cursor={false} contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }} formatter={(value: number, name: string) => [formatCurrency(value), name === "revenue" ? "Revenue" : name === "expenses" ? "Expenses" : "Profit"]} />
-                <Bar dataKey="revenue" fill="hsl(var(--success))" radius={[4, 4, 0, 0]} name="revenue" />
-                <Bar dataKey="expenses" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} name="expenses" />
+                <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} vertical={false} />
+                <XAxis dataKey="label" tick={CHART_TICK} axisLine={false} tickLine={false} />
+                <YAxis tick={CHART_TICK} axisLine={false} tickLine={false} tickFormatter={(v) => `£${v}`} />
+                <Tooltip cursor={false} contentStyle={TOOLTIP_STYLE} formatter={(value: number, name: string) => [formatCurrency(value), name === "revenue" ? "Revenue" : name === "expenses" ? "Expenses" : "Profit"]} />
+                <Bar dataKey="revenue" fill="hsl(var(--success))" radius={[3, 3, 0, 0]} name="revenue" />
+                <Bar dataKey="expenses" fill="hsl(var(--destructive))" radius={[3, 3, 0, 0]} name="expenses" />
               </BarChart>
             </ResponsiveContainer>
           ) : (
@@ -138,11 +157,10 @@ export default function FinancePage() {
 
       {/* This month + debtors */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-fade-up">
-        {/* This month summary */}
         <div className="space-y-3">
           <div className="bg-card border border-border rounded-md p-4">
             <p className="label-caps mb-1">This Month Revenue</p>
-            <p className="font-mono text-xl font-medium text-success">{formatCurrency(monthComparison.thisRev)}</p>
+            <p className="font-mono text-xl text-success">{formatCurrency(monthComparison.thisRev)}</p>
             {monthComparison.change !== 0 && (
               <p className={cn("text-[11px] mt-1", monthComparison.change > 0 ? "text-success" : "text-warning")}>
                 {monthComparison.change > 0 ? "+" : ""}{monthComparison.change.toFixed(0)}% vs last month
@@ -151,11 +169,11 @@ export default function FinancePage() {
           </div>
           <div className="bg-card border border-border rounded-md p-4">
             <p className="label-caps mb-1">This Month Expenses</p>
-            <p className="font-mono text-xl font-medium text-destructive">{formatCurrency(monthComparison.thisExp)}</p>
+            <p className="font-mono text-xl text-destructive">{formatCurrency(monthComparison.thisExp)}</p>
           </div>
           <div className="bg-card border border-border rounded-md p-4">
             <p className="label-caps mb-1">This Month Profit</p>
-            <p className={cn("font-mono text-xl font-medium", monthComparison.thisProfit >= 0 ? "text-success" : "text-destructive")}>
+            <p className={cn("font-mono text-xl", monthComparison.thisProfit >= 0 ? "text-success" : "text-destructive")}>
               {formatCurrency(Math.abs(monthComparison.thisProfit))}
             </p>
             {metrics.totalRevenue > 0 && (
@@ -164,7 +182,6 @@ export default function FinancePage() {
           </div>
         </div>
 
-        {/* Outstanding balances */}
         <div className="bg-card border border-border rounded-md p-4">
           <div className="flex items-center justify-between mb-4">
             <p className="text-[13px] font-medium text-foreground flex items-center gap-2">
@@ -177,12 +194,12 @@ export default function FinancePage() {
           ) : (
             <div className="space-y-1.5 max-h-[280px] overflow-y-auto">
               {metrics.customerDebts.slice(0, 15).map(({ customer, owed }) => (
-                <div key={customer.id} className="flex items-center justify-between rounded-md bg-muted/30 border border-border/50 px-3 py-2.5">
+                <div key={customer.id} className="flex items-center justify-between rounded-md bg-muted/20 border border-border/40 px-3 py-2.5">
                   <div className="min-w-0">
                     <p className="text-[12px] font-medium text-foreground truncate">{customer.name}</p>
                     <p className="text-[10px] text-muted-foreground truncate">{customer.address}</p>
                   </div>
-                  <p className="font-mono text-[13px] font-medium text-warning shrink-0 ml-3">{formatCurrency(owed)}</p>
+                  <p className="font-mono text-[13px] text-warning shrink-0 ml-3">{formatCurrency(owed)}</p>
                 </div>
               ))}
             </div>
@@ -190,10 +207,10 @@ export default function FinancePage() {
         </div>
       </div>
 
-      {/* Revenue & Weekly jobs */}
+      {/* Revenue trend & Weekly jobs */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-fade-up">
-        <div className="bg-card border border-border rounded-md p-4">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-card border border-border rounded-md p-5">
+          <div className="flex items-center justify-between mb-5">
             <p className="text-[13px] font-medium text-foreground flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-primary" /> Revenue Trend
             </p>
@@ -205,14 +222,14 @@ export default function FinancePage() {
                 <AreaChart data={monthlyPL}>
                   <defs>
                     <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.2} />
                       <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="label" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => `£${v}`} />
-                  <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }} formatter={(value: number) => [formatCurrency(value)]} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} vertical={false} />
+                  <XAxis dataKey="label" tick={CHART_TICK} axisLine={false} tickLine={false} />
+                  <YAxis tick={CHART_TICK} axisLine={false} tickLine={false} tickFormatter={(v) => `£${v}`} />
+                  <Tooltip cursor={false} contentStyle={TOOLTIP_STYLE} formatter={(value: number) => [formatCurrency(value)]} />
                   <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" fill="url(#revGrad)" strokeWidth={2} name="Revenue" />
                 </AreaChart>
               </ResponsiveContainer>
@@ -222,8 +239,8 @@ export default function FinancePage() {
           </div>
         </div>
 
-        <div className="bg-card border border-border rounded-md p-4">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-card border border-border rounded-md p-5">
+          <div className="flex items-center justify-between mb-5">
             <p className="text-[13px] font-medium text-foreground flex items-center gap-2">
               <Receipt className="h-4 w-4 text-primary" /> Weekly Jobs
             </p>
@@ -233,11 +250,11 @@ export default function FinancePage() {
             {weeklyData.some((w) => w.jobs > 0) ? (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={weeklyData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="label" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }} formatter={(value: number) => [`${value} jobs`]} />
-                  <Bar dataKey="jobs" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="Jobs" />
+                  <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} vertical={false} />
+                  <XAxis dataKey="label" tick={CHART_TICK} axisLine={false} tickLine={false} />
+                  <YAxis tick={CHART_TICK} axisLine={false} tickLine={false} />
+                  <Tooltip cursor={false} contentStyle={TOOLTIP_STYLE} formatter={(value: number) => [`${value} jobs`]} />
+                  <Bar dataKey="jobs" fill="hsl(var(--primary))" radius={[3, 3, 0, 0]} name="Jobs" opacity={0.85} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
@@ -249,24 +266,24 @@ export default function FinancePage() {
 
       {/* Payment methods + KPIs */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-fade-up">
-        <div className="bg-card border border-border rounded-md p-4">
-          <p className="text-[13px] font-medium text-foreground mb-4 flex items-center gap-2">
+        <div className="bg-card border border-border rounded-md p-5">
+          <p className="text-[13px] font-medium text-foreground mb-5 flex items-center gap-2">
             <PoundSterling className="h-4 w-4 text-primary" /> Payment Methods
           </p>
           {methodBreakdown.length === 0 ? (
             <p className="text-[12px] text-muted-foreground py-8 text-center">No payments recorded yet.</p>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {methodBreakdown.map(({ method, amount }, i) => {
                 const pct = metrics.totalPaid > 0 ? (amount / metrics.totalPaid) * 100 : 0;
                 return (
                   <div key={method}>
-                    <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center justify-between mb-1.5">
                       <p className="text-[12px] font-medium text-foreground capitalize">{method}</p>
                       <p className="text-[11px] text-muted-foreground font-mono">{formatCurrency(amount)} ({pct.toFixed(0)}%)</p>
                     </div>
-                    <div className="h-2 bg-muted/30 rounded-full overflow-hidden">
-                      <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: methodColors[i % methodColors.length] }} />
+                    <div className="h-1.5 bg-muted/20 rounded-full overflow-hidden">
+                      <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: METHOD_COLOURS[i % METHOD_COLOURS.length] }} />
                     </div>
                   </div>
                 );
@@ -275,21 +292,26 @@ export default function FinancePage() {
           )}
         </div>
 
-        <div className="bg-card border border-border rounded-md p-4 flex flex-col justify-between">
-          <div className="space-y-4">
+        <div className="bg-card border border-border rounded-md p-5">
+          <p className="text-[13px] font-medium text-foreground mb-5 flex items-center gap-2">
+            <Receipt className="h-4 w-4 text-primary" /> Key Metrics
+          </p>
+          <div className="space-y-5">
             <div className="flex items-center justify-between">
               <p className="label-caps">Average Job Value</p>
-              <p className="font-mono text-lg font-medium text-foreground">{formatCurrency(metrics.avgJobValue)}</p>
+              <p className="font-mono text-lg text-foreground">{formatCurrency(metrics.avgJobValue)}</p>
             </div>
+            <div className="h-px bg-border/50" />
             <div className="flex items-center justify-between">
               <p className="label-caps">Collection Rate</p>
-              <p className={cn("font-mono text-lg font-medium", metrics.totalRevenue > 0 && (metrics.totalPaid / metrics.totalRevenue) >= 0.9 ? "text-success" : "text-warning")}>
+              <p className={cn("font-mono text-lg", metrics.totalRevenue > 0 && (metrics.totalPaid / metrics.totalRevenue) >= 0.9 ? "text-success" : "text-warning")}>
                 {metrics.totalRevenue > 0 ? ((metrics.totalPaid / metrics.totalRevenue) * 100).toFixed(0) : "0"}%
               </p>
             </div>
+            <div className="h-px bg-border/50" />
             <div className="flex items-center justify-between">
               <p className="label-caps">Profit Margin</p>
-              <p className={cn("font-mono text-lg font-medium", metrics.netProfit >= 0 ? "text-success" : "text-destructive")}>
+              <p className={cn("font-mono text-lg", metrics.netProfit >= 0 ? "text-success" : "text-destructive")}>
                 {metrics.totalRevenue > 0 ? ((metrics.netProfit / metrics.totalRevenue) * 100).toFixed(0) : "0"}%
               </p>
             </div>
