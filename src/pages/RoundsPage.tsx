@@ -3,6 +3,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useApp } from "@/lib/AppContext";
 import { formatCurrency } from "@/lib/helpers";
 import PageHeader from "@/components/PageHeader";
+import EmptyState from "@/components/EmptyState";
+import StatCard from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Pencil, Users, ChevronDown, Map } from "lucide-react";
+import { Plus, Trash2, Pencil, Users, ChevronDown, Map, PoundSterling } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Round } from "@/lib/store";
 
@@ -98,26 +100,10 @@ export default function RoundsPage() {
             const monthlyValue = weeklyValue * 4.33;
             return (
               <>
-                <div className="surface rounded-md p-4">
-                  <p className="label-caps mb-1">Assigned</p>
-                  <p className="font-mono text-xl font-medium text-foreground">{totalAssigned}</p>
-                  <p className="text-[11px] text-muted-foreground">of {totalCustomers} customers</p>
-                </div>
-                <div className="surface rounded-md p-4">
-                  <p className="label-caps mb-1">Unassigned</p>
-                  <p className="font-mono text-xl font-medium text-foreground">{unassigned.length}</p>
-                  <p className="text-[11px] text-muted-foreground">{totalCustomers > 0 ? `${Math.round((unassigned.length / totalCustomers) * 100)}%` : "—"}</p>
-                </div>
-                <div className="surface rounded-md p-4">
-                  <p className="label-caps mb-1">Weekly Value</p>
-                  <p className="font-mono text-xl font-medium text-foreground">{formatCurrency(weeklyValue)}</p>
-                  <p className="text-[11px] text-muted-foreground">{rounds.length} round{rounds.length !== 1 ? "s" : ""}</p>
-                </div>
-                <div className="surface rounded-md p-4">
-                  <p className="label-caps mb-1">Monthly Value</p>
-                  <p className="font-mono text-xl font-medium text-foreground">{formatCurrency(monthlyValue)}</p>
-                  <p className="text-[11px] text-muted-foreground">estimated</p>
-                </div>
+                <StatCard label="Assigned" value={String(totalAssigned)} icon={Users} sub={`of ${totalCustomers} customers`} />
+                <StatCard label="Unassigned" value={String(unassigned.length)} icon={Users} sub={totalCustomers > 0 ? `${Math.round((unassigned.length / totalCustomers) * 100)}%` : "—"} />
+                <StatCard label="Weekly Value" value={formatCurrency(weeklyValue)} icon={PoundSterling} sub={`${rounds.length} round${rounds.length !== 1 ? "s" : ""}`} />
+                <StatCard label="Monthly Value" value={formatCurrency(monthlyValue)} icon={PoundSterling} sub="estimated" />
               </>
             );
           })()}
@@ -125,10 +111,7 @@ export default function RoundsPage() {
       )}
 
       {rounds.length === 0 ? (
-        <div className="surface rounded-md p-10 text-center animate-fade-up">
-          <Map className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
-          <p className="text-[13px] text-muted-foreground">No rounds yet — create one to group your customers.</p>
-        </div>
+        <EmptyState icon={Map} message="No rounds yet — create one to group your customers." className="animate-fade-up" />
       ) : (
         <div className="space-y-2 animate-fade-up">
           {rounds.map((round) => {

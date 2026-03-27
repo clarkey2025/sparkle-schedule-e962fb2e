@@ -5,6 +5,7 @@ import { useApp } from "@/lib/AppContext";
 import { formatCurrency, formatDate } from "@/lib/helpers";
 import PageHeader from "@/components/PageHeader";
 import BulkActionBar from "@/components/BulkActionBar";
+import EmptyState from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -157,11 +158,7 @@ export default function JobsPage() {
       />
 
       {filtered.length === 0 ? (
-        <div className="surface rounded-md p-8 text-center animate-fade-up stagger-2">
-          <p className="text-muted-foreground text-sm">
-            {customers.length === 0 ? "Add a customer first to start logging jobs." : "No jobs found."}
-          </p>
-        </div>
+        <EmptyState message={customers.length === 0 ? "Add a customer first to start logging jobs." : "No jobs found."} className="animate-fade-up stagger-2" />
       ) : (
         <div className="space-y-3 animate-fade-up stagger-2">
           <div className="surface rounded-md overflow-hidden">

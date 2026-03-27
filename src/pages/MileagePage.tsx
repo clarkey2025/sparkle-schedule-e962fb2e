@@ -2,6 +2,8 @@ import { useState, useMemo } from "react";
 import { useApp } from "@/lib/AppContext";
 import { formatCurrency, formatDate } from "@/lib/helpers";
 import PageHeader from "@/components/PageHeader";
+import StatCard from "@/components/StatCard";
+import EmptyState from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -64,20 +66,10 @@ export default function MileagePage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 animate-fade-up">
-        {[
-          { label: "Total Miles", value: metrics.totalMiles.toFixed(0), icon: Car, colour: "text-primary" },
-          { label: "Est. Fuel Cost", value: formatCurrency(metrics.totalFuelCost), icon: Fuel, colour: "text-destructive" },
-          { label: "This Month Miles", value: metrics.thisMonthMiles.toFixed(0), icon: Car, colour: "text-primary" },
-          { label: "This Month Fuel", value: formatCurrency(metrics.thisMonthFuel), icon: Fuel, colour: "text-warning" },
-        ].map(({ label, value, icon: Icon, colour }) => (
-          <div key={label} className="bg-card border border-border rounded-md p-4">
-            <div className="flex items-center justify-between mb-2">
-              <p className="label-caps">{label}</p>
-              <Icon className={cn("h-4 w-4", colour)} />
-            </div>
-            <p className={cn("font-mono text-xl font-medium", colour)}>{value}</p>
-          </div>
-        ))}
+        <StatCard label="Total Miles" value={metrics.totalMiles.toFixed(0)} icon={Car} colour="text-primary" />
+        <StatCard label="Est. Fuel Cost" value={formatCurrency(metrics.totalFuelCost)} icon={Fuel} colour="text-destructive" />
+        <StatCard label="This Month Miles" value={metrics.thisMonthMiles.toFixed(0)} icon={Car} colour="text-primary" />
+        <StatCard label="This Month Fuel" value={formatCurrency(metrics.thisMonthFuel)} icon={Fuel} colour="text-warning" />
       </div>
 
       {/* Fuel settings */}
@@ -115,11 +107,7 @@ export default function MileagePage() {
 
       {/* Mileage log */}
       {paginated.length === 0 ? (
-        <div className="surface rounded-md p-10 text-center animate-fade-up">
-          <Car className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground">No mileage entries yet.</p>
-          <p className="text-[11px] text-muted-foreground/50 mt-1">Track daily miles to auto-calculate fuel costs.</p>
-        </div>
+        <EmptyState icon={Car} message="No mileage entries yet. Track daily miles to auto-calculate fuel costs." className="animate-fade-up" />
       ) : (
         <div className="space-y-3 animate-fade-up">
           <div className="bg-card border border-border rounded-md divide-y divide-border">

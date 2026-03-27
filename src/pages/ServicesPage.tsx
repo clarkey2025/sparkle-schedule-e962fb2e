@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useApp } from "@/lib/AppContext";
 import { formatCurrency } from "@/lib/helpers";
 import PageHeader from "@/components/PageHeader";
+import EmptyState from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -170,10 +171,7 @@ export default function ServicesPage() {
         })}
 
         {services.length === 0 && (
-          <div className="surface rounded-md p-10 text-center">
-            <Wrench className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
-            <p className="text-[13px] text-muted-foreground">No services yet — add one to get started.</p>
-          </div>
+          <EmptyState icon={Wrench} message="No services yet — add one to get started." />
         )}
       </div>
 

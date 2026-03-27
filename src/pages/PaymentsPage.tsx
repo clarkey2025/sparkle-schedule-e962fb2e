@@ -5,6 +5,7 @@ import { useApp } from "@/lib/AppContext";
 import { formatCurrency, formatDate } from "@/lib/helpers";
 import PageHeader from "@/components/PageHeader";
 import BulkActionBar from "@/components/BulkActionBar";
+import EmptyState from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -171,11 +172,7 @@ export default function PaymentsPage() {
       />
 
       {filtered.length === 0 ? (
-        <div className="surface rounded-md p-8 text-center animate-fade-up stagger-1">
-          <p className="text-muted-foreground text-sm">
-            {hasFilter ? "No payments in this date range." : "No payments recorded yet."}
-          </p>
-        </div>
+        <EmptyState message={hasFilter ? "No payments in this date range." : "No payments recorded yet."} className="animate-fade-up stagger-1" />
       ) : (
         <div className="space-y-3 animate-fade-up stagger-1">
           <div className="surface rounded-md overflow-hidden">

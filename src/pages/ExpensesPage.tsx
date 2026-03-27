@@ -2,6 +2,8 @@ import { useState, useMemo } from "react";
 import { useApp } from "@/lib/AppContext";
 import { formatCurrency, formatDate } from "@/lib/helpers";
 import PageHeader from "@/components/PageHeader";
+import StatCard from "@/components/StatCard";
+import EmptyState from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -163,21 +165,9 @@ export default function ExpensesPage() {
 
       {/* ── Summary cards ── */}
       <div className="grid grid-cols-3 gap-3 animate-fade-up">
-        <div className="bg-card border border-border rounded-md p-4">
-          <p className="label-caps mb-2">Total Spent</p>
-          <p className="font-mono text-2xl font-medium text-destructive leading-none">{formatCurrency(totalExpenses)}</p>
-          <p className="text-[11px] text-muted-foreground mt-2">{expenses.length} expense{expenses.length !== 1 ? "s" : ""} logged</p>
-        </div>
-        <div className="bg-card border border-border rounded-md p-4">
-          <p className="label-caps mb-2">This Month</p>
-          <p className="font-mono text-2xl font-medium text-foreground leading-none">{formatCurrency(thisMonthTotal)}</p>
-          <p className="text-[11px] text-muted-foreground mt-2">{new Date().toLocaleDateString("en-GB", { month: "long" })}</p>
-        </div>
-        <div className="bg-card border border-border rounded-md p-4">
-          <p className="label-caps mb-2">Recurring</p>
-          <p className="font-mono text-2xl font-medium text-warning leading-none">{formatCurrency(recurringMonthly)}</p>
-          <p className="text-[11px] text-muted-foreground mt-2">{recurringExpenses.filter((r) => r.active).length} active/month</p>
-        </div>
+        <StatCard label="Total Spent" value={formatCurrency(totalExpenses)} icon={Receipt} sub={`${expenses.length} expense${expenses.length !== 1 ? "s" : ""} logged`} colour="text-destructive" />
+        <StatCard label="This Month" value={formatCurrency(thisMonthTotal)} icon={Receipt} sub={new Date().toLocaleDateString("en-GB", { month: "long" })} colour="text-foreground" />
+        <StatCard label="Recurring" value={formatCurrency(recurringMonthly)} icon={RefreshCw} sub={`${recurringExpenses.filter((r) => r.active).length} active/month`} colour="text-warning" />
       </div>
 
       {/* ── Tabs: Log / Recurring ── */}
@@ -216,10 +206,7 @@ export default function ExpensesPage() {
           </div>
 
           {paginated.length === 0 ? (
-            <div className="surface rounded-md p-10 text-center">
-              <Receipt className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
-              <p className="text-sm text-muted-foreground">{expenses.length === 0 ? "No expenses logged yet — add one to get started." : "No matching expenses."}</p>
-            </div>
+            <EmptyState icon={Receipt} message={expenses.length === 0 ? "No expenses logged yet — add one to get started." : "No matching expenses."} />
           ) : (
             <>
               <div className="bg-card border border-border rounded-md divide-y divide-border overflow-hidden">
@@ -245,7 +232,7 @@ export default function ExpensesPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <p className="font-mono text-sm font-semibold text-destructive">−{formatCurrency(e.amount)}</p>
+                        <p className="font-mono text-sm font-medium text-destructive">−{formatCurrency(e.amount)}</p>
                         <Button
                           variant="ghost" size="icon"
                           className="h-7 w-7 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
@@ -292,11 +279,7 @@ export default function ExpensesPage() {
           </div>
 
           {recurringExpenses.length === 0 ? (
-            <div className="surface rounded-md p-10 text-center">
-              <RefreshCw className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
-              <p className="text-sm text-muted-foreground">No recurring expenses set up yet.</p>
-              <p className="text-[11px] text-muted-foreground/60 mt-1">Add monthly bills like insurance, software, van finance.</p>
-            </div>
+            <EmptyState icon={RefreshCw} message="No recurring expenses set up yet. Add monthly bills like insurance, software, van finance." />
           ) : (
             <div className="bg-card border border-border rounded-md divide-y divide-border overflow-hidden">
               {recurringExpenses.map((re) => {
@@ -320,7 +303,7 @@ export default function ExpensesPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-3 shrink-0">
-                      <p className={cn("font-mono text-sm font-semibold", re.active ? "text-destructive" : "text-muted-foreground")}>
+                      <p className={cn("font-mono text-sm font-medium", re.active ? "text-destructive" : "text-muted-foreground")}>
                         {formatCurrency(re.amount)}<span className="text-[10px] font-normal text-muted-foreground">/mo</span>
                       </p>
                       <Switch checked={re.active} onCheckedChange={(checked) => updateRecurringExpense(re.id, { active: checked })} />
@@ -342,9 +325,7 @@ export default function ExpensesPage() {
         {/* ── Category Breakdown Tab ── */}
         <TabsContent value="breakdown" className="mt-4 space-y-3">
           {categoryBreakdown.length === 0 ? (
-            <div className="surface rounded-md p-10 text-center">
-              <p className="text-sm text-muted-foreground">No expenses to break down yet.</p>
-            </div>
+            <EmptyState message="No expenses to break down yet." />
           ) : (
             <div className="bg-card border border-border rounded-md p-5 space-y-4">
               {categoryBreakdown.map(({ category, amount, meta }) => {

@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useApp } from "@/lib/AppContext";
 import { formatCurrency } from "@/lib/helpers";
 import PageHeader from "@/components/PageHeader";
+import StatCard from "@/components/StatCard";
 import {
   PoundSterling, TrendingUp, AlertTriangle,
   Users, ArrowUpRight, ArrowDownRight, Receipt, Minus,
@@ -115,17 +116,8 @@ export default function FinancePage() {
 
       {/* KPI cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 animate-fade-up">
-        {statCards.map(({ label, value, icon: Icon, sub, colour }) => (
-          <div key={label} className="bg-card border border-border rounded-md p-4">
-            <div className="flex items-center justify-between mb-3">
-              <p className="label-caps">{label}</p>
-              <div className={cn("h-7 w-7 rounded-md flex items-center justify-center bg-muted/40", colour)}>
-                <Icon className="h-3.5 w-3.5" />
-              </div>
-            </div>
-            <p className={cn("font-mono text-xl", colour)}>{value}</p>
-            <p className="text-[11px] text-muted-foreground mt-1">{sub}</p>
-          </div>
+        {statCards.map((card) => (
+          <StatCard key={card.label} {...card} />
         ))}
       </div>
 

@@ -4,6 +4,7 @@ import { useApp } from "@/lib/AppContext";
 import { formatCurrency, formatDate, getNextDueDate, FREQUENCY_LABELS } from "@/lib/helpers";
 import { geocodeCustomers, type GeocodeResult } from "@/lib/geocode";
 import PageHeader from "@/components/PageHeader";
+import StatCard from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,19 +48,8 @@ const emptyPaymentForm = {
 type SortKey = "name" | "lastClean" | "outstanding" | "nextDue";
 type FilterKey = "all" | "overdue" | "upcoming" | "clear";
 
-function InitialsAvatar({ name, size = "sm" }: { name: string; size?: "sm" | "lg" }) {
-  const initials = name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
-  const hue = name.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0) % 360;
-  const dim = size === "lg" ? "h-11 w-11 text-[13px]" : "h-8 w-8 text-[11px]";
-  return (
-    <div
-      className={cn("flex shrink-0 items-center justify-center rounded-full font-medium", dim)}
-      style={{ backgroundColor: `hsl(${hue} 30% 18%)`, color: `hsl(${hue} 60% 65%)` }}
-    >
-      {initials || "?"}
-    </div>
-  );
-}
+// InitialsAvatar extracted to shared component
+import InitialsAvatar from "@/components/InitialsAvatar";
 
 function DueBadge({ daysOverdue, daysUntil }: { daysOverdue?: number; daysUntil?: number }) {
   if (daysOverdue !== undefined && daysOverdue > 0) {
@@ -562,21 +552,9 @@ export default function CustomersPage() {
 
       {/* Summary row */}
       <div className="grid grid-cols-3 gap-3 animate-fade-up stagger-1">
-        {[
-          { label: "Total Customers", value: String(customers.length), icon: CheckCircle2, colour: "text-foreground" },
-          { label: "Overdue Cleans", value: String(overdueCount), icon: AlertTriangle, colour: overdueCount > 0 ? "text-warning" : "text-success" },
-          { label: "Outstanding Debt", value: formatCurrency(totalOutstanding), icon: PoundSterling, colour: totalOutstanding > 0 ? "text-warning" : "text-success" },
-        ].map(({ label, value, icon: Icon, colour }) => (
-          <div key={label} className="bg-card border border-border rounded-md p-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="label-caps mb-2">{label}</p>
-                <p className={cn("font-mono text-[22px] font-medium leading-none", colour)}>{value}</p>
-              </div>
-              <Icon className="h-4 w-4 text-muted-foreground/30 mt-0.5" />
-            </div>
-          </div>
-        ))}
+        <StatCard label="Total Customers" value={String(customers.length)} icon={CheckCircle2} colour="text-foreground" />
+        <StatCard label="Overdue Cleans" value={String(overdueCount)} icon={AlertTriangle} colour={overdueCount > 0 ? "text-warning" : "text-success"} />
+        <StatCard label="Outstanding Debt" value={formatCurrency(totalOutstanding)} icon={PoundSterling} colour={totalOutstanding > 0 ? "text-warning" : "text-success"} />
       </div>
 
       {/* Controls */}
