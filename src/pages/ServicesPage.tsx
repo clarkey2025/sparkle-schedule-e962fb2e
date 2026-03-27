@@ -80,7 +80,7 @@ export default function ServicesPage() {
   ];
 
   return (
-    <div className="pb-24 md:pb-0 flex flex-col gap-5">
+    <div className="pb-20 md:pb-0 space-y-5">
       <PageHeader
         title="Services"
         description={`${services.length} service${services.length !== 1 ? "s" : ""} across ${Object.keys(grouped).length} categor${Object.keys(grouped).length !== 1 ? "ies" : "y"}`}
@@ -91,7 +91,7 @@ export default function ServicesPage() {
         }
       />
 
-      <div className="flex flex-col gap-5 animate-fade-up stagger-1">
+      <div className="flex flex-col gap-4 animate-fade-up stagger-1">
         {categoryOrder.filter((cat) => grouped[cat]?.length).map((cat) => {
           const meta = CATEGORY_META[cat];
           const Icon = meta.icon;

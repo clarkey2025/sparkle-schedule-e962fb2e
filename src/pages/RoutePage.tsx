@@ -16,11 +16,11 @@ export default function RoutePage() {
   }, [jobs, customers]);
 
   return (
-    <div className="pb-24 md:pb-0">
+    <div className="pb-20 md:pb-0 space-y-5">
       <PageHeader title="Route Planner" description="Optimise your daily cleaning round" />
 
       {/* Feature teaser cards */}
-      <div className="grid grid-cols-3 gap-3 mb-6 animate-fade-up stagger-1">
+      <div className="grid grid-cols-3 gap-3 animate-fade-up stagger-1">
         {[
           { label: "Stops", value: String(scheduledJobs.length), icon: MapPin },
           { label: "Est. Drive", value: "—", icon: Clock },
@@ -30,7 +30,7 @@ export default function RoutePage() {
             <div className="flex items-start justify-between">
               <div>
                 <p className="label-caps mb-2">{label}</p>
-                <p className="font-mono text-[22px] font-medium leading-none text-foreground">{value}</p>
+                <p className="font-mono text-2xl font-medium leading-none text-foreground">{value}</p>
               </div>
               <Icon className="h-4 w-4 text-muted-foreground/30 mt-0.5" />
             </div>
@@ -39,7 +39,7 @@ export default function RoutePage() {
       </div>
 
       {/* Map placeholder */}
-      <div className="bg-card border border-border rounded-md overflow-hidden mb-6 animate-fade-up stagger-2">
+      <div className="bg-card border border-border rounded-md overflow-hidden animate-fade-up stagger-2">
         <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
           <Navigation className="h-3.5 w-3.5 text-primary" />
           <span className="text-[13px] font-semibold text-foreground">Route Map</span>

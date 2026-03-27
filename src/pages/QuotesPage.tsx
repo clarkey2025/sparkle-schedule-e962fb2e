@@ -249,7 +249,7 @@ export default function QuotesPage() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-up">
+    <div className="pb-20 md:pb-0 space-y-5 animate-fade-up">
       <PageHeader
         title="Quotes"
         description="Create and manage quotes for your customers"
@@ -261,25 +261,16 @@ export default function QuotesPage() {
       />
 
       {/* Filters */}
-      <div className="flex items-center gap-3">
-        {["all", "draft", "sent", "accepted", "declined"].map((s) => (
-          <button
-            key={s}
-            onClick={() => { setFilterStatus(s); setPage(1); }}
-            className={cn(
-              "px-3 py-1.5 text-xs font-medium rounded-md transition-colors capitalize",
-              filterStatus === s
-                ? "bg-primary/15 text-primary"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted"
-            )}
-          >
+      <div className="flex gap-2 flex-wrap">
+        {(["all", "draft", "sent", "accepted", "declined"] as const).map((s) => (
+          <Button key={s} variant={filterStatus === s ? "default" : "outline"} size="sm" onClick={() => { setFilterStatus(s); setPage(1); }} className="capitalize text-xs">
             {s === "all" ? "All" : s}
-          </button>
+          </Button>
         ))}
       </div>
 
       {/* Quotes table */}
-      <div className="surface rounded-xl overflow-hidden">
+      <div className="surface rounded-md overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent border-border">
@@ -368,27 +359,32 @@ export default function QuotesPage() {
       </div>
 
       {totalPages > 1 && (
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className={page === 1 ? "pointer-events-none opacity-40" : "cursor-pointer"}
-              />
-            </PaginationItem>
-            <PaginationItem>
-              <span className="text-xs text-muted-foreground px-3">
-                Page {page} of {totalPages}
-              </span>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationNext
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                className={page === totalPages ? "pointer-events-none opacity-40" : "cursor-pointer"}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+        <div className="flex items-center justify-between px-1">
+          <p className="text-[12px] text-muted-foreground">
+            Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}
+          </p>
+          <Pagination className="w-auto mx-0">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  className={page === 1 ? "pointer-events-none opacity-40" : "cursor-pointer"}
+                />
+              </PaginationItem>
+              <PaginationItem>
+                <span className="text-[12px] text-muted-foreground px-3 py-2 tabular-nums">
+                  {page} / {totalPages}
+                </span>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  className={page === totalPages ? "pointer-events-none opacity-40" : "cursor-pointer"}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
       )}
 
       {/* Create quote dialog */}

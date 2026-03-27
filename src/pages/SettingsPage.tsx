@@ -38,7 +38,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-up">
+    <div className="pb-20 md:pb-0 space-y-5 animate-fade-up">
       <PageHeader
         title="Settings"
         description="Manage your business details — these appear on quotes and invoices"
@@ -49,7 +49,7 @@ export default function SettingsPage() {
         }
       />
 
-      <div className="surface rounded-xl p-6 max-w-2xl space-y-6">
+      <div className="surface rounded-md p-6 max-w-2xl space-y-5">
         {/* Logo */}
         <div className="space-y-2">
           <Label>Business Logo</Label>
