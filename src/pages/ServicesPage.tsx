@@ -12,12 +12,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Badge } from "@/components/ui/badge";
 import {
   Plus, Pencil, Trash2, Droplets, Home, Waves, CarFront, SprayCan, Wrench,
+  Tag, Palette, FolderPlus,
 } from "lucide-react";
-import type { Service } from "@/lib/store";
+import type { Service, ServiceCategory } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
-const CATEGORY_META: Record<Service["category"], { label: string; icon: typeof Droplets; badgeClass: string }> = {
+/* ── Built-in category visuals ── */
+const BUILT_IN_META: Record<string, { label: string; icon: typeof Droplets; badgeClass: string }> = {
   "window-cleaning": { label: "Window Cleaning", icon: Droplets, badgeClass: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
   "gutter-cleaning": { label: "Gutter Cleaning", icon: Home, badgeClass: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
   "soffit-fascia": { label: "Soffit & Fascia", icon: SprayCan, badgeClass: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" },
@@ -25,6 +27,21 @@ const CATEGORY_META: Record<Service["category"], { label: string; icon: typeof D
   "caravan-cleaning": { label: "Caravan Cleaning", icon: CarFront, badgeClass: "bg-rose-500/10 text-rose-400 border-rose-500/20" },
   custom: { label: "Custom", icon: Wrench, badgeClass: "bg-muted text-muted-foreground border-border" },
 };
+
+const COLOUR_OPTIONS = [
+  { value: "violet", class: "bg-violet-500/10 text-violet-400 border-violet-500/20" },
+  { value: "pink", class: "bg-pink-500/10 text-pink-400 border-pink-500/20" },
+  { value: "orange", class: "bg-orange-500/10 text-orange-400 border-orange-500/20" },
+  { value: "lime", class: "bg-lime-500/10 text-lime-400 border-lime-500/20" },
+  { value: "teal", class: "bg-teal-500/10 text-teal-400 border-teal-500/20" },
+  { value: "sky", class: "bg-sky-500/10 text-sky-400 border-sky-500/20" },
+  { value: "fuchsia", class: "bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20" },
+  { value: "yellow", class: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20" },
+];
+
+function getColourClass(colour: string) {
+  return COLOUR_OPTIONS.find((c) => c.value === colour)?.class ?? "bg-muted text-muted-foreground border-border";
+}
 
 const CARAVAN_TIER_LABELS: Record<string, string> = {
   "full-external": "Full External",
@@ -34,7 +51,7 @@ const CARAVAN_TIER_LABELS: Record<string, string> = {
 
 type FormState = {
   name: string;
-  category: Service["category"];
+  category: string;
   description: string;
   defaultPrice: number;
   caravanTier?: Service["caravanTier"];
@@ -42,13 +59,35 @@ type FormState = {
 
 const emptyForm: FormState = { name: "", category: "custom", description: "", defaultPrice: 0 };
 
+/* ── Helpers to merge built-in + custom for display ── */
+function getCategoryMeta(catKey: string, customCats: ServiceCategory[]) {
+  if (BUILT_IN_META[catKey]) {
+    const m = BUILT_IN_META[catKey];
+    return { label: m.label, icon: m.icon, badgeClass: m.badgeClass };
+  }
+  const custom = customCats.find((c) => c.id === catKey);
+  if (custom) {
+    return { label: custom.label, icon: Tag, badgeClass: getColourClass(custom.colour) };
+  }
+  return BUILT_IN_META.custom;
+}
+
 export default function ServicesPage() {
-  const { services = [], customerServices = [], addService, updateService, deleteService } = useApp();
+  const {
+    services = [], customerServices = [], serviceCategories = [],
+    addService, updateService, deleteService,
+    addServiceCategory, updateServiceCategory, deleteServiceCategory,
+  } = useApp();
   const { toast } = useToast();
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Service | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
+
+  // Category management
+  const [catDialogOpen, setCatDialogOpen] = useState(false);
+  const [editingCat, setEditingCat] = useState<ServiceCategory | null>(null);
+  const [catForm, setCatForm] = useState({ label: "", colour: "violet" });
 
   const openAdd = () => { setEditing(null); setForm(emptyForm); setDialogOpen(true); };
   const openEdit = (s: Service) => {
@@ -71,13 +110,40 @@ export default function ServicesPage() {
     toast({ title: editing ? "Service updated" : "Service added", description: form.name });
   };
 
+  const openAddCat = () => { setEditingCat(null); setCatForm({ label: "", colour: "violet" }); setCatDialogOpen(true); };
+  const openEditCat = (c: ServiceCategory) => { setEditingCat(c); setCatForm({ label: c.label, colour: c.colour }); setCatDialogOpen(true); };
+
+  const handleSaveCat = () => {
+    if (!catForm.label.trim()) return;
+    if (editingCat) {
+      updateServiceCategory(editingCat.id, { label: catForm.label, colour: catForm.colour });
+      toast({ title: "Category updated", description: catForm.label });
+    } else {
+      addServiceCategory({ label: catForm.label, colour: catForm.colour, icon: "tag" });
+      toast({ title: "Category added", description: catForm.label });
+    }
+    setCatDialogOpen(false);
+  };
+
+  const handleDeleteCat = (c: ServiceCategory) => {
+    deleteServiceCategory(c.id);
+    toast({ title: "Category deleted", description: `${c.label} — services moved to Custom` });
+  };
+
+  /* ── Grouping ── */
   const grouped = services.reduce<Record<string, Service[]>>((acc, s) => {
     (acc[s.category] ??= []).push(s);
     return acc;
   }, {});
 
-  const categoryOrder: Service["category"][] = [
-    "window-cleaning", "gutter-cleaning", "soffit-fascia", "jet-washing", "caravan-cleaning", "custom",
+  const builtInOrder = ["window-cleaning", "gutter-cleaning", "soffit-fascia", "jet-washing", "caravan-cleaning"];
+  const customCatIds = serviceCategories.map((c) => c.id);
+  const categoryOrder = [...builtInOrder, ...customCatIds, "custom"].filter((cat) => grouped[cat]?.length);
+
+  /* ── All category options for the select dropdown ── */
+  const allCategoryOptions = [
+    ...Object.entries(BUILT_IN_META).map(([k, v]) => ({ value: k, label: v.label })),
+    ...serviceCategories.map((c) => ({ value: c.id, label: c.label })),
   ];
 
   return (
@@ -86,21 +152,55 @@ export default function ServicesPage() {
         title="Services"
         description={`${services.length} service${services.length !== 1 ? "s" : ""} across ${Object.keys(grouped).length} categor${Object.keys(grouped).length !== 1 ? "ies" : "y"}`}
         action={
-          <Button onClick={openAdd} size="sm">
-            <Plus className="h-3.5 w-3.5 mr-1" /> Add Service
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button onClick={openAddCat} size="sm" variant="outline">
+              <FolderPlus className="h-3.5 w-3.5 mr-1" /> New Category
+            </Button>
+            <Button onClick={openAdd} size="sm">
+              <Plus className="h-3.5 w-3.5 mr-1" /> Add Service
+            </Button>
+          </div>
         }
       />
 
+      {/* Custom categories chips */}
+      {serviceCategories.length > 0 && (
+        <div className="flex flex-wrap gap-2 animate-fade-up">
+          {serviceCategories.map((c) => {
+            const colClass = getColourClass(c.colour);
+            return (
+              <div
+                key={c.id}
+                className={cn("flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-medium group cursor-default", colClass)}
+              >
+                <Tag className="h-3 w-3" />
+                <span>{c.label}</span>
+                <button
+                  onClick={() => openEditCat(c)}
+                  className="opacity-0 group-hover:opacity-70 hover:!opacity-100 transition-opacity ml-0.5"
+                >
+                  <Pencil className="h-3 w-3" />
+                </button>
+                <button
+                  onClick={() => handleDeleteCat(c)}
+                  className="opacity-0 group-hover:opacity-70 hover:!opacity-100 transition-opacity text-destructive"
+                >
+                  <Trash2 className="h-3 w-3" />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       <div className="flex flex-col gap-4 animate-fade-up stagger-1">
-        {categoryOrder.filter((cat) => grouped[cat]?.length).map((cat) => {
-          const meta = CATEGORY_META[cat];
+        {categoryOrder.map((cat) => {
+          const meta = getCategoryMeta(cat, serviceCategories);
           const Icon = meta.icon;
           const items = grouped[cat];
 
           return (
             <div key={cat}>
-              {/* Category header */}
               <div className="flex items-center gap-2.5 mb-2.5 px-0.5">
                 <div className={cn("flex h-6 w-6 items-center justify-center rounded-sm border", meta.badgeClass)}>
                   <Icon className="h-3.5 w-3.5" />
@@ -109,7 +209,6 @@ export default function ServicesPage() {
                 <span className="text-[11px] text-muted-foreground font-mono">{items.length}</span>
               </div>
 
-              {/* Service rows */}
               <div className="surface rounded-md overflow-hidden divide-y divide-border">
                 {items.map((s) => {
                   const assignedCount = customerServices.filter((cs) => cs.serviceId === s.id).length;
@@ -145,7 +244,6 @@ export default function ServicesPage() {
                             {formatCurrency(s.defaultPrice)}
                           </span>
                         )}
-                        {/* Actions: always visible on mobile, hover on desktop */}
                         <div className="flex gap-0.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(s)}>
                             <Pencil className="h-3.5 w-3.5" />
@@ -175,7 +273,7 @@ export default function ServicesPage() {
         )}
       </div>
 
-      {/* Add / Edit dialog */}
+      {/* Add / Edit Service dialog */}
       <Dialog open={dialogOpen} onOpenChange={(o) => { if (!o) setDialogOpen(false); }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -192,11 +290,11 @@ export default function ServicesPage() {
             </div>
             <div>
               <Label className="label-caps mb-1.5 block">Category</Label>
-              <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v as Service["category"] })}>
+              <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {Object.entries(CATEGORY_META).map(([k, v]) => (
-                    <SelectItem key={k} value={k}>{v.label}</SelectItem>
+                  {allCategoryOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -239,6 +337,51 @@ export default function ServicesPage() {
               <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
               <Button onClick={handleSave} disabled={!form.name.trim()}>
                 {editing ? "Save Changes" : "Add Service"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add / Edit Category dialog */}
+      <Dialog open={catDialogOpen} onOpenChange={(o) => { if (!o) setCatDialogOpen(false); }}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{editingCat ? "Edit Category" : "New Category"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-1">
+            <div>
+              <Label className="label-caps mb-1.5 block">Category Name *</Label>
+              <Input
+                value={catForm.label}
+                onChange={(e) => setCatForm({ ...catForm, label: e.target.value })}
+                placeholder="e.g. Conservatory Cleaning"
+              />
+            </div>
+            <div>
+              <Label className="label-caps mb-2 block">
+                <Palette className="h-3.5 w-3.5 inline mr-1" /> Colour
+              </Label>
+              <div className="flex flex-wrap gap-2">
+                {COLOUR_OPTIONS.map((c) => (
+                  <button
+                    key={c.value}
+                    onClick={() => setCatForm({ ...catForm, colour: c.value })}
+                    className={cn(
+                      "h-7 w-7 rounded-md border-2 transition-all",
+                      c.class,
+                      catForm.colour === c.value
+                        ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-110"
+                        : "opacity-60 hover:opacity-100",
+                    )}
+                  />
+                ))}
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="outline" onClick={() => setCatDialogOpen(false)}>Cancel</Button>
+              <Button onClick={handleSaveCat} disabled={!catForm.label.trim()}>
+                {editingCat ? "Save" : "Create Category"}
               </Button>
             </div>
           </div>
