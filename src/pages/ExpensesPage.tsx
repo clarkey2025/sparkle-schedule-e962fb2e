@@ -48,14 +48,14 @@ const CATEGORY_COLOURS: Record<ExpenseCategory, string> = {
 };
 
 const CATEGORY_BG: Record<ExpenseCategory, string> = {
-  fuel: "bg-chart-1/10 text-chart-1 border-chart-1/20",
-  supplies: "bg-chart-2/10 text-chart-2 border-chart-2/20",
-  equipment: "bg-chart-3/10 text-chart-3 border-chart-3/20",
-  vehicle: "bg-chart-4/10 text-chart-4 border-chart-4/20",
-  insurance: "bg-chart-5/10 text-chart-5 border-chart-5/20",
-  marketing: "bg-primary/10 text-primary border-primary/20",
-  software: "bg-accent-foreground/10 text-accent-foreground border-accent-foreground/20",
-  other: "bg-muted-foreground/10 text-muted-foreground border-muted-foreground/20",
+  fuel: "bg-[hsl(25_95%_53%/0.18)] text-[hsl(25_95%_58%)] border-[hsl(25_95%_53%/0.3)]",
+  supplies: "bg-[hsl(172_66%_50%/0.18)] text-[hsl(172_66%_55%)] border-[hsl(172_66%_50%/0.3)]",
+  equipment: "bg-[hsl(45_93%_47%/0.18)] text-[hsl(45_93%_55%)] border-[hsl(45_93%_47%/0.3)]",
+  vehicle: "bg-[hsl(210_90%_56%/0.18)] text-[hsl(210_90%_64%)] border-[hsl(210_90%_56%/0.3)]",
+  insurance: "bg-[hsl(280_70%_55%/0.18)] text-[hsl(280_70%_65%)] border-[hsl(280_70%_55%/0.3)]",
+  marketing: "bg-primary/18 text-primary border-primary/30",
+  software: "bg-[hsl(200_80%_50%/0.18)] text-[hsl(200_80%_60%)] border-[hsl(200_80%_50%/0.3)]",
+  other: "bg-[hsl(0_0%_45%/0.18)] text-[hsl(0_0%_60%)] border-[hsl(0_0%_45%/0.3)]",
 };
 
 const emptyExpenseForm = {
