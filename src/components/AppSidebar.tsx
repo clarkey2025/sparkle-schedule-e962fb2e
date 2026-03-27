@@ -5,7 +5,6 @@ import {
   CalendarCheck,
   CreditCard,
   ClipboardList,
-  Route,
   Wrench,
   CircleDot,
   BarChart3,
@@ -13,6 +12,8 @@ import {
   Settings,
   UsersRound,
   Package,
+  Minus,
+  Car,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import bucketListIcon from "@/assets/bucket-list-icon.png";
@@ -28,7 +29,6 @@ const sections = [
     label: "Operations",
     links: [
       { to: "/agenda", label: "Agenda", icon: ClipboardList },
-      { to: "/route", label: "Route Planner", icon: Route },
       { to: "/jobs", label: "Jobs", icon: CalendarCheck },
     ],
   },
@@ -44,8 +44,10 @@ const sections = [
   {
     label: "Finance",
     links: [
+      { to: "/finances", label: "Overview", icon: BarChart3 },
       { to: "/payments", label: "Payments", icon: CreditCard },
-      { to: "/finances", label: "Finances", icon: BarChart3 },
+      { to: "/expenses", label: "Expenses", icon: Minus },
+      { to: "/mileage", label: "Mileage", icon: Car },
       { to: "/suppliers", label: "Suppliers", icon: Package },
     ],
   },

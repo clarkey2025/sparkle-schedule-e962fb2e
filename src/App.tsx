@@ -13,10 +13,11 @@ import CustomersPage from "@/pages/CustomersPage";
 import JobsPage from "@/pages/JobsPage";
 import PaymentsPage from "@/pages/PaymentsPage";
 import AgendaPage from "@/pages/AgendaPage";
-import RoutePage from "@/pages/RoutePage";
 import ServicesPage from "@/pages/ServicesPage";
 import RoundsPage from "@/pages/RoundsPage";
 import FinancePage from "@/pages/FinancePage";
+import ExpensesPage from "@/pages/ExpensesPage";
+import MileagePage from "@/pages/MileagePage";
 import QuotesPage from "@/pages/QuotesPage";
 import SettingsPage from "@/pages/SettingsPage";
 import TeamPage from "@/pages/TeamPage";
@@ -50,11 +51,12 @@ const App = () => (
                 <Route path="/services" element={<ServicesPage />} />
                 <Route path="/rounds" element={<RoundsPage />} />
                 <Route path="/finances" element={<FinancePage />} />
+                <Route path="/expenses" element={<ExpensesPage />} />
+                <Route path="/mileage" element={<MileagePage />} />
                 <Route path="/quotes" element={<QuotesPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/team" element={<TeamPage />} />
                 <Route path="/suppliers" element={<SuppliersPage />} />
-                <Route path="/route" element={<RoutePage />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
