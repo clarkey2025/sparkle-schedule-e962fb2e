@@ -2,6 +2,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Users, CalendarCheck, CreditCard,
   ClipboardList, Route, Wrench, MoreHorizontal, CircleDot, BarChart3, FileText,
+  UsersRound, Package,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -20,6 +21,8 @@ const moreLinks = [
   { to: "/payments", label: "Payments", icon: CreditCard },
   { to: "/finances", label: "Finances", icon: BarChart3 },
   { to: "/quotes", label: "Quotes", icon: FileText },
+  { to: "/team", label: "Team", icon: UsersRound },
+  { to: "/suppliers", label: "Suppliers", icon: Package },
 ];
 
 export default function MobileNav() {

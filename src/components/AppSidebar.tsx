@@ -11,6 +11,8 @@ import {
   BarChart3,
   FileText,
   Settings,
+  UsersRound,
+  Package,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import bucketListIcon from "@/assets/bucket-list-icon.png";
@@ -44,11 +46,13 @@ const sections = [
     links: [
       { to: "/payments", label: "Payments", icon: CreditCard },
       { to: "/finances", label: "Finances", icon: BarChart3 },
+      { to: "/suppliers", label: "Suppliers", icon: Package },
     ],
   },
   {
     label: "System",
     links: [
+      { to: "/team", label: "Team", icon: UsersRound },
       { to: "/settings", label: "Settings", icon: Settings },
     ],
   },
