@@ -190,6 +190,8 @@ interface AppData {
   fuelSettings: FuelSettings;
   businessSettings: BusinessSettings;
   quotes: Quote[];
+  teamMembers: TeamMember[];
+  suppliers: Supplier[];
 }
 
 const DEFAULT_FUEL_SETTINGS: FuelSettings = { pricePerLitre: 1.45, mpg: 35 };
@@ -532,6 +534,7 @@ export function useAppData() {
       services: generateMockData().services,
       customerServices: [], rounds: [], expenses: [], recurringExpenses: [],
       mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [],
+      teamMembers: [], suppliers: [],
     };
     saveData(empty);
     localStorage.removeItem(DEMO_FLAG_KEY);
