@@ -340,7 +340,8 @@ export default function AgendaPage() {
     setStopOrder(optimisedStops.map((s) => s.jobId));
     setOptimised(true);
     setActiveIdx(null);
-  }, [stops]);
+    toast({ title: "Route optimised", description: `${stops.length} stops reordered` });
+  }, [stops, toast]);
 
   const handleReset = useCallback(() => {
     setOptimised(false);
