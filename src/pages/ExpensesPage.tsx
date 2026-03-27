@@ -279,11 +279,7 @@ export default function ExpensesPage() {
           </div>
 
           {recurringExpenses.length === 0 ? (
-            <div className="surface rounded-md p-10 text-center">
-              <RefreshCw className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
-              <p className="text-sm text-muted-foreground">No recurring expenses set up yet.</p>
-              <p className="text-[11px] text-muted-foreground/60 mt-1">Add monthly bills like insurance, software, van finance.</p>
-            </div>
+            <EmptyState icon={RefreshCw} message="No recurring expenses set up yet. Add monthly bills like insurance, software, van finance." />
           ) : (
             <div className="bg-card border border-border rounded-md divide-y divide-border overflow-hidden">
               {recurringExpenses.map((re) => {
