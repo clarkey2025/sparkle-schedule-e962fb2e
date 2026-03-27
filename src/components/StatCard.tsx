@@ -5,21 +5,22 @@ interface StatCardProps {
   label: string;
   value: string;
   icon: LucideIcon;
+  sub?: string;
+  colour?: string;
   className?: string;
 }
 
-export default function StatCard({ label, value, icon: Icon, className = "" }: StatCardProps) {
+export default function StatCard({ label, value, icon: Icon, sub, colour = "text-foreground", className }: StatCardProps) {
   return (
-    <div className={cn("surface rounded-md p-5", className)}>
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <p className="label-caps mb-2">{label}</p>
-          <p className="font-mono text-2xl font-medium tracking-tight text-foreground">{value}</p>
-        </div>
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-primary/10">
-          <Icon className="h-4 w-4 text-primary" />
+    <div className={cn("bg-card border border-border rounded-md p-4", className)}>
+      <div className="flex items-center justify-between mb-3">
+        <p className="label-caps">{label}</p>
+        <div className={cn("h-7 w-7 rounded-md flex items-center justify-center bg-muted/40", colour)}>
+          <Icon className="h-3.5 w-3.5" />
         </div>
       </div>
+      <p className={cn("font-mono text-xl", colour)}>{value}</p>
+      {sub && <p className="text-[11px] text-muted-foreground mt-1">{sub}</p>}
     </div>
   );
 }
