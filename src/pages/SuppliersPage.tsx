@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useApp } from "@/lib/AppContext";
 import PageHeader from "@/components/PageHeader";
+import EmptyState from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -95,12 +96,7 @@ export default function SuppliersPage() {
       )}
 
       {paginated.length === 0 ? (
-        <div className="surface rounded-md p-10 text-center animate-fade-up">
-          <Package className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground">
-            {suppliers.length === 0 ? "No suppliers yet — add your first one." : "No results found."}
-          </p>
-        </div>
+        <EmptyState icon={Package} message={suppliers.length === 0 ? "No suppliers yet — add your first one." : "No results found."} className="animate-fade-up" />
       ) : (
         <div className="space-y-3 animate-fade-up">
           <div className="surface rounded-md overflow-hidden divide-y divide-border">
