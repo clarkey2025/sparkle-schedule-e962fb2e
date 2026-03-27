@@ -100,11 +100,11 @@ export default function ServicesPage() {
           return (
             <div key={cat}>
               {/* Category header */}
-              <div className="flex items-center gap-2 mb-2 px-0.5">
-                <div className={cn("flex h-6 w-6 items-center justify-center rounded border", meta.badgeClass)}>
+              <div className="flex items-center gap-2.5 mb-2.5 px-0.5">
+                <div className={cn("flex h-6 w-6 items-center justify-center rounded-sm border", meta.badgeClass)}>
                   <Icon className="h-3.5 w-3.5" />
                 </div>
-                <span className="text-[13px] font-semibold text-foreground">{meta.label}</span>
+                <span className="text-sm font-semibold text-foreground">{meta.label}</span>
                 <span className="text-[11px] text-muted-foreground font-mono">{items.length}</span>
               </div>
 
@@ -119,9 +119,9 @@ export default function ServicesPage() {
                     >
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-[13px] font-semibold text-foreground">{s.name}</span>
+                          <span className="text-sm font-medium text-foreground">{s.name}</span>
                           {s.caravanTier && (
-                            <span className={cn("text-[10px] px-1.5 py-0.5 rounded border font-medium uppercase tracking-wide", meta.badgeClass)}>
+                            <span className={cn("text-[10px] px-1.5 py-0.5 rounded-sm border font-medium uppercase tracking-wide", meta.badgeClass)}>
                               {CARAVAN_TIER_LABELS[s.caravanTier]}
                             </span>
                           )}
@@ -132,7 +132,7 @@ export default function ServicesPage() {
                           )}
                         </div>
                         {s.description && (
-                          <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed line-clamp-1">
+                          <p className="text-[12px] text-muted-foreground mt-0.5 leading-relaxed line-clamp-1">
                             {s.description}
                           </p>
                         )}
@@ -140,7 +140,7 @@ export default function ServicesPage() {
 
                       <div className="flex items-center gap-1 shrink-0">
                         {s.defaultPrice > 0 && (
-                          <span className="font-mono text-[13px] font-semibold text-foreground mr-1">
+                          <span className="font-mono text-sm font-semibold text-foreground mr-1">
                             {formatCurrency(s.defaultPrice)}
                           </span>
                         )}
