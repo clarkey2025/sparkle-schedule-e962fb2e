@@ -395,12 +395,27 @@ export function useAppData() {
     update((d) => ({ ...d, jobs: d.jobs.filter((x) => x.id !== id) }));
   }, [update]);
 
+  const deleteJobs = useCallback((ids: string[]) => {
+    const set = new Set(ids);
+    update((d) => ({ ...d, jobs: d.jobs.filter((x) => !set.has(x.id)) }));
+  }, [update]);
+
+  const updateJobs = useCallback((ids: string[], changes: Partial<Job>) => {
+    const set = new Set(ids);
+    update((d) => ({ ...d, jobs: d.jobs.map((x) => set.has(x.id) ? { ...x, ...changes } : x) }));
+  }, [update]);
+
   const addPayment = useCallback((p: Omit<Payment, "id">) => {
     update((d) => ({ ...d, payments: [...d.payments, { ...p, id: crypto.randomUUID() }] }));
   }, [update]);
 
   const deletePayment = useCallback((id: string) => {
     update((d) => ({ ...d, payments: d.payments.filter((x) => x.id !== id) }));
+  }, [update]);
+
+  const deletePayments = useCallback((ids: string[]) => {
+    const set = new Set(ids);
+    update((d) => ({ ...d, payments: d.payments.filter((x) => !set.has(x.id)) }));
   }, [update]);
 
   // Services CRUD
@@ -507,6 +522,11 @@ export function useAppData() {
 
   const deleteQuote = useCallback((id: string) => {
     update((d) => ({ ...d, quotes: d.quotes.filter((x) => x.id !== id) }));
+  }, [update]);
+
+  const deleteQuotes = useCallback((ids: string[]) => {
+    const set = new Set(ids);
+    update((d) => ({ ...d, quotes: d.quotes.filter((x) => !set.has(x.id)) }));
   }, [update]);
 
   // Team Members CRUD
