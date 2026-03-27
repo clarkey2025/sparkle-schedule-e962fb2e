@@ -18,6 +18,35 @@ export interface Customer {
   nextDueDate?: string;
   importedBalance?: number;
   roundId?: string;
+  discount?: number;       // default discount for this customer
+  discountType?: "percent" | "fixed";
+}
+
+export type TeamRole = "owner" | "manager" | "cleaner";
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  role: TeamRole;
+  skills: string[];        // service category IDs they can do
+  colour: string;
+  active: boolean;
+  createdAt: string;
+  hourlyRate?: number;
+}
+
+export interface Supplier {
+  id: string;
+  name: string;
+  contactName: string;
+  phone: string;
+  email: string;
+  website: string;
+  category: string;
+  notes: string;
+  createdAt: string;
 }
 
 export interface Job {
@@ -27,6 +56,11 @@ export interface Job {
   status: "scheduled" | "completed" | "cancelled";
   price: number;
   notes: string;
+  assignedTo?: string; // TeamMember ID
+  startTime?: string;  // HH:mm
+  endTime?: string;    // HH:mm
+  discount?: number;   // percentage or fixed amount
+  discountType?: "percent" | "fixed";
 }
 
 export interface Payment {
@@ -156,6 +190,8 @@ interface AppData {
   fuelSettings: FuelSettings;
   businessSettings: BusinessSettings;
   quotes: Quote[];
+  teamMembers: TeamMember[];
+  suppliers: Supplier[];
 }
 
 const DEFAULT_FUEL_SETTINGS: FuelSettings = { pricePerLitre: 1.45, mpg: 35 };
@@ -253,7 +289,7 @@ function loadData(): AppData {
       mock.jobs = [];
       mock.payments = [];
       mock.customerServices = [];
-      data = { ...mock, rounds: [], expenses: [], recurringExpenses: [], mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [] };
+      data = { ...mock, rounds: [], expenses: [], recurringExpenses: [], mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [], teamMembers: [], suppliers: [] };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       localStorage.setItem(MOCK_VERSION_KEY, MOCK_VERSION);
       data = autoScheduleJobs(data);
@@ -273,6 +309,8 @@ function loadData(): AppData {
       if (!parsed.fuelSettings) parsed.fuelSettings = DEFAULT_FUEL_SETTINGS;
         if (!parsed.quotes) parsed.quotes = [];
         if (!parsed.businessSettings) parsed.businessSettings = DEFAULT_BUSINESS_SETTINGS;
+        if (!parsed.teamMembers) parsed.teamMembers = [];
+        if (!parsed.suppliers) parsed.suppliers = [];
 
         const MIGRATE_KEY = "pane-pro-migrate-due-tomorrow-v3";
         if (!localStorage.getItem(MIGRATE_KEY)) {
@@ -296,7 +334,7 @@ function loadData(): AppData {
     }
   } catch {}
   const mock = generateMockData();
-  data = { ...mock, rounds: [], expenses: [], recurringExpenses: [], mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [] };
+  data = { ...mock, rounds: [], expenses: [], recurringExpenses: [], mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [], teamMembers: [], suppliers: [] };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   localStorage.setItem(MOCK_VERSION_KEY, MOCK_VERSION);
   data = autoScheduleJobs(data);
@@ -471,6 +509,36 @@ export function useAppData() {
     update((d) => ({ ...d, quotes: d.quotes.filter((x) => x.id !== id) }));
   }, [update]);
 
+  // Team Members CRUD
+  const addTeamMember = useCallback((m: Omit<TeamMember, "id" | "createdAt">) => {
+    update((d) => ({ ...d, teamMembers: [...d.teamMembers, { ...m, id: crypto.randomUUID(), createdAt: new Date().toISOString() }] }));
+  }, [update]);
+
+  const updateTeamMember = useCallback((id: string, m: Partial<TeamMember>) => {
+    update((d) => ({ ...d, teamMembers: d.teamMembers.map((x) => (x.id === id ? { ...x, ...m } : x)) }));
+  }, [update]);
+
+  const deleteTeamMember = useCallback((id: string) => {
+    update((d) => ({
+      ...d,
+      teamMembers: d.teamMembers.filter((x) => x.id !== id),
+      jobs: d.jobs.map((j) => j.assignedTo === id ? { ...j, assignedTo: undefined } : j),
+    }));
+  }, [update]);
+
+  // Suppliers CRUD
+  const addSupplier = useCallback((s: Omit<Supplier, "id" | "createdAt">) => {
+    update((d) => ({ ...d, suppliers: [...d.suppliers, { ...s, id: crypto.randomUUID(), createdAt: new Date().toISOString() }] }));
+  }, [update]);
+
+  const updateSupplier = useCallback((id: string, s: Partial<Supplier>) => {
+    update((d) => ({ ...d, suppliers: d.suppliers.map((x) => (x.id === id ? { ...x, ...s } : x)) }));
+  }, [update]);
+
+  const deleteSupplier = useCallback((id: string) => {
+    update((d) => ({ ...d, suppliers: d.suppliers.filter((x) => x.id !== id) }));
+  }, [update]);
+
   const loadMockData = useCallback(() => {
     const mock = generateMockData();
     const todayStr = new Date().toISOString().slice(0, 10);
@@ -484,7 +552,7 @@ export function useAppData() {
     localStorage.removeItem(`pane-pro-auto-sched-${todayStr}`);
     localStorage.removeItem(`pane-pro-recurring-exp-${thisMonth}`);
     const mockRecurring = generateMockRecurringExpenses();
-    const withData: AppData = { ...mock, expenses: generateMockExpenses(), recurringExpenses: mockRecurring, mileageEntries: generateMockMileage(), fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [] };
+    const withData: AppData = { ...mock, expenses: generateMockExpenses(), recurringExpenses: mockRecurring, mileageEntries: generateMockMileage(), fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [], teamMembers: [], suppliers: [] };
     const scheduled = autoLogRecurringExpenses(autoScheduleJobs(withData));
     saveData(scheduled);
     localStorage.setItem(DEMO_FLAG_KEY, "1");
@@ -498,6 +566,7 @@ export function useAppData() {
       services: generateMockData().services,
       customerServices: [], rounds: [], expenses: [], recurringExpenses: [],
       mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [],
+      teamMembers: [], suppliers: [],
     };
     saveData(empty);
     localStorage.removeItem(DEMO_FLAG_KEY);
@@ -518,6 +587,8 @@ export function useAppData() {
     addRecurringExpense, updateRecurringExpense, deleteRecurringExpense,
     addMileageEntry, deleteMileageEntry, updateFuelSettings, updateBusinessSettings,
     addQuote, updateQuote, deleteQuote,
+    addTeamMember, updateTeamMember, deleteTeamMember,
+    addSupplier, updateSupplier, deleteSupplier,
     loadMockData,
     clearMockData,
   };

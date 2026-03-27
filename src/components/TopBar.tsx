@@ -28,6 +28,8 @@ const TITLES: Record<string, { label: string; desc: string }> = {
   "/finances": { label: "Finances", desc: "Track income and expenses" },
   "/quotes": { label: "Quotes", desc: "Create and manage quotes" },
   "/settings": { label: "Settings", desc: "Business details and preferences" },
+  "/team": { label: "Team", desc: "Manage your team members" },
+  "/suppliers": { label: "Suppliers", desc: "Your suppliers and vendors" },
 };
 
 export default function TopBar() {
