@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useApp } from "@/lib/AppContext";
 import { formatCurrency, formatDate } from "@/lib/helpers";
 import PageHeader from "@/components/PageHeader";
+import StatCard from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -64,20 +65,10 @@ export default function MileagePage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 animate-fade-up">
-        {[
-          { label: "Total Miles", value: metrics.totalMiles.toFixed(0), icon: Car, colour: "text-primary" },
-          { label: "Est. Fuel Cost", value: formatCurrency(metrics.totalFuelCost), icon: Fuel, colour: "text-destructive" },
-          { label: "This Month Miles", value: metrics.thisMonthMiles.toFixed(0), icon: Car, colour: "text-primary" },
-          { label: "This Month Fuel", value: formatCurrency(metrics.thisMonthFuel), icon: Fuel, colour: "text-warning" },
-        ].map(({ label, value, icon: Icon, colour }) => (
-          <div key={label} className="bg-card border border-border rounded-md p-4">
-            <div className="flex items-center justify-between mb-2">
-              <p className="label-caps">{label}</p>
-              <Icon className={cn("h-4 w-4", colour)} />
-            </div>
-            <p className={cn("font-mono text-xl font-medium", colour)}>{value}</p>
-          </div>
-        ))}
+        <StatCard label="Total Miles" value={metrics.totalMiles.toFixed(0)} icon={Car} colour="text-primary" />
+        <StatCard label="Est. Fuel Cost" value={formatCurrency(metrics.totalFuelCost)} icon={Fuel} colour="text-destructive" />
+        <StatCard label="This Month Miles" value={metrics.thisMonthMiles.toFixed(0)} icon={Car} colour="text-primary" />
+        <StatCard label="This Month Fuel" value={formatCurrency(metrics.thisMonthFuel)} icon={Fuel} colour="text-warning" />
       </div>
 
       {/* Fuel settings */}
