@@ -20,7 +20,7 @@ export default function AppLayout() {
       <div className="md:pl-56 flex flex-col h-full">
         <TopBar />
         <main className="flex-1 overflow-y-auto min-h-0">
-          <div className="mx-auto max-w-5xl px-6 py-7 md:px-8 h-full flex flex-col">
+          <div className="mx-auto max-w-5xl px-6 py-7 pb-16 md:px-8 h-full flex flex-col">
             <Outlet />
           </div>
         </main>
