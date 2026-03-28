@@ -41,7 +41,7 @@ type FormState = {
   defaultPrice: number;
 };
 
-const emptyForm: FormState = { name: "", category: "", description: "", defaultPrice: 0 };
+const emptyForm: FormState = { name: "", category: "_none", description: "", defaultPrice: 0 };
 
 export default function ServicesPage() {
   const {
@@ -115,7 +115,7 @@ export default function ServicesPage() {
 
   /* ── Category options for service form ── */
   const allCategoryOptions = [
-    { value: "", label: "Uncategorised" },
+    { value: "_none", label: "Uncategorised" },
     ...serviceCategories.map((c) => ({ value: c.id, label: c.label })),
   ];
 
