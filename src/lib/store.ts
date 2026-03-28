@@ -290,11 +290,7 @@ function loadData(): AppData {
 
     if (seededVersion !== MOCK_VERSION || !raw) {
       const mock = generateMockData();
-      mock.customers = [];
-      mock.jobs = [];
-      mock.payments = [];
-      mock.customerServices = [];
-      data = { ...mock, serviceCategories: mock.serviceCategories || [], rounds: [], expenses: [], recurringExpenses: [], mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [], teamMembers: [], suppliers: [] };
+      data = { ...mock, customers: [], jobs: [], payments: [], services: [], customerServices: [], serviceCategories: [], rounds: [], expenses: [], recurringExpenses: [], mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [], teamMembers: [], suppliers: [] };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       localStorage.setItem(MOCK_VERSION_KEY, MOCK_VERSION);
       data = autoScheduleJobs(data);
