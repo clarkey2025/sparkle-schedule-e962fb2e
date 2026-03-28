@@ -601,7 +601,6 @@ export function useAppData() {
   const clearMockData = useCallback(() => {
     const empty: AppData = {
       customers: [], jobs: [], payments: [],
-      customers: [], jobs: [], payments: [],
       services: [], customerServices: [], serviceCategories: [], rounds: [], expenses: [], recurringExpenses: [],
       mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [],
       teamMembers: [], suppliers: [],
