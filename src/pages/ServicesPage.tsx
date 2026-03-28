@@ -12,23 +12,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import {
-  Plus, Pencil, Trash2, Droplets, Home, Waves, CarFront, SprayCan, Wrench,
-  Tag, Palette, FolderPlus, MoreVertical,
+  Plus, Pencil, Trash2, Wrench, Tag, Palette, FolderPlus, MoreVertical,
 } from "lucide-react";
 import type { Service, ServiceCategory } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
-/* ── Built-in category visuals ── */
-const BUILT_IN_META: Record<string, { label: string; icon: typeof Droplets; badgeClass: string }> = {
-  "window-cleaning": { label: "Window Cleaning", icon: Droplets, badgeClass: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
-  "gutter-cleaning": { label: "Gutter Cleaning", icon: Home, badgeClass: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
-  "soffit-fascia": { label: "Soffit & Fascia", icon: SprayCan, badgeClass: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" },
-  "jet-washing": { label: "Jet Washing", icon: Waves, badgeClass: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" },
-  "caravan-cleaning": { label: "Caravan Cleaning", icon: CarFront, badgeClass: "bg-rose-500/10 text-rose-400 border-rose-500/20" },
-  custom: { label: "Custom", icon: Wrench, badgeClass: "bg-muted text-muted-foreground border-border" },
-};
-
+/* ── Colour options for categories ── */
 const COLOUR_OPTIONS = [
   { value: "violet", class: "bg-violet-500/10 text-violet-400 border-violet-500/20" },
   { value: "pink", class: "bg-pink-500/10 text-pink-400 border-pink-500/20" },
@@ -44,34 +34,14 @@ function getColourClass(colour: string) {
   return COLOUR_OPTIONS.find((c) => c.value === colour)?.class ?? "bg-muted text-muted-foreground border-border";
 }
 
-const CARAVAN_TIER_LABELS: Record<string, string> = {
-  "full-external": "Full External",
-  "roof-only": "Roof Only",
-  "rinse-down": "Rinse Down",
-};
-
 type FormState = {
   name: string;
   category: string;
   description: string;
   defaultPrice: number;
-  caravanTier?: Service["caravanTier"];
 };
 
-const emptyForm: FormState = { name: "", category: "custom", description: "", defaultPrice: 0 };
-
-/* ── Helpers to merge built-in + custom for display ── */
-function getCategoryMeta(catKey: string, customCats: ServiceCategory[]) {
-  if (BUILT_IN_META[catKey]) {
-    const m = BUILT_IN_META[catKey];
-    return { label: m.label, icon: m.icon, badgeClass: m.badgeClass };
-  }
-  const custom = customCats.find((c) => c.id === catKey);
-  if (custom) {
-    return { label: custom.label, icon: Tag, badgeClass: getColourClass(custom.colour) };
-  }
-  return BUILT_IN_META.custom;
-}
+const emptyForm: FormState = { name: "", category: "_none", description: "", defaultPrice: 0 };
 
 export default function ServicesPage() {
   const {
@@ -93,7 +63,7 @@ export default function ServicesPage() {
   const openAdd = () => { setEditing(null); setForm(emptyForm); setDialogOpen(true); };
   const openEdit = (s: Service) => {
     setEditing(s);
-    setForm({ name: s.name, category: s.category, description: s.description, defaultPrice: s.defaultPrice, caravanTier: s.caravanTier });
+    setForm({ name: s.name, category: s.category || "_none", description: s.description, defaultPrice: s.defaultPrice });
     setDialogOpen(true);
   };
 
@@ -101,10 +71,9 @@ export default function ServicesPage() {
     if (!form.name.trim()) return;
     const payload: Omit<Service, "id"> = {
       name: form.name,
-      category: form.category,
+      category: form.category === "_none" ? "" : form.category,
       description: form.description,
       defaultPrice: form.defaultPrice,
-      ...(form.category === "caravan-cleaning" && form.caravanTier ? { caravanTier: form.caravanTier } : {}),
     };
     editing ? updateService(editing.id, payload) : addService(payload);
     setDialogOpen(false);
@@ -128,22 +97,25 @@ export default function ServicesPage() {
 
   const handleDeleteCat = (c: ServiceCategory) => {
     deleteServiceCategory(c.id);
-    toast({ title: "Category deleted", description: `${c.label} — services moved to Custom` });
+    toast({ title: "Category deleted", description: `${c.label} — services moved to Uncategorised` });
   };
 
   /* ── Grouping ── */
   const grouped = services.reduce<Record<string, Service[]>>((acc, s) => {
-    (acc[s.category] ??= []).push(s);
+    const key = s.category || "_uncategorised";
+    (acc[key] ??= []).push(s);
     return acc;
   }, {});
 
-  const builtInOrder = ["window-cleaning", "gutter-cleaning", "soffit-fascia", "jet-washing", "caravan-cleaning"];
-  const customCatIds = serviceCategories.map((c) => c.id);
-  const categoryOrder = [...builtInOrder, ...customCatIds, "custom"].filter((cat) => grouped[cat]?.length);
+  // Categories in order, then uncategorised at the end
+  const categoryOrder = [
+    ...serviceCategories.map((c) => c.id).filter((id) => grouped[id]?.length),
+    ...(grouped["_uncategorised"]?.length ? ["_uncategorised"] : []),
+  ];
 
-  /* ── All category options for the select dropdown ── */
+  /* ── Category options for service form ── */
   const allCategoryOptions = [
-    ...Object.entries(BUILT_IN_META).map(([k, v]) => ({ value: k, label: v.label })),
+    { value: "_none", label: "Uncategorised" },
     ...serviceCategories.map((c) => ({ value: c.id, label: c.label })),
   ];
 
@@ -151,7 +123,7 @@ export default function ServicesPage() {
     <div className="pb-20 md:pb-0 space-y-5">
       <PageHeader
         title="Services"
-        description={`${services.length} service${services.length !== 1 ? "s" : ""} across ${Object.keys(grouped).length} categor${Object.keys(grouped).length !== 1 ? "ies" : "y"}`}
+        description={`${services.length} service${services.length !== 1 ? "s" : ""} across ${categoryOrder.length} categor${categoryOrder.length !== 1 ? "ies" : "y"}`}
         action={
           <div className="flex items-center gap-2">
             <Button onClick={openAddCat} size="sm" variant="outline">
@@ -164,56 +136,45 @@ export default function ServicesPage() {
         }
       />
 
-      {/* Custom categories chips */}
-      {serviceCategories.length > 0 && (
-        <div className="flex flex-wrap gap-2 animate-fade-up">
-          {serviceCategories.map((c) => {
-            const colClass = getColourClass(c.colour);
-            return (
-              <div
-                key={c.id}
-                className={cn("flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-medium", colClass)}
-              >
-                <Tag className="h-3 w-3" />
-                <span>{c.label}</span>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="ml-0.5 text-current opacity-50 hover:opacity-100 transition-opacity">
-                      <MoreVertical className="h-3 w-3" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-36">
-                    <DropdownMenuItem onClick={() => openEditCat(c)}>
-                      <Pencil className="h-3.5 w-3.5 mr-2" /> Rename
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="text-destructive focus:text-destructive"
-                      onClick={() => handleDeleteCat(c)}
-                    >
-                      <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
       <div className="flex flex-col gap-4 animate-fade-up stagger-1">
-        {categoryOrder.map((cat) => {
-          const meta = getCategoryMeta(cat, serviceCategories);
-          const Icon = meta.icon;
-          const items = grouped[cat];
+        {categoryOrder.map((catId) => {
+          const isUncategorised = catId === "_uncategorised";
+          const cat = serviceCategories.find((c) => c.id === catId);
+          const badgeClass = cat ? getColourClass(cat.colour) : "bg-muted text-muted-foreground border-border";
+          const items = grouped[catId];
 
           return (
-            <div key={cat}>
-              <div className="flex items-center gap-2.5 mb-2.5 px-0.5">
-                <div className={cn("flex h-6 w-6 items-center justify-center rounded-sm border", meta.badgeClass)}>
-                  <Icon className="h-3.5 w-3.5" />
+            <div key={catId}>
+              <div className="flex items-center gap-2.5 mb-2.5 px-0.5 group/cat">
+                <div className={cn("flex h-6 w-6 items-center justify-center rounded-sm border", badgeClass)}>
+                  {isUncategorised ? <Wrench className="h-3.5 w-3.5" /> : <Tag className="h-3.5 w-3.5" />}
                 </div>
-                <span className="text-sm font-medium text-foreground">{meta.label}</span>
+                <span className="text-sm font-medium text-foreground">
+                  {isUncategorised ? "Uncategorised" : cat?.label}
+                </span>
                 <span className="text-[11px] text-muted-foreground font-mono">{items.length}</span>
+
+                {/* Category 3-dot menu (not for uncategorised) */}
+                {!isUncategorised && cat && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="ml-auto md:ml-0 md:opacity-0 md:group-hover/cat:opacity-100 transition-opacity text-muted-foreground hover:text-foreground">
+                        <MoreVertical className="h-4 w-4" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-40">
+                      <DropdownMenuItem onClick={() => openEditCat(cat)}>
+                        <Pencil className="h-3.5 w-3.5 mr-2" /> Rename
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-destructive focus:text-destructive"
+                        onClick={() => handleDeleteCat(cat)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </div>
 
               <div className="surface rounded-md overflow-hidden divide-y divide-border">
@@ -227,11 +188,6 @@ export default function ServicesPage() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-sm font-medium text-foreground">{s.name}</span>
-                          {s.caravanTier && (
-                            <span className={cn("text-[10px] px-1.5 py-0.5 rounded-sm border font-medium uppercase tracking-wide", meta.badgeClass)}>
-                              {CARAVAN_TIER_LABELS[s.caravanTier]}
-                            </span>
-                          )}
                           {assignedCount > 0 && (
                             <Badge variant="secondary" className="text-[10px] font-mono h-4 px-1.5">
                               {assignedCount} customer{assignedCount !== 1 ? "s" : ""}
@@ -304,30 +260,14 @@ export default function ServicesPage() {
             <div>
               <Label className="label-caps mb-1.5 block">Category</Label>
               <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
                 <SelectContent>
                   {allCategoryOptions.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                    <SelectItem key={opt.value || "_none"} value={opt.value}>{opt.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            {form.category === "caravan-cleaning" && (
-              <div>
-                <Label className="label-caps mb-1.5 block">Caravan Tier</Label>
-                <Select
-                  value={form.caravanTier || ""}
-                  onValueChange={(v) => setForm({ ...form, caravanTier: v as Service["caravanTier"] })}
-                >
-                  <SelectTrigger><SelectValue placeholder="Select tier" /></SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(CARAVAN_TIER_LABELS).map(([k, v]) => (
-                      <SelectItem key={k} value={k}>{v}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
             <div>
               <Label className="label-caps mb-1.5 block">Default Price (£)</Label>
               <Input

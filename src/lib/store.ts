@@ -73,10 +73,6 @@ export interface Payment {
   notes: string;
 }
 
-export type CaravanTier = "full-external" | "roof-only" | "rinse-down";
-
-export type BuiltInCategory = "window-cleaning" | "gutter-cleaning" | "soffit-fascia" | "jet-washing" | "caravan-cleaning" | "custom";
-
 export interface ServiceCategory {
   id: string;
   label: string;
@@ -87,10 +83,9 @@ export interface ServiceCategory {
 export interface Service {
   id: string;
   name: string;
-  category: string;   // built-in key OR custom category id
+  category: string;   // custom category id or empty string
   description: string;
   defaultPrice: number;
-  caravanTier?: CaravanTier;
 }
 
 export interface CustomerService {
@@ -299,7 +294,7 @@ function loadData(): AppData {
       mock.jobs = [];
       mock.payments = [];
       mock.customerServices = [];
-      data = { ...mock, serviceCategories: [], rounds: [], expenses: [], recurringExpenses: [], mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [], teamMembers: [], suppliers: [] };
+      data = { ...mock, serviceCategories: mock.serviceCategories || [], rounds: [], expenses: [], recurringExpenses: [], mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [], teamMembers: [], suppliers: [] };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       localStorage.setItem(MOCK_VERSION_KEY, MOCK_VERSION);
       data = autoScheduleJobs(data);
@@ -345,7 +340,7 @@ function loadData(): AppData {
     }
   } catch {}
   const mock = generateMockData();
-  data = { ...mock, serviceCategories: [], rounds: [], expenses: [], recurringExpenses: [], mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [], teamMembers: [], suppliers: [] };
+  data = { ...mock, serviceCategories: mock.serviceCategories || [], rounds: [], expenses: [], recurringExpenses: [], mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [], teamMembers: [], suppliers: [] };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   localStorage.setItem(MOCK_VERSION_KEY, MOCK_VERSION);
   data = autoScheduleJobs(data);
@@ -459,7 +454,7 @@ export function useAppData() {
     update((d) => ({
       ...d,
       serviceCategories: d.serviceCategories.filter((x) => x.id !== id),
-      services: d.services.map((s) => s.category === id ? { ...s, category: "custom" } : s),
+      services: d.services.map((s) => s.category === id ? { ...s, category: "" } : s),
     }));
   }, [update]);
 
@@ -600,7 +595,7 @@ export function useAppData() {
     localStorage.removeItem(`pane-pro-auto-sched-${todayStr}`);
     localStorage.removeItem(`pane-pro-recurring-exp-${thisMonth}`);
     const mockRecurring = generateMockRecurringExpenses();
-    const withData: AppData = { ...mock, serviceCategories: [], expenses: generateMockExpenses(), recurringExpenses: mockRecurring, mileageEntries: generateMockMileage(), fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [], teamMembers: [], suppliers: [] };
+    const withData: AppData = { ...mock, serviceCategories: mock.serviceCategories || [], expenses: generateMockExpenses(), recurringExpenses: mockRecurring, mileageEntries: generateMockMileage(), fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [], teamMembers: [], suppliers: [] };
     const scheduled = autoLogRecurringExpenses(autoScheduleJobs(withData));
     saveData(scheduled);
     localStorage.setItem(DEMO_FLAG_KEY, "1");
@@ -612,7 +607,7 @@ export function useAppData() {
     const empty: AppData = {
       customers: [], jobs: [], payments: [],
       services: generateMockData().services,
-      customerServices: [], serviceCategories: [], rounds: [], expenses: [], recurringExpenses: [],
+      customerServices: [], serviceCategories: generateMockData().serviceCategories || [], rounds: [], expenses: [], recurringExpenses: [],
       mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [],
       teamMembers: [], suppliers: [],
     };

@@ -1115,7 +1115,7 @@ export default function CustomersPage() {
                         }}>
                           <SelectTrigger className="h-8 text-[12px]"><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            {services.filter((s) => s.category !== "window-cleaning").map((s) => (
+                            {services.map((s) => (
                               <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                             ))}
                           </SelectContent>

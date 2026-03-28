@@ -28,13 +28,11 @@ const ROLE_META: Record<TeamRole, { label: string; class: string }> = {
 
 const TEAM_COLOURS = ["#3B82F6", "#22C55E", "#F59E0B", "#EF4444", "#8B5CF6", "#06B6D4", "#F97316", "#EC4899"];
 
-const SKILL_OPTIONS = [
-  { id: "window-cleaning", label: "Window Cleaning" },
-  { id: "gutter-cleaning", label: "Gutter Cleaning" },
-  { id: "soffit-fascia", label: "Soffit & Fascia" },
-  { id: "jet-washing", label: "Jet Washing" },
-  { id: "caravan-cleaning", label: "Caravan Cleaning" },
-];
+// Skills derived from service categories
+function useSkillOptions() {
+  const { serviceCategories = [] } = useApp();
+  return serviceCategories.map((c) => ({ id: c.id, label: c.label }));
+}
 
 type FormState = {
   name: string; phone: string; email: string; role: TeamRole;
@@ -53,6 +51,7 @@ export default function TeamPage() {
   const [editing, setEditing] = useState<TeamMember | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [search, setSearch] = useState("");
+  const SKILL_OPTIONS = useSkillOptions();
   const [page, setPage] = useState(1);
 
   const openAdd = () => { setEditing(null); setForm(emptyForm); setDialogOpen(true); };
