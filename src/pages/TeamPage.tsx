@@ -51,6 +51,7 @@ export default function TeamPage() {
   const [editing, setEditing] = useState<TeamMember | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [search, setSearch] = useState("");
+  const SKILL_OPTIONS = useSkillOptions();
   const [page, setPage] = useState(1);
 
   const openAdd = () => { setEditing(null); setForm(emptyForm); setDialogOpen(true); };
