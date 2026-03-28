@@ -290,11 +290,7 @@ function loadData(): AppData {
 
     if (seededVersion !== MOCK_VERSION || !raw) {
       const mock = generateMockData();
-      mock.customers = [];
-      mock.jobs = [];
-      mock.payments = [];
-      mock.customerServices = [];
-      data = { ...mock, serviceCategories: mock.serviceCategories || [], rounds: [], expenses: [], recurringExpenses: [], mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [], teamMembers: [], suppliers: [] };
+      data = { ...mock, customers: [], jobs: [], payments: [], services: [], customerServices: [], serviceCategories: [], rounds: [], expenses: [], recurringExpenses: [], mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [], teamMembers: [], suppliers: [] };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       localStorage.setItem(MOCK_VERSION_KEY, MOCK_VERSION);
       data = autoScheduleJobs(data);
@@ -305,8 +301,8 @@ function loadData(): AppData {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed.customers !== undefined) {
-        if (!parsed.services) parsed.services = generateMockData().services;
-        if (!parsed.customerServices) parsed.customerServices = generateMockData().customerServices;
+        if (!parsed.services) parsed.services = [];
+        if (!parsed.customerServices) parsed.customerServices = [];
         if (!parsed.rounds) parsed.rounds = [];
         if (!parsed.expenses) parsed.expenses = [];
         if (!parsed.recurringExpenses) parsed.recurringExpenses = [];
@@ -339,8 +335,7 @@ function loadData(): AppData {
       }
     }
   } catch {}
-  const mock = generateMockData();
-  data = { ...mock, serviceCategories: mock.serviceCategories || [], rounds: [], expenses: [], recurringExpenses: [], mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [], teamMembers: [], suppliers: [] };
+  data = { customers: [], jobs: [], payments: [], services: [], customerServices: [], serviceCategories: [], rounds: [], expenses: [], recurringExpenses: [], mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [], teamMembers: [], suppliers: [] };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   localStorage.setItem(MOCK_VERSION_KEY, MOCK_VERSION);
   data = autoScheduleJobs(data);
@@ -606,8 +601,7 @@ export function useAppData() {
   const clearMockData = useCallback(() => {
     const empty: AppData = {
       customers: [], jobs: [], payments: [],
-      services: generateMockData().services,
-      customerServices: [], serviceCategories: generateMockData().serviceCategories || [], rounds: [], expenses: [], recurringExpenses: [],
+      services: [], customerServices: [], serviceCategories: [], rounds: [], expenses: [], recurringExpenses: [],
       mileageEntries: [], fuelSettings: DEFAULT_FUEL_SETTINGS, businessSettings: DEFAULT_BUSINESS_SETTINGS, quotes: [],
       teamMembers: [], suppliers: [],
     };
