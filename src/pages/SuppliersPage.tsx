@@ -128,9 +128,6 @@ export default function SuppliersPage() {
                 </div>
               </div>
             ))}
-            {Array.from({ length: Math.max(0, PAGE_SIZE - paginated.length) }).map((_, i) => (
-              <div key={`filler-${i}`} className="px-4 py-[22px]" />
-            ))}
           </div>
 
           {totalPages > 1 && (
