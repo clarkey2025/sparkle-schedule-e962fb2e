@@ -63,7 +63,7 @@ export default function ServicesPage() {
   const openAdd = () => { setEditing(null); setForm(emptyForm); setDialogOpen(true); };
   const openEdit = (s: Service) => {
     setEditing(s);
-    setForm({ name: s.name, category: s.category, description: s.description, defaultPrice: s.defaultPrice });
+    setForm({ name: s.name, category: s.category || "_none", description: s.description, defaultPrice: s.defaultPrice });
     setDialogOpen(true);
   };
 
@@ -71,7 +71,7 @@ export default function ServicesPage() {
     if (!form.name.trim()) return;
     const payload: Omit<Service, "id"> = {
       name: form.name,
-      category: form.category,
+      category: form.category === "_none" ? "" : form.category,
       description: form.description,
       defaultPrice: form.defaultPrice,
     };
