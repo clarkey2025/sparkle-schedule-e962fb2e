@@ -172,22 +172,28 @@ export default function ServicesPage() {
             return (
               <div
                 key={c.id}
-                className={cn("flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-medium group cursor-default", colClass)}
+                className={cn("flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-medium", colClass)}
               >
                 <Tag className="h-3 w-3" />
                 <span>{c.label}</span>
-                <button
-                  onClick={() => openEditCat(c)}
-                  className="opacity-0 group-hover:opacity-70 hover:!opacity-100 transition-opacity ml-0.5"
-                >
-                  <Pencil className="h-3 w-3" />
-                </button>
-                <button
-                  onClick={() => handleDeleteCat(c)}
-                  className="opacity-0 group-hover:opacity-70 hover:!opacity-100 transition-opacity text-destructive"
-                >
-                  <Trash2 className="h-3 w-3" />
-                </button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="ml-0.5 text-current opacity-50 hover:opacity-100 transition-opacity">
+                      <MoreVertical className="h-3 w-3" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-36">
+                    <DropdownMenuItem onClick={() => openEditCat(c)}>
+                      <Pencil className="h-3.5 w-3.5 mr-2" /> Rename
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-destructive focus:text-destructive"
+                      onClick={() => handleDeleteCat(c)}
+                    >
+                      <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             );
           })}
