@@ -9,10 +9,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import {
   Plus, Pencil, Trash2, Droplets, Home, Waves, CarFront, SprayCan, Wrench,
-  Tag, Palette, FolderPlus,
+  Tag, Palette, FolderPlus, MoreVertical,
 } from "lucide-react";
 import type { Service, ServiceCategory } from "@/lib/store";
 import { cn } from "@/lib/utils";
