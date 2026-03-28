@@ -73,10 +73,6 @@ export interface Payment {
   notes: string;
 }
 
-export type CaravanTier = "full-external" | "roof-only" | "rinse-down";
-
-export type BuiltInCategory = "window-cleaning" | "gutter-cleaning" | "soffit-fascia" | "jet-washing" | "caravan-cleaning" | "custom";
-
 export interface ServiceCategory {
   id: string;
   label: string;
@@ -87,10 +83,9 @@ export interface ServiceCategory {
 export interface Service {
   id: string;
   name: string;
-  category: string;   // built-in key OR custom category id
+  category: string;   // custom category id or empty string
   description: string;
   defaultPrice: number;
-  caravanTier?: CaravanTier;
 }
 
 export interface CustomerService {
