@@ -215,11 +215,6 @@ export default function JobsPage() {
                     </TableRow>
                   );
                 })}
-                {Array.from({ length: PAGE_SIZE - paginated.length }).map((_, i) => (
-                  <TableRow key={`filler-${i}`} className="border-border pointer-events-none select-none">
-                    <TableCell colSpan={7} className="py-[18px]" />
-                  </TableRow>
-                ))}
               </TableBody>
             </Table>
           </div>

@@ -402,11 +402,6 @@ export default function QuotesPage() {
                 );
               })
             )}
-            {paginated.length > 0 && Array.from({ length: PAGE_SIZE - paginated.length }).map((_, i) => (
-              <TableRow key={`filler-${i}`} className="border-border pointer-events-none select-none">
-                <TableCell colSpan={8} className="py-[18px]" />
-              </TableRow>
-            ))}
           </TableBody>
         </Table>
       </div>
